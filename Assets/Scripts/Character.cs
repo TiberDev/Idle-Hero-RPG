@@ -1,4 +1,4 @@
- using UnityEngine;
+using UnityEngine;
 
 public enum CharacterType
 {
@@ -40,11 +40,12 @@ public class Character : MonoBehaviour
 
     private void Update()
     {
-        if(target != null)
+        if (target != null)
         {
-            if(rangeAttack >= Vector3.Distance(target.transform.position, transform.position)) // in attack range
+            if (rangeAttack >= Vector3.Distance(target.transform.position, transform.position)) // in attack range
             {
                 // do attack
+                DoAttackState();
                 // stop move
                 characterMovement.StopMoving();
             }
@@ -68,9 +69,14 @@ public class Character : MonoBehaviour
         characterMovement.Move(heroDetected.transform);
     }
 
+    protected virtual void DoAttackState() { }
+    protected virtual void DoIdleState() { }
+    protected virtual void DoDieState() { }
+    protected virtual void DoRunState() { }
+
     private void OnDrawGizmos()
     {
-        if(transform.rotation.eulerAngles.y < -90 || transform.rotation.eulerAngles.y > 90)
+        if (transform.rotation.eulerAngles.y < -90 || transform.rotation.eulerAngles.y > 90)
         {
             Gizmos.DrawLine(transform.position, transform.position + rangeAttack * Vector3.back);
         }
