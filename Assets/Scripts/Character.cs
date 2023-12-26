@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public enum CharacterType
 {
@@ -6,20 +7,42 @@ public enum CharacterType
     Enemy = 1
 }
 
+[RequireComponent(typeof(NavMeshAgent),typeof(Animator))]
+[RequireComponent(typeof(CharacterAnimator), typeof(CharacterMovement))]
 public class Character : MonoBehaviour
 {
+    [SerializeField] protected CharacterAnimator characterAnimator;
     [SerializeField] protected CharacterMovement characterMovement;
     [SerializeField] protected CharacterType characterType;
 
     [SerializeField] protected float rangeAttack;
 
-    private Character target;
+    protected Character target;
     private GameManager instanceGM;
 
     private void Start()
     {
         instanceGM = GameManager.Instance;
         Init();
+    }
+
+    protected virtual void Update()
+    {
+        if (target != null)
+        {
+            if (rangeAttack >= Vector3.Distance(target.transform.position, transform.position)) // in attack range
+            {
+                // do attack
+                DoAttack();
+                // stop move
+                characterMovement.StopMoving();
+            }
+            else
+            {
+                characterAnimator.PlayMoveAnimation();
+                characterMovement.Move(target.transform);
+            }
+        }
     }
 
     private void Init()
@@ -29,32 +52,17 @@ public class Character : MonoBehaviour
             case CharacterType.Hero:
                 target = FindEnemy();
                 // do move animation
-
+                characterAnimator.PlayMoveAnimation();
                 characterMovement.Move(target.transform);
                 break;
             case CharacterType.Enemy:
                 // start idle animation
+                characterAnimator.PlayIdleAnimation();
                 break;
         }
     }
 
-    private void Update()
-    {
-        if (target != null)
-        {
-            if (rangeAttack >= Vector3.Distance(target.transform.position, transform.position)) // in attack range
-            {
-                // do attack
-                DoAttackState();
-                // stop move
-                characterMovement.StopMoving();
-            }
-            else
-            {
-                characterMovement.Move(target.transform);
-            }
-        }
-    }
+    protected virtual void DoAttack() { }
 
     public Character FindEnemy()
     {
@@ -68,11 +76,6 @@ public class Character : MonoBehaviour
         target = heroDetected;
         characterMovement.Move(heroDetected.transform);
     }
-
-    protected virtual void DoAttackState() { }
-    protected virtual void DoIdleState() { }
-    protected virtual void DoDieState() { }
-    protected virtual void DoRunState() { }
 
     private void OnDrawGizmos()
     {

@@ -7,5 +7,6 @@ public class GameManager : Singleton<GameManager>
     public Character GetEnemy()
     {
         return tfmE;
+
     }
 }
