@@ -1,11 +1,10 @@
-using System;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
     [SerializeField] private float moveSpeed;
 
-    private Character target;
+    private Character target, owner;
     private Transform cachedTfm, cachedTarget;
 
     private void Start()
@@ -19,15 +18,23 @@ public class Bullet : MonoBehaviour
             return;
 
         cachedTfm.position = Vector3.MoveTowards(cachedTfm.position, cachedTarget.position, moveSpeed * Time.deltaTime);
-        if (cachedTfm.position == cachedTarget.position)
-        {
-            Destroy(gameObject);
-        }
     }
 
-    public void Init(Character target)
+    public void Init(Character _target, Character _owner)
     {
-        this.target = target;
-        cachedTarget = target.transform;
+        owner = _owner;
+        target = _target;
+        cachedTarget = _target.transform;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Hero") && owner.GetCharacterType() != CharacterType.Hero ||
+         other.CompareTag("Enemy") && owner.GetCharacterType() != CharacterType.Enemy)
+        {
+
+            other.GetComponent<Character>().TakeDamage(owner.GetDamage(), owner.TargetDie);
+            Destroy(gameObject);
+        }
     }
 }

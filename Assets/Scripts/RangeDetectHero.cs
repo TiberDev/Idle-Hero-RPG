@@ -8,7 +8,8 @@ public class RangeDetectHero : MonoBehaviour
     {
         if (other.CompareTag("Hero"))
         {
-            thisEnemy.DetectHero(other.GetComponent<Character>());
+            Character character = other.GetComponent<Character>();
+            thisEnemy.DetectHero(character);
         }
     }
 }
