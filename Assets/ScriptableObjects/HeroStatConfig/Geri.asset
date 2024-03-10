@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e988b283a730ba4e86393812044870e, type: 3}
+  m_Name: Geri
+  m_EditorClassIdentifier: 
+  heroName: Geri
+  levelMax: 100
+  gemToEnhance: 1
+  increasedPoint: 3
+  pointPerLv: 5
+  addtionalEffects:
+  - type: 0
+    percent: 10
+    unblock: 0
+  - type: 3
+    percent: 30
+    unblock: 0
+  - type: 1
+    percent: 40
+    unblock: 0
+  - type: 3
+    percent: 50
+    unblock: 0
+  - type: 4
+    percent: 50
+    unblock: 0
+  - type: 1
+    percent: 70
+    unblock: 0
+  heroSpt: {fileID: 21300000, guid: befafc583e6b61a479136ed6b051da0e, type: 3}
+  prefabHero: {fileID: 7942524855504089361, guid: 8f01c4800a4350346bfe6f15539485b7, type: 3}
