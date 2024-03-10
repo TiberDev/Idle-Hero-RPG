@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78034c186ac83bb4683f15fffa10276c, type: 3}
+  m_Name: Hp
+  m_EditorClassIdentifier: 
+  statName: Hp
+  statLv1: 10
+  goldLv1: 1
+  levelEnhance: 1
+  goldPerLv: 1
+  statPerLv: 10
+  levelMax: 0
+  isValueSmall: 0
+  type: 2
