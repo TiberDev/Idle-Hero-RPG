@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa1f88fc59d98114f83ba32e9403f5a6, type: 3}
+  m_Name: 1
+  m_EditorClassIdentifier: 
+  baseATKCreep: 500
+  baseHPCreep: 500
+  baseATKBoss: 1000
+  baseHPBoss: 1000
+  roundList:
+  - increaseBaseATKPercentage: 20
+    increaseBaseHPPercentage: 20
+    turnList:
+    - increaseATKPercentage: 20
+      increaseHPPercentage: 20
+      waveList:
+      - enemies:
+        - quantity: 1
+          prefab: {fileID: 9114379129863869475, guid: 3a14c63dee94f1d47aa3dc401ff80675, type: 3}
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+  - increaseBaseATKPercentage: 40
+    increaseBaseHPPercentage: 40
+    turnList:
+    - increaseATKPercentage: 50
+      increaseHPPercentage: 50
+      waveList:
+      - enemies:
+        - quantity: 1
+          prefab: {fileID: 9114379129863869475, guid: 3a14c63dee94f1d47aa3dc401ff80675, type: 3}
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
