@@ -148,8 +148,8 @@ public class Character : MonoBehaviour
     public void SetCharacterInfo(int damage, int maxHp)
     {
         characterInfo.damage = 1;
-        characterInfo.maxHp = 100;
-        characterInfo.curHp = 100;
+        characterInfo.maxHp = 30;
+        characterInfo.curHp = 30;
         characterInfo._damage = characterInfo.damage.ToString();
         characterInfo._maxHp = characterInfo.maxHp.ToString();
         characterInfo._curHp = characterInfo.curHp.ToString();

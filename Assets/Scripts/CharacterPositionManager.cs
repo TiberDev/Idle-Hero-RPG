@@ -6,12 +6,12 @@ public class CharacterPositionManager : MonoBehaviour
     [SerializeField] private CharacterPosition[] characterPositions;
 
     private GameManager gameManager;
-    private void Start()    
+    private void Start()
     {
         gameManager = GameManager.Instance;
         gameManager.SetEnemySwnPosition(tfmSwnEnemyList);
         gameManager.SetHeroSwnPosition(characterPositions);
-        gameManager.InitCharacters();
+        gameManager.StartGameState();
     }
 
 }
