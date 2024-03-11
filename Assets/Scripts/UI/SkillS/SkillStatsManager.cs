@@ -16,6 +16,9 @@ public class SkillStatsManager : MonoBehaviour
     [SerializeField] private RectTransform rectTfmEquipped;
     [SerializeField] private TMP_Text txtTotalOwnedEffectValue;
     [SerializeField] private SkillItemEquippedManager skillItemEquippedManager;
+    [SerializeField] private SObjMapConditionConfig[] mapConditionConfigs;
+    [SerializeField] private MapManager mapManager;
+    [SerializeField] private SkillTable skillTable;
 
     public List<SkillItem> skillItemsEnhance = new List<SkillItem>();
     public List<SkillItem> skillItems = new List<SkillItem>();
@@ -28,7 +31,6 @@ public class SkillStatsManager : MonoBehaviour
 
     public void LoadSkillData()
     {
-
         for (int i = 0; i < skillStatsConfigs.Length; i++)
         {
             SkillStats skillStats = Db.ReadHSkillData(skillStatsConfigs[i].skillName);
@@ -49,15 +51,52 @@ public class SkillStatsManager : MonoBehaviour
                 };
                 Db.SaveSkillData(skillStats, skillStats.name);
             }
+            if (skillStats.equipped)
+                skillTable.SetSkillTableItem(skillStats.position - 1, skillStats, skillStatsConfigs[i]);
             skillStatsList.Add(skillStats);
+        }
+    }
+
+    public void CheckUnlockSkillItem()
+    {
+        for (int i = 0; i < mapConditionConfigs.Length; i++)
+        {
+            MapData mapData = mapManager.GetMapData();
+            if (mapData.map < mapConditionConfigs[i].map)
+            {
+                // lock
+                skillTable.UnlockSkillTblItem(i, false);
+                skillItemEquippedManager.CheckUnLock(i, false);
+                break;
+            }
+            else if (mapData.map == mapConditionConfigs[i].map)
+            {
+                // check round 
+                if (mapData.round < mapConditionConfigs[i].round)
+                {
+                    // lock
+                    skillTable.UnlockSkillTblItem(i, false);
+                    skillItemEquippedManager.CheckUnLock(i, false);
+                    break;
+                }
+                else
+                {
+                    // unlock
+                    skillTable.UnlockSkillTblItem(i, true);
+                    skillItemEquippedManager.CheckUnLock(i, true);
+                }
+            }
+            else
+            {
+                // unlock
+                skillTable.UnlockSkillTblItem(i, true);
+                skillItemEquippedManager.CheckUnLock(i, true);
+            }
         }
     }
 
     private void SetSkillItem()
     {
-        // Unlock equipped item
-        skillItemEquippedManager.CheckLock();
-
         // reset 
         btnEnhanceAll.interactable = false;
         skillItemsEnhance.Clear();
@@ -119,6 +158,7 @@ public class SkillStatsManager : MonoBehaviour
             skillInfoUI.SetEnhaceBtn(skillStats.numberOfPoints >= skillStats.totalPoint, false); // maybe enhance when current point >= total point
         }
         skillInfoUI.SetTextOwnedEffect(skillStats.ownedEffect);
+        skillInfoUI.SetTextDescribe(skillStatsConfig.describe_1, skillStatsConfig.describe_2, skillStats.damage);
         skillInfoUI.SetTextCoolTime(skillStats.cooldown);
         skillInfoUI.SetEquipBtn(skillStats.equipped, skillStats.unblocked);
         skillInfoUI.gameObject.SetActive(true);
@@ -133,11 +173,11 @@ public class SkillStatsManager : MonoBehaviour
 
     public void SetTotalOwnedEffectValue()
     {
-        BigInteger totalOEValue = 0; // total owned effect value
+        int totalOEValue = 0; // total owned effect value
         for (int i = 0; i < skillStatsList.Count; i++)
         {
             if (skillStatsList[i].unblocked)
-                totalOEValue += BigInteger.Parse(skillStatsList[i].ownedEffect);
+                totalOEValue += skillStatsList[i].ownedEffect;
         }
         txtTotalOwnedEffectValue.text = "Owned Effects: ATK + " + FillData.Instance.FormatNumber(totalOEValue) + "%";
     }
@@ -159,6 +199,7 @@ public class SkillStatsManager : MonoBehaviour
         skillStatsTemp.equipped = true;
         skillStatsTemp.position = index + 1;
         skillItemEquippedManager.SetSkillItemEquipped(index, skillStatsTemp, configTemp, this);
+        skillTable.SetSkillTableItem(index, skillStatsTemp, configTemp);
         skillItemTemp.SetEquipped_RemoveImage(true);
         skillItemTemp.ShowEquippedText(true);
         SetCoverGO(false);
@@ -181,6 +222,7 @@ public class SkillStatsManager : MonoBehaviour
         skillStats.equipped = true;
         skillStats.position = index + 1;
         skillItemEquippedManager.SetSkillItemEquipped(index, skillStats, skillStatsConfig, this);
+        skillTable.SetSkillTableItem(index, skillStats, skillStatsConfig);
         skillItem.SetEquipped_RemoveImage(skillStats.equipped);
         skillItem.ShowEquippedText(true);
         Db.SaveSkillData(skillStats, skillStats.name);
@@ -202,6 +244,7 @@ public class SkillStatsManager : MonoBehaviour
         skillItem.SetEquipped_RemoveImage(false);
         skillItem.ShowEquippedText(false);
         skillItemEquippedManager.SetSkillItemEmpty(skillStats.position - 1);
+        skillTable.SetSkillTblItemEmpty(skillStats.position - 1);
         skillStats.equipped = false;
         skillStats.position = 0;
         Db.SaveSkillData(skillStats, skillStats.name);
@@ -234,8 +277,8 @@ public class SkillStatsManager : MonoBehaviour
         {
             skillStats.numberOfPoints -= skillStats.totalPoint;
             skillStats.level += 1;
-            skillStats.damage = (BigInteger.Parse(skillStats.damage) + skillStats.level).ToString();
-            skillStats.ownedEffect = (BigInteger.Parse(skillStats.ownedEffect) + skillStats.level).ToString();
+            skillStats.damage = (skillStats.damage + skillStats.level);
+            skillStats.ownedEffect = skillStats.ownedEffect + skillStats.level;
             skillStats.totalPoint = skillStatsConfig.totalPointByXLv * skillStats.level;
         }
     }
@@ -276,12 +319,12 @@ public class SkillStatsManager : MonoBehaviour
 
     public BigInteger GetAllOwnedEffect()
     {
-        BigInteger damagePercent = 0;
+        int damagePercent = 0;
         for (int i = 0; i < skillStatsList.Count; i++)
         {
             if (skillStatsList[i].unblocked)
             {
-                damagePercent += BigInteger.Parse(skillStatsList[i].ownedEffect);
+                damagePercent += skillStatsList[i].ownedEffect;
             }
         }
         return damagePercent;

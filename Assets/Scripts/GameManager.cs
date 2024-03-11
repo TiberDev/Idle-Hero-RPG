@@ -21,6 +21,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private MapManager mapManager;
     [SerializeField] private UIManager uiManager;
     [SerializeField] private Transform tfmHeroPool, tfmEnemyPool;
+    [SerializeField] private SkillTable skillTable;
 
     [SerializeField] private int numberOfEnemyMax;
     [SerializeField] private int numberOfEnemyInRow;
@@ -49,10 +50,13 @@ public class GameManager : Singleton<GameManager>
     {
         userInfoManager = UserInfoManager.Instance;
         objectPooling = ObjectPooling.Instance;
+        mapManager.LoadMapData();
+        skillTable.GetAutomaticData();
         LoadAllDatas();
         SetUserInfoData();
-        mapManager.LoadMapData();
         SetDontDestroyOnLoad();
+        MapData mapData = mapManager.GetMapData();
+        SceneManager.LoadScene($"Map{mapData.map}_Round{mapData.round}");
     }
 
     private void LoadAllDatas()
@@ -65,6 +69,7 @@ public class GameManager : Singleton<GameManager>
         heroStatsManager.LoadHeroData();
         gearsStatsManager.LoadGearsData(GearType.Weapon);
         gearsStatsManager.LoadGearsData(GearType.Armor);
+        skillStatsManager.CheckUnlockSkillItem();
         skillStatsManager.LoadSkillData();
     }
 
@@ -92,21 +97,14 @@ public class GameManager : Singleton<GameManager>
         DontDestroyOnLoad(tfmEnemyPool);
     }
 
-    /// <summary>
-    /// Spawn hero end enemy when load new map model (next round and map)
-    /// </summary>
-    public void InitCharacters()
+    public void StartGameState()
     {
-        mapManager.LoadNextWave();
-        while (heroList.Count > 0)
-        {
-            objectPooling.RemoveGOInPool(heroList[0].gameObject, PoolType.Hero, heroList[0].name);
-            heroList.RemoveAt(0);
-        }
-        SpawnHeroInGame();
+        skillTable.ResetAllSkillTableItem();
+        skillTable.HandleAutomatic();
+        InitCharacters();
     }
 
-    public void ResetMap()
+    public void ResetGameState()
     {
         // Remove all heroes and enemies are in battle field
         while (enemyList.Count > 0)
@@ -122,6 +120,21 @@ public class GameManager : Singleton<GameManager>
         // Reload wave
         mapManager.ReloadWave();
         // Load new hero 
+        SpawnHeroInGame();
+    }
+
+
+    /// <summary>
+    /// Spawn hero end enemy when load new map model (next round and map)
+    /// </summary>
+    private void InitCharacters()
+    {
+        mapManager.LoadNextWave();
+        while (heroList.Count > 0)
+        {
+            objectPooling.RemoveGOInPool(heroList[0].gameObject, PoolType.Hero, heroList[0].name);
+            heroList.RemoveAt(0);
+        }
         SpawnHeroInGame();
     }
 

@@ -6,9 +6,10 @@ using static UnityEngine.UI.ContentSizeFitter;
 
 public class SkillInfoUI : MonoBehaviour
 {
-    [SerializeField] private TMP_Text txtName, txtLv, txtCoolTime, txtPoint, txtEquip, txtEnhance, txtOwnedEffect;
+    [SerializeField] private TMP_Text txtName, txtLv, txtDescribe, txtCoolTime, txtPoint, txtEquip, txtEnhance, txtOwnedEffect;
     [SerializeField] private Image imgAmountPoint, imgGearIcon;
     [SerializeField] private Button btnEquip, btnEnhance;
+    [SerializeField] private Color colorDescribe;
 
     private SkillStats skillStats;
     private SkillStatsManager skillStatsManager;
@@ -69,9 +70,14 @@ public class SkillInfoUI : MonoBehaviour
         txtCoolTime.text = "Cool Time: " + coolTime.ToString();
     }
 
-    public void SetTextOwnedEffect(string value)
+    public void SetTextOwnedEffect(int value)
     {
-        txtOwnedEffect.text = "ATK + " + FillData.Instance.FormatNumber(BigInteger.Parse(value)) + "%";
+        txtOwnedEffect.text = "ATK + " + FillData.Instance.FormatNumber(value) + "%";
+    }
+
+    public void SetTextDescribe(string describe_1, string describe_2, int damage)
+    {
+        txtDescribe.text = $"{describe_1} <color=#{ColorUtility.ToHtmlStringRGB(colorDescribe)}>{damage}%</color> {describe_2}";
     }
 
     public void OnClickEnhanceBtn()
@@ -80,6 +86,7 @@ public class SkillInfoUI : MonoBehaviour
         // Show UI
         SetTextLevel(skillStats.level.ToString());
         SetTextOwnedEffect(skillStats.ownedEffect);
+        SetTextDescribe(skillStatsConfig.describe_1, skillStatsConfig.describe_2, skillStats.damage);
         if (skillStats.level == skillStatsConfig.levelMax)
         {
             SetEnhaceBtn(false, true);

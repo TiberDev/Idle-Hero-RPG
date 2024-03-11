@@ -7,9 +7,6 @@ public class SkillItemEquippedManager : MonoBehaviour
     [SerializeField] private GameObject[] gObjLocks;
     [SerializeField] private GameObject[] gObjChangeSkillItems;
     [SerializeField] private GameObject[] gObjPointer;
-    [SerializeField] private int[] conditions;
-    [SerializeField] private int map; // test
-
 
     /// <summary>
     /// Init skill item with index is position on equipped item panel
@@ -39,14 +36,10 @@ public class SkillItemEquippedManager : MonoBehaviour
         skillItems[index].gameObject.SetActive(false);
     }
 
-    public void CheckLock()
+    public void CheckUnLock(int index, bool unlock)
     {
-        // Lock all equipped item
-        for (int i = 0; i < skillItems.Length; i++)
-        {
-            gObjLocks[i].SetActive(conditions[i] >= map);
-            skillItems[i].gameObject.SetActive(false);
-        }
+        gObjLocks[index].SetActive(!unlock);
+        skillItems[index].gameObject.SetActive(false);
     }
 
     public int GetPositionEmpty()

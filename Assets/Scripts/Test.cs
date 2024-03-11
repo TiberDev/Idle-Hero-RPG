@@ -31,29 +31,5 @@ public class Test : MonoBehaviour
     }
 }
 
-public class Skill
-{
-    protected BigInteger damage;
-    public void SetData()
-    {
-
-    }
-
-    public void CoolDown()
-    {
-
-    }
-}
-
-public class CircleHighDamageToEnemy : Skill
-{
-
-}
-
-public class SpawnCloneHero : Skill
-{
-
-}
-
 
 

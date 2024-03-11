@@ -78,6 +78,7 @@ public enum PoolType
 {
     Hero,
     Enemy,
+    Skill,
 }
 
 public class ObjPool
