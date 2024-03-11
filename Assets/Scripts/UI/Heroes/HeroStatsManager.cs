@@ -112,7 +112,7 @@ public class HeroStatsManager : MonoBehaviour
         {
             SetUserInfo(heroInUse);
             // Reload scene to get new hero
-            GameManager.Instance.ResetMap();
+            GameManager.Instance.ResetGameState();
         }
     }
 
