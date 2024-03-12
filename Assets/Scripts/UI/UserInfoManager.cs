@@ -44,7 +44,7 @@ public class UserInfoManager : Singleton<UserInfoManager>
 
         List<Character> heroes = GameManager.Instance.GetCharacters(CharacterType.Hero);
         if (heroes != null & heroes.Count > 0)
-            heroes[0].SetHp(userInfo.hp - preHP);
+            heroes[0].SetMaxHp(userInfo.hp - preHP);
     }
 
     public void SetATKSpeed()

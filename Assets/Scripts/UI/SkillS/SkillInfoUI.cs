@@ -86,7 +86,7 @@ public class SkillInfoUI : MonoBehaviour
         // Show UI
         SetTextLevel(skillStats.level.ToString());
         SetTextOwnedEffect(skillStats.ownedEffect);
-        SetTextDescribe(skillStatsConfig.describe_1, skillStatsConfig.describe_2, skillStats.damage);
+        SetTextDescribe(skillStatsConfig.describe_1, skillStatsConfig.describe_2, skillStats.value);
         if (skillStats.level == skillStatsConfig.levelMax)
         {
             SetEnhaceBtn(false, true);

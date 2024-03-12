@@ -2,6 +2,7 @@ using System.Numerics;
 using Unity.VisualScripting;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class Test : MonoBehaviour
 {
     public GameObject go;
@@ -28,6 +29,11 @@ public class Test : MonoBehaviour
         curNumber++;
         Instantiate(go);
 
+    }
+
+    private void OnParticleTrigger()
+    {
+        Debug.Log("Hit");
     }
 }
 

@@ -43,7 +43,7 @@ public class SkillStatsManager : MonoBehaviour
                     numberOfPoints = 1,
                     totalPoint = skillStatsConfigs[i].totalPointByXLv,
                     ownedEffect = skillStatsConfigs[i].ownedEffect,
-                    damage = skillStatsConfigs[i].damage,
+                    value = skillStatsConfigs[i].damage,
                     cooldown = skillStatsConfigs[i].cooldown,
                     equipped = false,
                     unblocked = false,
@@ -158,7 +158,7 @@ public class SkillStatsManager : MonoBehaviour
             skillInfoUI.SetEnhaceBtn(skillStats.numberOfPoints >= skillStats.totalPoint, false); // maybe enhance when current point >= total point
         }
         skillInfoUI.SetTextOwnedEffect(skillStats.ownedEffect);
-        skillInfoUI.SetTextDescribe(skillStatsConfig.describe_1, skillStatsConfig.describe_2, skillStats.damage);
+        skillInfoUI.SetTextDescribe(skillStatsConfig.describe_1, skillStatsConfig.describe_2, skillStats.value);
         skillInfoUI.SetTextCoolTime(skillStats.cooldown);
         skillInfoUI.SetEquipBtn(skillStats.equipped, skillStats.unblocked);
         skillInfoUI.gameObject.SetActive(true);
@@ -277,7 +277,7 @@ public class SkillStatsManager : MonoBehaviour
         {
             skillStats.numberOfPoints -= skillStats.totalPoint;
             skillStats.level += 1;
-            skillStats.damage = (skillStats.damage + skillStats.level);
+            skillStats.value = (skillStats.value + skillStats.level);
             skillStats.ownedEffect = skillStats.ownedEffect + skillStats.level;
             skillStats.totalPoint = skillStatsConfig.totalPointByXLv * skillStats.level;
         }

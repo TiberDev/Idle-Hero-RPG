@@ -16,7 +16,7 @@ public class SkillTable : MonoBehaviour
     {
         // 0 : false
         // 1 : true
-        automatic = PlayerPrefs.GetInt("AUTOMATIC", 0) == 0 ? false : true;
+        //automatic = PlayerPrefs.GetInt("AUTOMATIC", 0) == 0 ? false : true;
     }
 
     public void UnlockSkillTblItem(int index, bool unlock)

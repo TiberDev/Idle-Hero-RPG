@@ -2,6 +2,7 @@ using System.Collections;
 using System.Runtime.ConstrainedExecution;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class SkillTableItem : MonoBehaviour
@@ -14,6 +15,7 @@ public class SkillTableItem : MonoBehaviour
     private SkillStats skillStats;
     private SObjSkillStatsConfig skillStatsConfig;
     private SkillTable skillTable;
+    private Skill skill;
 
     private bool isExecutingSkill;
 
@@ -27,11 +29,14 @@ public class SkillTableItem : MonoBehaviour
         skillStats = stats;
         skillStatsConfig = config;
     }
-
-    public void SetAmountExistingCoolDown(float cur, float total)
+    public void SetTextCounter(float time)
     {
-        amountCoolDownExisting.fillAmount = cur / total;
-        SetTextCounter(cur);
+        txtCounter.text = ((int)time + 1).ToString();
+    }
+
+    public void SetTextCounter()
+    {
+        txtCounter.text = "";
     }
 
     public void SetAmountCoolDown()
@@ -42,16 +47,6 @@ public class SkillTableItem : MonoBehaviour
     public void SetAmountExistingCoolDown(float totalTime)
     {
         StartCoroutine(IEExistingCounter(totalTime));
-    }
-
-    public void SetTextCounter(float time)
-    {
-        txtCounter.text = ((int)time + 1).ToString();
-    }
-
-    public void SetTextCounter()
-    {
-        txtCounter.text = "";
     }
 
     private IEnumerator IEExistingCounter(float totalTime)
@@ -65,6 +60,7 @@ public class SkillTableItem : MonoBehaviour
             SetTextCounter(curTime);
             yield return null;
         }
+        skill.EndExistence();
         SetAmountCoolDown();
     }
 
@@ -83,8 +79,8 @@ public class SkillTableItem : MonoBehaviour
         isExecutingSkill = false;
         SetInteractButton(true);
         SetTextCounter();
-        if (skillTable.Automatic)
-            ExecuteSkill();
+        //if (skillTable.Automatic)
+        //    ExecuteSkill();
     }
 
     public void SetImageIcon(bool empty, Sprite sprite = null)
@@ -113,14 +109,14 @@ public class SkillTableItem : MonoBehaviour
 
     public void ExecuteSkill()
     {
-        if (isExecutingSkill || skillStatsConfig == null) // is executing or item is null
+        if (isExecutingSkill || skillStatsConfig == null || GameManager.Instance.GetCharacters(CharacterType.Hero).Count == 0) // is executing or item is null
             return;
 
         isExecutingSkill = true;
         SetInteractButton(false);
-        Skill skill = ObjectPooling.Instance.SpawnG0InPool(skillStatsConfig.prefab.gameObject, Vector3.one, PoolType.Skill).GetComponent<Skill>();
+        skill = ObjectPooling.Instance.SpawnG0InPool(skillStatsConfig.prefab.gameObject, Vector3.one, PoolType.Skill).GetComponent<Skill>();
         skill.Init(this);
-        skill.SetDamage(skillStatsConfig.damage);
+        skill.SetValue(skillStatsConfig.damage);
         skill.Execute();
     }
 
@@ -129,6 +125,8 @@ public class SkillTableItem : MonoBehaviour
         if (skillStatsConfig == null) // item is null
             return;
 
+        if (skill != null)
+            skill.EndExistence();
         if (imgIcon.sprite == skillStatsConfig.skillSpt || !imgIcon.gameObject.activeInHierarchy)
         {
             SetInteractButton(true);

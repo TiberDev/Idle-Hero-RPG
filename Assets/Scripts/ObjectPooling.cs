@@ -22,6 +22,7 @@ public class ObjectPooling : Singleton<ObjectPooling>
                 else
                 {
                     localGO = Instantiate(prefab);
+                    localGO.name = prefab.name;
                 }
             }
             else
@@ -33,6 +34,7 @@ public class ObjectPooling : Singleton<ObjectPooling>
                 };
                 objPValue[type].Add(objPool);
                 localGO = Instantiate(prefab);
+                localGO.name = prefab.name;
             }
         }
         else
@@ -44,6 +46,7 @@ public class ObjectPooling : Singleton<ObjectPooling>
             };
             objPValue.Add(type, new List<ObjPool> { objPool });
             localGO = Instantiate(prefab);
+            localGO.name = prefab.name;
         }
         localGO.transform.position = position;
         return localGO;

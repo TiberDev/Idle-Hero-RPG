@@ -20,7 +20,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private CameraController cameraController;
     [SerializeField] private MapManager mapManager;
     [SerializeField] private UIManager uiManager;
-    [SerializeField] private Transform tfmHeroPool, tfmEnemyPool;
+    [SerializeField] private Transform tfmHeroPool, tfmEnemyPool, tfmSkillPool;
     [SerializeField] private SkillTable skillTable;
 
     [SerializeField] private int numberOfEnemyMax;
@@ -95,13 +95,14 @@ public class GameManager : Singleton<GameManager>
         DontDestroyOnLoad(cameraController);
         DontDestroyOnLoad(tfmHeroPool);
         DontDestroyOnLoad(tfmEnemyPool);
+        DontDestroyOnLoad(tfmSkillPool);
     }
 
     public void StartGameState()
     {
+        InitCharacters();
         skillTable.ResetAllSkillTableItem();
         skillTable.HandleAutomatic();
-        InitCharacters();
     }
 
     public void ResetGameState()
@@ -301,4 +302,6 @@ public class GameManager : Singleton<GameManager>
         }
         return nearestCharacter;
     }
+
+    public Transform GetSkillPoolTfm() => tfmSkillPool;
 }

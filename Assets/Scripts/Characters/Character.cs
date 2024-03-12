@@ -26,7 +26,9 @@ public class Character : MonoBehaviour
     protected Transform cachedTfm;
 
     protected bool attackDone;
+    private float curTimeHpRecovery;
 
+    private MagicShieldSkill shieldSkill;
     private UserInfo userInfo;
 
     public bool IsBoss { get => isBoss; }
@@ -36,8 +38,15 @@ public class Character : MonoBehaviour
         // hp recovery
         if (characterInfo.curHp < characterInfo.maxHp && characterType == CharacterType.Hero)
         {
-            BigInteger increasedHp = characterInfo.maxHp * (BigInteger)userInfo.hpRecovery;
-            characterInfo.curHp = BigInteger.Min(characterInfo.maxHp, characterInfo.curHp + increasedHp);
+            curTimeHpRecovery += Time.deltaTime;
+            if (curTimeHpRecovery >= 1)
+            {
+                curTimeHpRecovery = 0;
+                BigInteger increasedHp = characterInfo.maxHp * (BigInteger)userInfo.hpRecovery / 100;
+                characterInfo.curHp = BigInteger.Min(characterInfo.maxHp, characterInfo.curHp + increasedHp);
+                // Show info to UI
+                characterHpBar.SetHpUI(characterInfo.curHp, characterInfo.maxHp, true);
+            }
         }
 
         if (target == null)
@@ -47,10 +56,10 @@ public class Character : MonoBehaviour
             return;
         }
 
-        if (rangeAttack >= Vector3.Distance(target.transform.position, cachedTfm.position)) // in attack range
+        if (rangeAttack >= Vector3.Distance(target.GetTransform().position, cachedTfm.position)) // in attack range
         {
             if (attackDone) // avoid situation where character rotates while attacking
-                SetDirection(target.transform.position);
+                SetDirection(target.GetTransform().position);
 
             // do attack
             DoAttack();
@@ -60,13 +69,16 @@ public class Character : MonoBehaviour
         else // move state
         {
             characterAnimator.PlayMoveAnimation();
-            characterMovement.Move(target.transform);
+            characterMovement.Move(target.GetTransform());
             target = characterType == CharacterType.Hero ? FindEnemy() : FindHero(); // in move state character still has to find nearest enemy more
         }
     }
 
+    public Transform GetTransform() => cachedTfm;
+
     public virtual void Init()
     {
+        curTimeHpRecovery = 0;
         cachedTfm = transform;
         gameManager = GameManager.Instance;
         objectPooling = ObjectPooling.Instance;
@@ -105,7 +117,7 @@ public class Character : MonoBehaviour
 
     protected virtual void DieEvent()
     {
-        objectPooling.RemoveGOInPool(gameObject, characterType == CharacterType.Enemy ? PoolType.Enemy : PoolType.Hero, gameObject.name);
+        objectPooling.RemoveGOInPool(gameObject, characterType == CharacterType.Enemy ? PoolType.Enemy : PoolType.Hero, name);
     }
 
     protected virtual void DoAttack() { }
@@ -136,9 +148,9 @@ public class Character : MonoBehaviour
         userInfo = info;
         if (characterType == CharacterType.Hero)
         {
-            characterInfo.damage = 10;
-            characterInfo.maxHp = 10000;
-            characterInfo.curHp = 10000;
+            characterInfo.damage = 5;
+            characterInfo.maxHp = 100;
+            characterInfo.curHp = 100;
             characterInfo._damage = characterInfo.damage.ToString();
             characterInfo._maxHp = characterInfo.maxHp.ToString();
             characterInfo._curHp = characterInfo.curHp.ToString();
@@ -147,30 +159,54 @@ public class Character : MonoBehaviour
 
     public void SetCharacterInfo(int damage, int maxHp)
     {
-        characterInfo.damage = 1;
-        characterInfo.maxHp = 30;
-        characterInfo.curHp = 30;
+        userInfo = new UserInfo();
+        userInfo.atkSpeed = 1; // attack speed of all enemies is 1
+        characterInfo.damage = 3;
+        characterInfo.maxHp = 100;
+        characterInfo.curHp = 100;
         characterInfo._damage = characterInfo.damage.ToString();
         characterInfo._maxHp = characterInfo.maxHp.ToString();
         characterInfo._curHp = characterInfo.curHp.ToString();
     }
-
+    /// <summary>
+    /// Set attack  for hero
+    /// </summary>
     public void SetAttack()
     {
         characterInfo.damage = userInfo.atk;
     }
 
-    public void SetHp(BigInteger addtionalHp)
+    /// <summary>
+    /// Set attack for enemy
+    /// </summary>
+    public void SetAttack(BigInteger atk, bool addtional)
+    {
+        if (addtional)
+            characterInfo.damage += atk;
+        else
+            characterInfo.damage -= atk;
+    }
+
+    public void SetMaxHp(BigInteger addtionalHp)
     {
         characterInfo.curHp += addtionalHp;
         characterInfo.maxHp += addtionalHp;
         characterHpBar.SetHpUI(characterInfo.curHp, characterInfo.maxHp, true);
     }
 
-    public void SetAttackSpeed(float attackSpeed)
+    public void SetShieldSkill(MagicShieldSkill shield)
     {
+        shieldSkill = shield;
+    }
+
+    public void SetAttackSpeed(float attackSpeed, CharacterType type = CharacterType.Hero)
+    {
+        if (type == CharacterType.Enemy)
+            userInfo.atkSpeed = attackSpeed;
         characterAnimator.SetAttackSpeedAnimaton(attackSpeed);
     }
+
+    public float GetAttackSpeed() => userInfo.atkSpeed;
 
     public virtual void DetectHero(Character heroDetected)
     {
@@ -185,6 +221,9 @@ public class Character : MonoBehaviour
     {
         if (characterInfo.curHp <= 0)
             return;
+
+        if (shieldSkill != null)
+            damageTaken = shieldSkill.DecreaseDamageTaken(damageTaken);
 
         characterInfo.curHp -= damageTaken;
         // Show info to UI
@@ -218,6 +257,15 @@ public class Character : MonoBehaviour
             totalDamage = characterInfo.damage + userInfo.atk * percent;
         }
         return totalDamage;
+    }
+
+    public Vector3 GetTargetPosition()
+    {
+        if (target != null)
+            return target.GetTransform().position;
+        if (preTarget != null)
+            return preTarget.GetTransform().position;
+        return Vector3.zero;
     }
 
     public void TargetDie()

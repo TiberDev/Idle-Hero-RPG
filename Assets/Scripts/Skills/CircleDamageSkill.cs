@@ -1,14 +1,13 @@
 using UnityEngine;
 
-public class BuffSkill : Skill
+public class CircleDamageSkill : Skill
 {
-    private Character hero;
+    Character hero;
     public override void Execute()
     {
         hero = gameManager.GetCharacters(CharacterType.Hero)[0];
-        gameManager.UserInfo.bossDamage += value;
-        SetParent(hero.GetTransform(), false);
-        cachedTfm.localPosition = Vector3.zero;
+        SetParent(gameManager.GetSkillPoolTfm(), true);
+        cachedTfm.position = hero.GetTargetPosition();
         SetExistingCooldown();
     }
 
@@ -16,9 +15,11 @@ public class BuffSkill : Skill
     {
         if (hero != null)
         {
-            gameManager.UserInfo.bossDamage -= value;
+            //hero.SetAddHpRecovery(damage, false);
+            gameManager.UserInfo.hpRecovery -= value;
             hero = null;
         }
         base.EndExistence();
     }
 }
+

@@ -1,45 +1,45 @@
-using System.Collections;
 using UnityEngine;
 
 public class Skill : MonoBehaviour
 {
     [SerializeField] protected float timeExistingCoolDown;
 
-    private SkillTableItem skillTableItem;
+    protected SkillTableItem skillTableItem;
+    protected GameManager gameManager;
+    protected ObjectPooling objectPooling;
+    protected Transform cachedTfm;
 
-    protected int damage;
-    private float curTimeExistingCoolDown;
+    protected int value;
 
     public void Init(SkillTableItem item)
     {
         skillTableItem = item;
+        gameManager = GameManager.Instance;
+        objectPooling = ObjectPooling.Instance;
+        cachedTfm = transform;
     }
 
     public virtual void Execute()
     {
-
     }
 
-    public void SetDamage(int dmg)
+    public virtual void SetParent(Transform tfm, bool worldStay)
     {
-        damage = dmg;
+        transform.SetParent(tfm, worldStay);
+    }
+
+    public void SetValue(int _value)
+    {
+        value = _value;
     }
 
     protected void SetExistingCooldown()
     {
-        //StartCoroutine(IEExistingCounter());
         skillTableItem.SetAmountExistingCoolDown(timeExistingCoolDown);
     }
 
-    //private IEnumerator IEExistingCounter()
-    //{
-    //    curTimeExistingCoolDown = timeExistingCoolDown;
-    //    while (curTimeExistingCoolDown > 0)
-    //    {
-    //        curTimeExistingCoolDown -= Time.deltaTime;
-    //        skillTableItem.SetAmountExistingCoolDown(curTimeExistingCoolDown, timeExistingCoolDown);
-    //        yield return null;
-    //    }
-    //    skillTableItem.SetAmountCoolDown();
-    //}
+    public virtual void EndExistence()
+    {
+        objectPooling.RemoveGOInPool(gameObject, PoolType.Skill, name);
+    }
 }
