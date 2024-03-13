@@ -1,9 +1,52 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
 
-public class CircleHighDamageSkill : Skill
+public class CircleHighDamageSkill : Skill, ICharacterCollisionHandler
 {
+    [SerializeField] private float timeExplosion;
+
+    private List<Character> charactersInRange = new List<Character>();
+    private Character hero;
+
     public override void Execute()
     {
-        Debug.Log("Execute Circle High Damage");
+        charactersInRange.Clear();
+        hero = gameManager.GetCharacters(CharacterType.Hero)[0];
+        SetParent(gameManager.GetSkillPoolTfm(), true);
+        cachedTfm.position = hero.GetTargetPosition();
+        StartCoroutine(IECountTimeExplosion());
+        SetExistingCooldown();
+    }
+
+    private IEnumerator IECountTimeExplosion()
+    {
+        float curTime = 0;
+        while (curTime < timeExplosion)
+        {
+            curTime += Time.deltaTime;
+            yield return null;
+        }
+        ExecuteDamage();
+    }
+
+    private void ExecuteDamage()
+    {
+        BigInteger damage = hero.GetDamage() * value / 100;
+        for (int i = 0; i < charactersInRange.Count; i++)
+        {
+            charactersInRange[i].TakeDamage(damage, null);
+        }
+    }
+
+    public void HandleCollision(Character character)
+    {
+        charactersInRange.Add(character);
+    }
+
+    public void HandleEndCollision(Character character)
+    {
+        charactersInRange.Remove(character);
     }
 }

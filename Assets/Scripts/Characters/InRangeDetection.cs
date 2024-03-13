@@ -1,12 +1,13 @@
 using UnityEngine;
 
-public class CharacterAttackDetect : MonoBehaviour, ICharacterCollisionHandler
+public class InRangeDetection : MonoBehaviour, ICharacterCollisionHandler
 {
     [SerializeField] private Character owner;
+    [SerializeField] private bool nearRange;
 
     void ICharacterCollisionHandler.HandleCollision(Character character)
     {
-        character.TakeDamage(owner.GetDamage(), owner.TargetDie);
+        owner.SetTargetInRange(character, nearRange);
     }
 
     void ICharacterCollisionHandler.HandleEndCollision(Character character) { }

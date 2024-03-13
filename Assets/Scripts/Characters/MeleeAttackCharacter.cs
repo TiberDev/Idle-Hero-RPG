@@ -18,7 +18,6 @@ public class MeleeAttackCharacter : Character
         }
     }
 
-
     protected override void DoAttack()
     {
         if (coroutineAttack == null)

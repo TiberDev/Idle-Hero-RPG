@@ -10,7 +10,6 @@ public class NearDetect : MonoBehaviour
          other.CompareTag("Enemy") && parent.GetCharacterType() != CharacterType.Enemy)
         {
             Character character = other.GetComponent<Character>();
-            parent.DetectCharacterInNearRange(character);
         }
     }
 }

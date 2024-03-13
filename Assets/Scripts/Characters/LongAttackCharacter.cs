@@ -14,7 +14,7 @@ public class LongAttackCharacter : Character
     protected override void DoAttack()
     {
         if (coroutineAttack == null)
-            coroutineAttack = StartCoroutine(IEPlayAttackAnimation(numberOfRepeatAttackType,AttackAnimationType.LongAttack));
+            coroutineAttack = StartCoroutine(IEPlayAttackAnimation(numberOfRepeatAttackType, AttackAnimationType.LongAttack));
     }
 
     private IEnumerator IEPlayAttackAnimation(int[] numberOfAttackType, AttackAnimationType attackType)
@@ -42,7 +42,8 @@ public class LongAttackCharacter : Character
     /// </summary>
     public void ActiveButtlet()
     {
-        Bullet bullet = Instantiate(bulletPrefab, tfmSwnBullet.position, Quaternion.identity);
+        Bullet bullet = objectPooling.SpawnG0InPool(bulletPrefab.gameObject, tfmSwnBullet.position, PoolType.Bullet).GetComponent<Bullet>();
+        bullet.name = bulletPrefab.name;
         bullet.Init(target == null ? preTarget : target, this);
     }
 }

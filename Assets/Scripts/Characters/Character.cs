@@ -1,6 +1,7 @@
 using BigInteger = System.Numerics.BigInteger;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.TextCore.Text;
 
 public enum CharacterType
 {
@@ -26,10 +27,12 @@ public class Character : MonoBehaviour
     protected Transform cachedTfm;
 
     protected bool attackDone;
-    private float curTimeHpRecovery;
+    private float curTimeHpRecovery, decreasedAttackSpeed;
+    private BigInteger decreasedAttack;
 
     private MagicShieldSkill shieldSkill;
     private UserInfo userInfo;
+
 
     public bool IsBoss { get => isBoss; }
 
@@ -179,12 +182,18 @@ public class Character : MonoBehaviour
     /// <summary>
     /// Set attack for enemy
     /// </summary>
-    public void SetAttack(BigInteger atk, bool addtional)
+    public void SetAttack(int percent, bool addtional)
     {
-        if (addtional)
-            characterInfo.damage += atk;
+        if (!addtional)
+        {
+            decreasedAttack = characterInfo.damage * percent / 100;
+            characterInfo.damage -= decreasedAttack;
+        }
         else
-            characterInfo.damage -= atk;
+        {
+            characterInfo.damage += decreasedAttack;
+            decreasedAttack = 0;
+        }
     }
 
     public void SetMaxHp(BigInteger addtionalHp)
@@ -199,23 +208,27 @@ public class Character : MonoBehaviour
         shieldSkill = shield;
     }
 
-    public void SetAttackSpeed(float attackSpeed, CharacterType type = CharacterType.Hero)
+    public void SetAttackSpeed(float attackSpeed)
     {
-        if (type == CharacterType.Enemy)
-            userInfo.atkSpeed = attackSpeed;
         characterAnimator.SetAttackSpeedAnimaton(attackSpeed);
     }
 
-    public float GetAttackSpeed() => userInfo.atkSpeed;
-
-    public virtual void DetectHero(Character heroDetected)
+    public void SetAttackSpeed(int percent, bool addtional)
     {
-        if (target != null)
-            return;
-
-        // do move animation 
-        target = heroDetected;
+        if (!addtional)
+        {
+            decreasedAttackSpeed = GetAttackSpeed() * percent / 100;
+            userInfo.atkSpeed -= decreasedAttackSpeed;
+        }
+        else
+        {
+            userInfo.atkSpeed += decreasedAttackSpeed;
+            decreasedAttackSpeed = 0;
+        }
+        characterAnimator.SetAttackSpeedAnimaton(userInfo.atkSpeed);
     }
+
+    public float GetAttackSpeed() => userInfo.atkSpeed;
 
     public void TakeDamage(BigInteger damageTaken, UnityAction action)
     {
@@ -268,6 +281,17 @@ public class Character : MonoBehaviour
         return Vector3.zero;
     }
 
+    /// <summary>
+    /// Change target
+    /// </summary>
+    /// <param name="newTarget">Target is found</param>
+    /// <param name="isNearRange">Near range is in long ranged character</param>
+    public void SetTargetInRange(Character newTarget, bool isNearRange)
+    {
+        if (isNearRange || target == null)
+            target = newTarget;
+    }
+    
     public void TargetDie()
     {
         if (target != null)
@@ -275,11 +299,6 @@ public class Character : MonoBehaviour
             preTarget = target;
             target = characterType == CharacterType.Hero ? FindEnemy() : FindHero();
         }
-    }
-
-    public void DetectCharacterInNearRange(Character character)
-    {
-        target = character;
     }
 
     public CharacterType GetCharacterType() => characterType;
