@@ -75,6 +75,11 @@ public class CharacterHpBar : MonoBehaviour
         txtInfo.text = "BOSS";
     }
 
+    public void SetHpBarColor(Color color)
+    {
+        imgHpBar.color = color;
+    }
+
     private IEnumerator IEHpEffect(float desireHp, float maxHp)
     {
         float curTime = time;

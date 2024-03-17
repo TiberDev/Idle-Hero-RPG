@@ -6,7 +6,7 @@ public class CharacterAttackDetect : MonoBehaviour, ICharacterCollisionHandler
 
     void ICharacterCollisionHandler.HandleCollision(Character character)
     {
-        character.TakeDamage(owner.GetDamage(), owner.TargetDie);
+        character.TakeDamage(owner.GetTotalDamage(character.IsBoss), owner.CheckTarget);
     }
 
     void ICharacterCollisionHandler.HandleEndCollision(Character character) { }

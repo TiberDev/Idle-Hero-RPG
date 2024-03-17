@@ -9,7 +9,7 @@ public class DamageTaken : MonoBehaviour
        if(other.CompareTag("Hero") || other.CompareTag("Enemy"))
         {
             Character collider = other.GetComponentInParent<Character>();
-            character.TakeDamage(collider.GetDamage(),collider.TargetDie);
+            character.TakeDamage(collider.GetTotalDamage(character.IsBoss),collider.CheckTarget);
         }
     }
 }

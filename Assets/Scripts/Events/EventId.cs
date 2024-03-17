@@ -1,4 +1,4 @@
 public enum EventId
 {
-    CheckGoldToEnhance
+    CheckGoldToEnhance,
 }

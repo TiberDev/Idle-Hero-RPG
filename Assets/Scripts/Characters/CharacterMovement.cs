@@ -10,6 +10,7 @@ public class CharacterMovement : MonoBehaviour
     {
         if (agent != null)
         {
+            agent.enabled = true;
             agent.speed = speed;
             agent.acceleration = speed;
             agent.isStopped = false;
@@ -19,11 +20,6 @@ public class CharacterMovement : MonoBehaviour
 
     public void StopMoving()
     {
-        if (!agent.isStopped)
-        {
-            agent.isStopped = true;
-            agent.acceleration = 0;
-            agent.speed = 0;
-        }
+        agent.enabled = false;
     }
 }

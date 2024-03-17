@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Runtime.ConstrainedExecution;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class SkillTableItem : MonoBehaviour
@@ -17,14 +15,12 @@ public class SkillTableItem : MonoBehaviour
     private SkillTable skillTable;
     private Skill skill;
 
-    private bool isExecutingSkill;
-
     public void SetSkillTable(SkillTable table)
     {
         skillTable = table;
     }
 
-    public void InitSkillTblItem(SkillStats stats, SObjSkillStatsConfig config)
+    public void Init(SkillStats stats, SObjSkillStatsConfig config)
     {
         skillStats = stats;
         skillStatsConfig = config;
@@ -41,6 +37,7 @@ public class SkillTableItem : MonoBehaviour
 
     public void SetAmountCoolDown()
     {
+        SetInteractButton(false);
         StartCoroutine(IECoolDown());
     }
 
@@ -76,43 +73,35 @@ public class SkillTableItem : MonoBehaviour
             yield return null;
         }
         // finish executing skill
-        isExecutingSkill = false;
         SetInteractButton(true);
         SetTextCounter();
-        //if (skillTable.Automatic)
-        //    ExecuteSkill();
+        if (skillTable.Automatic && !BoxScreenCollision.Instance.IsEnenmiesEmpty())
+        {
+            ExecuteSkill();
+        }
     }
 
-    public void SetImageIcon(bool empty, Sprite sprite = null)
+    public void SetImageIcon(bool empty, Sprite sptIcon = null)
     {
         if (empty)
             imgIcon.gameObject.SetActive(false);
         else
         {
             imgIcon.gameObject.SetActive(true);
-            imgIcon.sprite = sprite;
+            imgIcon.sprite = sptIcon;
         }
     }
 
-    public void SetInteractButton(bool interactable)
+    private void SetInteractButton(bool interactable)
     {
         btn.interactable = interactable;
     }
 
-    public void ResetChildComponents()
-    {
-        amountCoolDown.fillAmount = 0;
-        amountCoolDownExisting.fillAmount = 0;
-        txtCounter.text = "";
-        StopAllCoroutines();
-    }
-
     public void ExecuteSkill()
     {
-        if (isExecutingSkill || skillStatsConfig == null || GameManager.Instance.GetCharacters(CharacterType.Hero).Count == 0) // is executing or item is null
-            return;
+        if (!btn.interactable || skillStats == null) // skill is executing or emprty or locked
+             return;
 
-        isExecutingSkill = true;
         SetInteractButton(false);
         skill = ObjectPooling.Instance.SpawnG0InPool(skillStatsConfig.prefab.gameObject, Vector3.one, PoolType.Skill).GetComponent<Skill>();
         skill.Init(this);
@@ -122,12 +111,13 @@ public class SkillTableItem : MonoBehaviour
 
     public void ResetExecutingSkill()
     {
-        if (skillStatsConfig == null) // item is null
-            return;
+        //if (skillStatsConfig == null) // item is null
+        //    return;
 
         if (skill != null)
             skill.EndExistence();
-        if (imgIcon.sprite == skillStatsConfig.skillSpt || !imgIcon.gameObject.activeInHierarchy)
+
+        if (!imgIcon.gameObject.activeInHierarchy || imgIcon.sprite == skillStatsConfig.skillSpt)
         {
             SetInteractButton(true);
         }
@@ -135,8 +125,10 @@ public class SkillTableItem : MonoBehaviour
         {
             SetInteractButton(false);
         }
-        isExecutingSkill = false;
-        ResetChildComponents();
+        StopAllCoroutines();
+        amountCoolDown.fillAmount = 0;
+        amountCoolDownExisting.fillAmount = 0;
+        txtCounter.text = "";
     }
 
     public void PressSkillBtn()

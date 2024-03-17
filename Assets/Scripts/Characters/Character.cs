@@ -1,7 +1,7 @@
 using BigInteger = System.Numerics.BigInteger;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.TextCore.Text;
+using System.Collections.Generic;
 
 public enum CharacterType
 {
@@ -33,13 +33,16 @@ public class Character : MonoBehaviour
     private MagicShieldSkill shieldSkill;
     private UserInfo userInfo;
 
-
     public bool IsBoss { get => isBoss; }
 
     private void Update()
     {
+        // character die
+        if (characterInfo.curHp <= 0)
+            return;
+
         // hp recovery
-        if (characterInfo.curHp < characterInfo.maxHp && characterType == CharacterType.Hero)
+        if (characterType == CharacterType.Hero && characterInfo.curHp < characterInfo.maxHp)
         {
             curTimeHpRecovery += Time.deltaTime;
             if (curTimeHpRecovery >= 1)
@@ -88,13 +91,18 @@ public class Character : MonoBehaviour
         switch (characterType)
         {
             case CharacterType.Hero:
-                target = FindEnemy();
+                //target = FindEnemy();
+                //SetDirection(target.GetTransform().position);
                 break;
             case CharacterType.Enemy:
-                // start idle animation 
-                characterAnimator.PlayIdleAnimation();
+                List<Character> heroes = gameManager.GetCharacters(CharacterType.Hero);
+                if (heroes.Count > 0)
+                    SetDirection(heroes[0].GetTransform().position);
+                //target = FindHero();
                 break;
         }
+        // start idle animation 
+        characterAnimator.PlayIdleAnimation();
         // Show info to UI
         characterHpBar.SetHpUI(characterInfo.curHp, characterInfo.maxHp, false);
         // delegate method 
@@ -106,7 +114,7 @@ public class Character : MonoBehaviour
         characterAnimator.PlayVictoryAnimation();
     }
 
-    protected void SetDirection(Vector3 targetPos)
+    public void SetDirection(Vector3 targetPos)
     {
         Vector3 dir = targetPos - cachedTfm.position;
         float angle = Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg;
@@ -127,11 +135,13 @@ public class Character : MonoBehaviour
 
     public virtual void SetHpBar(CharacterHpBar hpBar) { }
 
+    public CharacterHpBar GetHpBar() => characterHpBar;
+
     /// <summary>
     /// An hero needs to find the target which is the enemy
     /// </summary>
     /// <returns></returns>
-    private Character FindEnemy()
+    public Character FindEnemy()
     {
         // Find enemy
         return gameManager.FindNearestCharacter(cachedTfm.position, CharacterType.Enemy);
@@ -141,7 +151,7 @@ public class Character : MonoBehaviour
     /// An enemy needs to find the target which is the hero
     /// </summary>
     /// <returns></returns>
-    protected Character FindHero()
+    public Character FindHero()
     {
         return gameManager.FindNearestCharacter(cachedTfm.position, CharacterType.Hero);
     }
@@ -164,7 +174,7 @@ public class Character : MonoBehaviour
     {
         userInfo = new UserInfo();
         userInfo.atkSpeed = 1; // attack speed of all enemies is 1
-        characterInfo.damage = 3;
+        characterInfo.damage = 5;
         characterInfo.maxHp = 100;
         characterInfo.curHp = 100;
         characterInfo._damage = characterInfo.damage.ToString();
@@ -230,10 +240,13 @@ public class Character : MonoBehaviour
 
     public float GetAttackSpeed() => userInfo.atkSpeed;
 
-    public void TakeDamage(BigInteger damageTaken, UnityAction action)
+    public void TakeDamage(BigInteger damageTaken, UnityAction<Character> action)
     {
         if (characterInfo.curHp <= 0)
+        {
+            action?.Invoke(this);
             return;
+        }
 
         if (shieldSkill != null)
             damageTaken = shieldSkill.DecreaseDamageTaken(damageTaken);
@@ -244,18 +257,19 @@ public class Character : MonoBehaviour
         if (characterInfo.curHp <= 0) // die
         {
             target = null;
+            characterMovement.StopMoving();
             characterAnimator.PlayDieAnimation();
             gameManager.NotifyGameOverAction -= SetGameOverState;
             // Remove character in list
             gameManager.RemoveCharacterFromList(this, characterType);
-            action?.Invoke();
+            action?.Invoke(this);
         }
         characterInfo._damage = characterInfo.damage.ToString();
         characterInfo._maxHp = characterInfo.maxHp.ToString();
         characterInfo._curHp = characterInfo.curHp.ToString();
     }
 
-    public BigInteger GetDamage()
+    public BigInteger GetTotalDamage(bool boss)
     {
         // hero : caculate damage, hit chance, hit damage, boss damage
         BigInteger totalDamage = characterInfo.damage;
@@ -263,7 +277,7 @@ public class Character : MonoBehaviour
         {
             float random = Random.Range(0f, 1f);
             BigInteger percent = 0;
-            if (target.isBoss)
+            if (boss) // interactive character is boss
                 percent += userInfo.bossDamage - 100;
             if (random <= userInfo.criticalHitChance / 100)
                 percent += userInfo.criticalHitDamage;
@@ -271,6 +285,10 @@ public class Character : MonoBehaviour
         }
         return totalDamage;
     }
+
+    public BigInteger GetDamage() => characterInfo.damage;
+
+    public BigInteger GetMaxHp() => characterInfo.maxHp;
 
     public Vector3 GetTargetPosition()
     {
@@ -285,16 +303,14 @@ public class Character : MonoBehaviour
     /// Change target
     /// </summary>
     /// <param name="newTarget">Target is found</param>
-    /// <param name="isNearRange">Near range is in long ranged character</param>
-    public void SetTargetInRange(Character newTarget, bool isNearRange)
+    public void SetTarget(Character newTarget)
     {
-        if (isNearRange || target == null)
-            target = newTarget;
+        target = newTarget;
     }
-    
-    public void TargetDie()
+
+    public void CheckTarget(Character characterDie)
     {
-        if (target != null)
+        if (target == characterDie)
         {
             preTarget = target;
             target = characterType == CharacterType.Hero ? FindEnemy() : FindHero();

@@ -52,7 +52,7 @@ public class SkillStatsManager : MonoBehaviour
                 Db.SaveSkillData(skillStats, skillStats.name);
             }
             if (skillStats.equipped)
-                skillTable.SetSkillTableItem(skillStats.position - 1, skillStats, skillStatsConfigs[i]);
+                skillTable.SetSkillTableItem(skillStats.position - 1, skillStats, skillStatsConfigs[i], false);
             skillStatsList.Add(skillStats);
         }
     }
@@ -199,7 +199,7 @@ public class SkillStatsManager : MonoBehaviour
         skillStatsTemp.equipped = true;
         skillStatsTemp.position = index + 1;
         skillItemEquippedManager.SetSkillItemEquipped(index, skillStatsTemp, configTemp, this);
-        skillTable.SetSkillTableItem(index, skillStatsTemp, configTemp);
+        skillTable.SetSkillTableItem(index, skillStatsTemp, configTemp, true);
         skillItemTemp.SetEquipped_RemoveImage(true);
         skillItemTemp.ShowEquippedText(true);
         SetCoverGO(false);
@@ -222,7 +222,7 @@ public class SkillStatsManager : MonoBehaviour
         skillStats.equipped = true;
         skillStats.position = index + 1;
         skillItemEquippedManager.SetSkillItemEquipped(index, skillStats, skillStatsConfig, this);
-        skillTable.SetSkillTableItem(index, skillStats, skillStatsConfig);
+        skillTable.SetSkillTableItem(index, skillStats, skillStatsConfig, true);
         skillItem.SetEquipped_RemoveImage(skillStats.equipped);
         skillItem.ShowEquippedText(true);
         Db.SaveSkillData(skillStats, skillStats.name);

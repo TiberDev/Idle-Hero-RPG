@@ -16,33 +16,31 @@ public class SkillTable : MonoBehaviour
     {
         // 0 : false
         // 1 : true
-        //automatic = PlayerPrefs.GetInt("AUTOMATIC", 0) == 0 ? false : true;
+        automatic = PlayerPrefs.GetInt("AUTOMATIC", 0) == 0 ? false : true;
+        txtAuto.text = automatic ? "STOP" : "AUTO";
     }
 
     public void UnlockSkillTblItem(int index, bool unlock)
     {
         skillTableItemList[index].SetImageIcon(unlock, sptLock);
-        skillTableItemList[index].SetInteractButton(unlock);
-        skillTableItemList[index].ResetChildComponents();
+        skillTableItemList[index].ResetExecutingSkill();
         skillTableItemList[index].SetSkillTable(this);
     }
 
-    public void SetSkillTableItem(int index, SkillStats skillStats, SObjSkillStatsConfig config)
+    public void SetSkillTableItem(int index, SkillStats skillStats, SObjSkillStatsConfig config, bool cooldown)
     {
-        skillTableItemList[index].SetInteractButton(true);
-        skillTableItemList[index].InitSkillTblItem(skillStats, config);
+        skillTableItemList[index].Init(skillStats, config);
         skillTableItemList[index].SetImageIcon(false, config.skillSpt);
-        skillTableItemList[index].ResetChildComponents();
-        if (automatic)
-            skillTableItemList[index].ExecuteSkill();
+        skillTableItemList[index].ResetExecutingSkill();
+        if (cooldown)
+            skillTableItemList[index].SetAmountCoolDown();
     }
 
     public void SetSkillTblItemEmpty(int index)
     {
-        skillTableItemList[index].InitSkillTblItem(null, null);
+        skillTableItemList[index].Init(null, null);
         skillTableItemList[index].SetImageIcon(true);
-        skillTableItemList[index].SetInteractButton(false);
-        skillTableItemList[index].ResetChildComponents();
+        skillTableItemList[index].ResetExecutingSkill();
     }
 
     public SkillStatsManager GetSkillStatsManager() => skillStatsManager;
@@ -57,7 +55,6 @@ public class SkillTable : MonoBehaviour
 
     public void HandleAutomatic()
     {
-        txtAuto.text = automatic ? "STOP" : "AUTO";
         if (automatic)
         {
             for (int i = 0; i < skillTableItemList.Length; i++)
@@ -70,8 +67,11 @@ public class SkillTable : MonoBehaviour
     public void PressAutoBtn()
     {
         automatic = !automatic;
+        txtAuto.text = automatic ? "STOP" : "AUTO";
         PlayerPrefs.SetInt("AUTOMATIC", automatic ? 1 : 0);
-        HandleAutomatic();
+        if (automatic && !BoxScreenCollision.Instance.IsEnenmiesEmpty())
+        {
+            HandleAutomatic();
+        }
     }
-
 }

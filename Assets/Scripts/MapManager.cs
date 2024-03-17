@@ -5,7 +5,6 @@ public class MapManager : MonoBehaviour
 {
     [SerializeField] private SObjMapConfig[] mapConfigList;
     [SerializeField] private UIManager uiManager;
-    [SerializeField] private SkillTable skillTable;
 
     private SObjMapConfig curMap;
     private MapData data;

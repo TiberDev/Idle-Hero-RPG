@@ -15,7 +15,15 @@ public class CircleHighDamageSkill : Skill, ICharacterCollisionHandler
         charactersInRange.Clear();
         hero = gameManager.GetCharacters(CharacterType.Hero)[0];
         SetParent(gameManager.GetSkillPoolTfm(), true);
-        cachedTfm.position = hero.GetTargetPosition();
+        if (!BoxScreenCollision.Instance.IsEnenmiesEmpty())
+        {
+            cachedTfm.position = hero.GetTargetPosition();
+        }
+        else
+        {
+            Transform tfmHero = hero.GetTransform();
+            cachedTfm.position = tfmHero.position + tfmHero.forward * 2;
+        }
         StartCoroutine(IECountTimeExplosion());
         SetExistingCooldown();
     }
