@@ -32,6 +32,7 @@ public class Character : MonoBehaviour
 
     private MagicShieldSkill shieldSkill;
     private UserInfo userInfo;
+    private UnityAction<Character> dieAction;
 
     public bool IsBoss { get => isBoss; }
 
@@ -76,7 +77,7 @@ public class Character : MonoBehaviour
         {
             characterAnimator.PlayMoveAnimation();
             characterMovement.Move(target.GetTransform());
-            target = characterType == CharacterType.Hero ? FindEnemy() : FindHero(); // in move state character still has to find nearest enemy more
+            SetTarget(characterType == CharacterType.Hero ? FindEnemy() : FindHero()); // in move state character still has to find nearest enemy more
         }
     }
 
@@ -240,13 +241,10 @@ public class Character : MonoBehaviour
 
     public float GetAttackSpeed() => userInfo.atkSpeed;
 
-    public void TakeDamage(BigInteger damageTaken, UnityAction<Character> action)
+    public void TakeDamage(BigInteger damageTaken)
     {
         if (characterInfo.curHp <= 0)
-        {
-            action?.Invoke(this);
             return;
-        }
 
         if (shieldSkill != null)
             damageTaken = shieldSkill.DecreaseDamageTaken(damageTaken);
@@ -262,7 +260,8 @@ public class Character : MonoBehaviour
             gameManager.NotifyGameOverAction -= SetGameOverState;
             // Remove character in list
             gameManager.RemoveCharacterFromList(this, characterType);
-            action?.Invoke(this);
+            dieAction?.Invoke(this);
+            dieAction = null;
         }
         characterInfo._damage = characterInfo.damage.ToString();
         characterInfo._maxHp = characterInfo.maxHp.ToString();
@@ -305,15 +304,22 @@ public class Character : MonoBehaviour
     /// <param name="newTarget">Target is found</param>
     public void SetTarget(Character newTarget)
     {
+        if (target != null) // remove pre action
+            target.dieAction -= CheckCharacterDie;
+
         target = newTarget;
+        if (target == null)
+            return;
+
+        target.dieAction += CheckCharacterDie;
     }
 
-    public void CheckTarget(Character characterDie)
+    public void CheckCharacterDie(Character characterDie)
     {
         if (target == characterDie)
         {
             preTarget = target;
-            target = characterType == CharacterType.Hero ? FindEnemy() : FindHero();
+            SetTarget(characterType == CharacterType.Hero ? FindEnemy() : FindHero());
         }
     }
 

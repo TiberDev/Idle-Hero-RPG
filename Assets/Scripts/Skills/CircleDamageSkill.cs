@@ -34,7 +34,7 @@ public class CircleDamageSkill : Skill, ICharacterCollisionHandler
             curTimeDamage = 0;
             for (int i = 0; i < charactersInRange.Count; i++)
             {
-                charactersInRange[i].TakeDamage(hero.GetDamage() * value / 100, null);
+                charactersInRange[i].TakeDamage(hero.GetDamage() * value / 100);
             }
         }
     }

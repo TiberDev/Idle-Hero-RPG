@@ -43,7 +43,7 @@ public class Bullet : MonoBehaviour, ICharacterCollisionHandler
 
     public void HandleCollision(Character character)
     {
-        character.TakeDamage(owner.GetTotalDamage(character.IsBoss), owner.CheckTarget);
+        character.TakeDamage(owner.GetTotalDamage(character.IsBoss));
         objectPooling.RemoveGOInPool(gameObject, PoolType.Bullet, name);
     }
     

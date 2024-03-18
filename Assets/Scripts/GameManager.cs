@@ -297,7 +297,7 @@ public class GameManager : Singleton<GameManager>
                     {
                         Character cloneHero = heroList[1];
                         heroList.RemoveAt(1);
-                        cloneHero.TakeDamage(cloneHero.GetMaxHp(), null);
+                        cloneHero.TakeDamage(cloneHero.GetMaxHp());
                     }
                     // game lose
                     IsOver = true;
