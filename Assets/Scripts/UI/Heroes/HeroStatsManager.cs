@@ -7,7 +7,6 @@ public class HeroStatsManager : MonoBehaviour
 {
     [SerializeField] private HeroInfoUI heroInfoUI;
     [SerializeField] private HeroItem[] heroItems;
-    [SerializeField] private Button[] btnAEffectsList;
     [SerializeField] private Transform rectTfmInUse;
     [SerializeField] private SObjHeroStatConfig[] heroStatConfigs;
 

@@ -34,7 +34,7 @@ public class CircleAttackSlowdownRateSkill : Skill, ICharacterCollisionHandler
         character.SetAttackSpeed(value, true);
     }
 
-    private void OnDisable()
+    public override void EndExistence()
     {
         // Set attack speed to default value when this skill is disabled
         while (characters.Count > 0)
@@ -42,5 +42,6 @@ public class CircleAttackSlowdownRateSkill : Skill, ICharacterCollisionHandler
             characters[0].SetAttackSpeed(value, true);
             characters.RemoveAt(0);
         }
+        base.EndExistence();
     }
 }

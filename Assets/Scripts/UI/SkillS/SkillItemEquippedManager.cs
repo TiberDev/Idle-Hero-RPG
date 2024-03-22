@@ -69,7 +69,7 @@ public class SkillItemEquippedManager : MonoBehaviour
         return skillItems[index];
     }
 
-    public void OnClickChangeBtn(int index)
+    public void OnClickChangeSkillItem(int index)
     {
         skillStatsManager.HandleEquipSkillItemCallBack(skillItems[index].skillStats, index);
     }

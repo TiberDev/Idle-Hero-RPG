@@ -11,9 +11,8 @@ public class SkillStatsManager : MonoBehaviour
     [SerializeField] private Transform tfmSkillItemParent;
     [SerializeField] private SkillItem skillItemPrefab;
     [SerializeField] private Button btnEnhanceAll;
-    [SerializeField] private GameObject gObjSpace, gObjCoverItemList;
+    [SerializeField] private GameObject gObjCoverItemList;
     [SerializeField] private Image imgItemIconover;
-    [SerializeField] private RectTransform rectTfmEquipped;
     [SerializeField] private TMP_Text txtTotalOwnedEffectValue;
     [SerializeField] private SkillItemEquippedManager skillItemEquippedManager;
     [SerializeField] private SObjMapConditionConfig[] mapConditionConfigs;
@@ -162,7 +161,6 @@ public class SkillStatsManager : MonoBehaviour
         skillInfoUI.SetTextCoolTime(skillStats.cooldown);
         skillInfoUI.SetEquipBtn(skillStats.equipped, skillStats.unblocked);
         skillInfoUI.gameObject.SetActive(true);
-        gObjSpace.gameObject.SetActive(true);
     }
 
     public void RemoveGearItemEnhance(SkillItem skillItem)
@@ -303,7 +301,6 @@ public class SkillStatsManager : MonoBehaviour
     public void OnClickSpace()
     {
         skillInfoUI.gameObject.SetActive(false);
-        gObjSpace.gameObject.SetActive(false);
     }
 
     public void OnClickItemListCoverBtn()

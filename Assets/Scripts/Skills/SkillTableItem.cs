@@ -5,10 +5,12 @@ using UnityEngine.UI;
 
 public class SkillTableItem : MonoBehaviour
 {
-    [SerializeField] private Image imgIcon;
+    [SerializeField] private GameObject goLock;
+    [SerializeField] private Image imgItemIcon, imgCircleIcon;
     [SerializeField] private Image amountCoolDown, amountCoolDownExisting;
     [SerializeField] private Button btn;
     [SerializeField] private TMP_Text txtCounter;
+    [SerializeField] private Color colorWorkingCircle, colorIdlingCircle;
 
     private SkillStats skillStats;
     private SObjSkillStatsConfig skillStatsConfig;
@@ -25,6 +27,7 @@ public class SkillTableItem : MonoBehaviour
         skillStats = stats;
         skillStatsConfig = config;
     }
+
     public void SetTextCounter(float time)
     {
         txtCounter.text = ((int)time + 1).ToString();
@@ -37,23 +40,26 @@ public class SkillTableItem : MonoBehaviour
 
     public void SetAmountCoolDown()
     {
+        imgCircleIcon.color = colorIdlingCircle;
+        amountCoolDownExisting.fillAmount = 0;
         SetInteractButton(false);
         StartCoroutine(IECoolDown());
     }
 
     public void SetAmountExistingCoolDown(float totalTime)
     {
+        imgCircleIcon.color = colorWorkingCircle;
+        amountCoolDown.fillAmount = 0;
         StartCoroutine(IEExistingCounter(totalTime));
     }
 
     private IEnumerator IEExistingCounter(float totalTime)
     {
-        amountCoolDown.fillAmount = 1;
         float curTime = totalTime;
         while (curTime > 0)
         {
             curTime -= Time.deltaTime;
-            amountCoolDownExisting.fillAmount = curTime / totalTime;
+            amountCoolDownExisting.fillAmount = 1 - curTime / totalTime;
             SetTextCounter(curTime);
             yield return null;
         }
@@ -81,15 +87,21 @@ public class SkillTableItem : MonoBehaviour
         }
     }
 
-    public void SetImageIcon(bool empty, Sprite sptIcon = null)
+    public void SetImageIcon(Sprite sptIcon)
     {
-        if (empty)
-            imgIcon.gameObject.SetActive(false);
-        else
-        {
-            imgIcon.gameObject.SetActive(true);
-            imgIcon.sprite = sptIcon;
-        }
+        imgItemIcon.color = Color.white;
+        imgItemIcon.sprite = sptIcon;
+    }
+
+    public void SetImageIcon(bool unlock)
+    {
+        imgItemIcon.color = Color.black;
+        goLock.SetActive(!unlock);
+    }
+
+    public void SetImageIcon()
+    {
+        imgItemIcon.color = Color.black;
     }
 
     private void SetInteractButton(bool interactable)
@@ -99,8 +111,8 @@ public class SkillTableItem : MonoBehaviour
 
     public void ExecuteSkill()
     {
-        if (!btn.interactable || skillStats == null) // skill is executing or emprty or locked
-             return;
+        if (!btn.interactable || skillStats == null) // skill is executing or empty or locked
+            return;
 
         SetInteractButton(false);
         skill = ObjectPooling.Instance.SpawnG0InPool(skillStatsConfig.prefab.gameObject, Vector3.one, PoolType.Skill).GetComponent<Skill>();
@@ -117,29 +129,31 @@ public class SkillTableItem : MonoBehaviour
         if (skill != null)
             skill.EndExistence();
 
-        if (!imgIcon.gameObject.activeInHierarchy || imgIcon.sprite == skillStatsConfig.skillSpt)
+        if (!goLock.activeInHierarchy)
         {
-            SetInteractButton(true);
+            SetInteractButton(true); // unlock
         }
         else
         {
-            SetInteractButton(false);
+            SetInteractButton(false); // lock
         }
         StopAllCoroutines();
         amountCoolDown.fillAmount = 0;
         amountCoolDownExisting.fillAmount = 0;
+        imgCircleIcon.color = colorIdlingCircle;
         txtCounter.text = "";
     }
 
     public void PressSkillBtn()
     {
-        if (imgIcon.gameObject.activeInHierarchy)
+        if (skillStats != null)
         {
             ExecuteSkill();
         }
         else
         {
-            skillTable.GetSkillStatsManager().gameObject.SetActive(true);
+            BottomTab.Instance.OnClickSkillStatsBtn();
+            UIManager.Instance.PressSkillStatsBtn();
         }
     }
 }

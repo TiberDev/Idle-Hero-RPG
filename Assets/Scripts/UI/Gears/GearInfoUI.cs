@@ -42,9 +42,10 @@ public class GearInfoUI : MonoBehaviour
         imgGearBgr.sprite = spt;
     }
 
-    public void SetMode(GearMode mode)
+    public void SetMode(GearMode mode,Color color)
     {
         txtMode.text = mode.ToString();
+        txtMode.color = color;
     }
 
     public void SetGearPointUI(int point, int totalPoint)

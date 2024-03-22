@@ -13,6 +13,7 @@ public class HeroInfoUI : MonoBehaviour
     [SerializeField] private AddtionalEffectItem[] addtionalEffectItems;
     [SerializeField] private RectTransform rectTfmDescibleEffect;
     [SerializeField] private int[] effectLevels;
+    [SerializeField] private Color colorMax, colorPointNor, colorDisableBtn, colorEnhanceBtn, colorInUseBtn;
 
     private HeroStats heroStats;
     private HeroStatsManager heroStatsManager;
@@ -45,6 +46,7 @@ public class HeroInfoUI : MonoBehaviour
 
     public void SetHeroPointUI(int point, int totalPoint)
     {
+        imgPoint.color = colorPointNor;
         txtPoint.text = $"{point}/{totalPoint}";
         imgPoint.fillAmount = (float)point / totalPoint;
     }
@@ -52,7 +54,7 @@ public class HeroInfoUI : MonoBehaviour
     public void SetHeroPointUI()
     {
         txtPoint.text = "MAX";
-        imgPoint.color = Color.blue;
+        imgPoint.color = colorMax;
         imgPoint.fillAmount = 1;
     }
 
@@ -61,20 +63,20 @@ public class HeroInfoUI : MonoBehaviour
         if (!unblocked)
         {
             btnUse.interactable = false;
-            imgInUse.color = Color.white;
+            imgInUse.color = colorDisableBtn;
             txtInUse.text = "Waiting...";
             return;
         }
         if (inUse)
         {
             btnUse.interactable = false;
-            imgInUse.color = Color.white;
+            imgInUse.color = colorDisableBtn;
             txtInUse.text = "In Use";
         }
         else
         {
             btnUse.interactable = true;
-            imgInUse.color = Color.blue;
+            imgInUse.color = colorInUseBtn;
             txtInUse.text = "Use";
         }
     }
@@ -83,11 +85,13 @@ public class HeroInfoUI : MonoBehaviour
     {
         int gemEnhance = heroStatConfig.gemToEnhance;
         btnEnhance.interactable = gemEnhance <= GameManager.Instance.GetGem() && heroStats.unblocked;
+        imgEnhance.color = gemEnhance <= GameManager.Instance.GetGem() && heroStats.unblocked ? colorEnhanceBtn : colorDisableBtn;
         txtGemEnhance.text = gemEnhance.ToString();
     }
 
     public void SetEnhanceMaxUI()
     {
+        imgEnhance.color = colorMax;
         btnEnhance.interactable = false;
         txtGemEnhance.text = "...";
     }

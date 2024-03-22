@@ -39,4 +39,5 @@ public class GearModeConfig
 {
     public GearMode mode;
     public Sprite spt;
+    public Color color;
 }
