@@ -1,20 +1,22 @@
-using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.UI.ContentSizeFitter;
 
 public class SkillInfoUI : MonoBehaviour
 {
+    [SerializeField] private GameObject gObj;
+    [SerializeField] private RectTransform rectTfm;
     [SerializeField] private TMP_Text txtName, txtLv, txtDescribe, txtCoolTime, txtPoint, txtEquip, txtEnhance, txtOwnedEffect;
     [SerializeField] private Image imgAmountPoint, imgGearIcon;
     [SerializeField] private Button btnEquip, btnEnhance;
     [SerializeField] private Color colorDescribe;
+    [SerializeField] private float scalingUpTime, scalingDownTime;
 
     private SkillStats skillStats;
     private SkillStatsManager skillStatsManager;
     private SObjSkillStatsConfig skillStatsConfig;
     private SkillItem skillItem;
+    private Coroutine corouSkillInfo;
 
     public void Init(SkillStats stats, SkillStatsManager manager, SkillItem item, SObjSkillStatsConfig config)
     {
@@ -22,6 +24,34 @@ public class SkillInfoUI : MonoBehaviour
         skillStatsManager = manager;
         skillItem = item;
         skillStatsConfig = config;
+    }
+
+    public void SetActive(bool active)
+    {
+        // effect
+        TransformUIPanel(active);
+    }
+
+    private void SetInActive()
+    {
+        gObj.SetActive(false);
+        corouSkillInfo = null;
+    }
+
+    public void TransformUIPanel(bool open)
+    {
+        if (open)
+        {
+            gObj.SetActive(true);
+            corouSkillInfo = StartCoroutine(UITransformController.Instance.IEScalingRect(rectTfm, Vector2.one * 0.5f, Vector2.one, scalingUpTime, LerpType.EaseOutBack));
+        }
+        else
+        {
+            StopCoroutine(corouSkillInfo);
+            corouSkillInfo = null;
+            corouSkillInfo = StartCoroutine(UITransformController.Instance.IEScalingRect(rectTfm, rectTfm.localScale, Vector2.one * 0.5f, scalingDownTime, LerpType.EaseInBack, SetInActive));
+        }
+
     }
 
     public void SetTextName(string name)

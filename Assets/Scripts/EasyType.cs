@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 public enum LerpType
 {
     Liner,
@@ -17,6 +18,9 @@ public enum LerpType
     EaseInElastic,
     EaseOutElastic,
     EaseInOutElastic,
+    EaseOutBack,
+    EaseInBack,
+    EaseInOutBack,
 }
 
 
@@ -94,6 +98,32 @@ public class EasyType
         return (float)((t -= 0.5f) < 0 ? (0.02f + 0.01f / t) * Math.Sin(50 * t) : (0.02f - 0.01f / t) * Math.Sin(50 * t) + 1);
     }
 
+    public static float EaseOutBack(float t)
+    {
+        double c1 = 1.70158f;
+        double c3 = c1 + 1;
+
+        return (float)(1 + c3 * Math.Pow(t - 1, 3) + c1 * Math.Pow(t - 1, 2));
+    }
+
+    public static float EaseInBack(float t)
+    {
+        double c1 = 1.70158f;
+        double c3 = c1 + 1;
+
+        return (float)(c3 * t * t * t - c1 * t * t);
+    }
+
+    public static float EaseInOutBack(float t)
+    {
+        double c1 = 1.70158f;
+        double c2 = c1 + 1.525;
+
+        return (float)(t < 0.5
+        ? (Math.Pow(2 * t, 2) * ((c2 + 1) * 2 * t - c2)) / 2
+        : (Math.Pow(2 * t - 2, 2) * ((c2 + 1) * (t * 2 - 2) + c2) + 2) / 2);
+    }
+
     public static float MatchedLerpType(LerpType lerpType, float t)
     {
         switch (lerpType)
@@ -130,6 +160,12 @@ public class EasyType
                 return EaseOutElastic(t);
             case LerpType.EaseInOutElastic:
                 return EaseInOutElastic(t);
+            case LerpType.EaseOutBack:
+                return EaseOutBack(t);
+            case LerpType.EaseInBack:
+                return EaseInBack(t);
+            case LerpType.EaseInOutBack:
+                return EaseInOutBack(t);
             default:
                 return t;
         }

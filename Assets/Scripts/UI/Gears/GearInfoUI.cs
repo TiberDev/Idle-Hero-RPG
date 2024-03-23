@@ -1,18 +1,22 @@
-using System.Numerics;
+using BigInteger = System.Numerics.BigInteger;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GearInfoUI : MonoBehaviour
 {
+    [SerializeField] private GameObject gObj;
+    [SerializeField] private RectTransform rectTfm;
     [SerializeField] private TMP_Text txtName, txtLv, txtMode, txtPoint, txtEquip, txtEnhance, txtOwnedEffect, txtEquippedEffect;
     [SerializeField] private Image imgAmountPoint, imgGearBgr, imgGearIcon;
     [SerializeField] private Button btnEquip, btnEnhance;
+    [SerializeField] private float scalingUpTime, scalingDownTime;
 
     public GearStats gearStats;
     private GearsStatsManager gearsStatsManager;
     private GearItem gearItemSelected;
     private SObjGearsStatsConfig gearsStatsConfig;
+    private Coroutine corouGearInfo;
 
     public void Init(GearStats stats, GearsStatsManager manager, GearItem gearItem, SObjGearsStatsConfig config)
     {
@@ -20,6 +24,34 @@ public class GearInfoUI : MonoBehaviour
         gearsStatsManager = manager;
         gearItemSelected = gearItem;
         gearsStatsConfig = config;
+    }
+
+    public void SetActive(bool active)
+    {
+        // effect
+        TransformUIPanel(active);
+    }
+
+    private void SetInActive()
+    {
+        gObj.SetActive(false);
+        corouGearInfo = null;
+    }
+
+    public void TransformUIPanel(bool open)
+    {
+        if (open)
+        {
+            gObj.SetActive(true);
+            corouGearInfo = StartCoroutine(UITransformController.Instance.IEScalingRect(rectTfm, Vector2.one * 0.5f, Vector2.one, scalingUpTime, LerpType.EaseOutBack));
+        }
+        else
+        {
+            StopCoroutine(corouGearInfo);
+            corouGearInfo = null;
+            corouGearInfo = StartCoroutine(UITransformController.Instance.IEScalingRect(rectTfm, rectTfm.localScale, Vector2.zero, scalingDownTime, LerpType.EaseInBack, SetInActive));
+        }
+
     }
 
     public void SetTextName(string name)
@@ -42,7 +74,7 @@ public class GearInfoUI : MonoBehaviour
         imgGearBgr.sprite = spt;
     }
 
-    public void SetMode(GearMode mode,Color color)
+    public void SetMode(GearMode mode, Color color)
     {
         txtMode.text = mode.ToString();
         txtMode.color = color;
@@ -100,7 +132,7 @@ public class GearInfoUI : MonoBehaviour
     {
         gearStats.equipped = true;
         SetEquipBtn(true, gearStats.unblocked);
-        gearsStatsManager.SetGearItemEquip(gearStats, gearItemSelected.transform,true);
+        gearsStatsManager.SetGearItemEquip(gearStats, gearItemSelected.transform, true);
         gearsStatsManager.OnClickSpace();
     }
 

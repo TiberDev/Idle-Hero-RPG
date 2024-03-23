@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Numerics;
+using BigInteger = System.Numerics.BigInteger;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -160,7 +160,7 @@ public class SkillStatsManager : MonoBehaviour
         skillInfoUI.SetTextDescribe(skillStatsConfig.describe_1, skillStatsConfig.describe_2, skillStats.value);
         skillInfoUI.SetTextCoolTime(skillStats.cooldown);
         skillInfoUI.SetEquipBtn(skillStats.equipped, skillStats.unblocked);
-        skillInfoUI.gameObject.SetActive(true);
+        skillInfoUI.SetActive(true);
     }
 
     public void RemoveGearItemEnhance(SkillItem skillItem)
@@ -300,7 +300,7 @@ public class SkillStatsManager : MonoBehaviour
     /// </summary>
     public void OnClickSpace()
     {
-        skillInfoUI.gameObject.SetActive(false);
+        skillInfoUI.SetActive(false);
     }
 
     public void OnClickItemListCoverBtn()
