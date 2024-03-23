@@ -7,9 +7,9 @@ public class SkillInfoUI : MonoBehaviour
     [SerializeField] private GameObject gObj;
     [SerializeField] private RectTransform rectTfm;
     [SerializeField] private TMP_Text txtName, txtLv, txtDescribe, txtCoolTime, txtPoint, txtEquip, txtEnhance, txtOwnedEffect;
-    [SerializeField] private Image imgAmountPoint, imgGearIcon;
+    [SerializeField] private Image imgAmountPoint, imgGearIcon, imgEquip_Remove, imgEnhance;
     [SerializeField] private Button btnEquip, btnEnhance;
-    [SerializeField] private Color colorDescribe;
+    [SerializeField] private Color colorDescribe, colorDisableBtn, colorEquip, colorRemove, colorEnhance, colorMax;
     [SerializeField] private float scalingUpTime, scalingDownTime;
 
     private SkillStats skillStats;
@@ -72,7 +72,7 @@ public class SkillInfoUI : MonoBehaviour
     public void SetSkillPointUI(int point, int totalPoint)
     {
         txtPoint.text = $"{point}/{totalPoint}";
-        imgAmountPoint.color = Color.yellow;
+        imgAmountPoint.color = Color.green;
         imgAmountPoint.fillAmount = (float)point / totalPoint;
     }
 
@@ -87,11 +87,20 @@ public class SkillInfoUI : MonoBehaviour
     {
         btnEquip.interactable = unlock;
         txtEquip.text = equipped ? "Remove" : "Equip";
+        imgEquip_Remove.color = equipped ? colorRemove : colorEquip;
     }
 
     public void SetEnhaceBtn(bool isActive, bool isMax)
     {
         btnEnhance.interactable = isActive;
+        if (isMax)
+        {
+            imgEnhance.color = colorMax;
+        }
+        else
+        {
+            imgEnhance.color = isActive ? colorEnhance : colorDisableBtn;
+        }
         txtEnhance.text = isMax ? "MAX" : "Enhance";
     }
 

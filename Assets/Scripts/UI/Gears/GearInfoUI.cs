@@ -8,9 +8,10 @@ public class GearInfoUI : MonoBehaviour
     [SerializeField] private GameObject gObj;
     [SerializeField] private RectTransform rectTfm;
     [SerializeField] private TMP_Text txtName, txtLv, txtMode, txtPoint, txtEquip, txtEnhance, txtOwnedEffect, txtEquippedEffect;
-    [SerializeField] private Image imgAmountPoint, imgGearBgr, imgGearIcon;
+    [SerializeField] private Image imgAmountPoint, imgGearBgr, imgGearIcon, imgEquip, imgEnhance;
     [SerializeField] private Button btnEquip, btnEnhance;
     [SerializeField] private float scalingUpTime, scalingDownTime;
+    [SerializeField] private Color colorDisableBtn, colorEquip, colorEquipped, colorEnhance, colorMax;
 
     public GearStats gearStats;
     private GearsStatsManager gearsStatsManager;
@@ -83,7 +84,7 @@ public class GearInfoUI : MonoBehaviour
     public void SetGearPointUI(int point, int totalPoint)
     {
         txtPoint.text = $"{point}/{totalPoint}";
-        imgAmountPoint.color = Color.yellow;
+        imgAmountPoint.color = Color.green;
         imgAmountPoint.fillAmount = (float)point / totalPoint;
     }
     public void SetGearPointUI()
@@ -110,21 +111,29 @@ public class GearInfoUI : MonoBehaviour
 
     public void SetEquipBtn(bool equipped, bool unlock)
     {
-        btnEquip.interactable = unlock && !equipped;
-
         if (equipped)
         {
             txtEquip.text = "Equipped";
             btnEquip.interactable = false;
+            imgEquip.color = colorEquipped;
             return;
         }
         txtEquip.text = "Equip";
         btnEquip.interactable = unlock;
+        imgEquip.color = unlock ? colorEquip : colorDisableBtn;
     }
 
     public void SetEnhaceBtn(bool isActive, bool isMax)
     {
         btnEnhance.interactable = isActive;
+        if (isMax)
+        {
+            imgEnhance.color = colorMax;
+        }
+        else
+        {
+            imgEnhance.color = isActive ? colorEnhance : colorDisableBtn;
+        }
         txtEnhance.text = isMax ? "MAX" : "Enhance";
     }
 

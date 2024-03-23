@@ -1,54 +1,28 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+
+public enum BottomTabType
+{
+    Hero = 0,
+    Gear = 1,
+    Skill = 2,
+}
 
 public class BottomTab : Singleton<BottomTab>
 {
     [SerializeField] private RectTransform[] rectItemTabBtnList;
     [SerializeField] private Image[] imgItemTabBtnList;
     [SerializeField] private GameObject[] itemTabTxtList;
-    [SerializeField] private RectTransform rectHeroStatsManager;
-    [SerializeField] private RectTransform rectGearsStatsManager;
-    [SerializeField] private RectTransform rectSkillStatsManager;
+    [SerializeField] private RectTransform rectHeroStatsManager, rectGearsStatsManager, rectSkillStatsManager;
+    [SerializeField] private GameObject heroStatsManager, gearsStatsManager, skillStatsManager;
     [SerializeField] private Color colorOpeningBtn, colorClosingBtn;
 
-    [SerializeField] private float sizingBtnTime;
+    [SerializeField] private float sizingBtnTime, movingTime;
 
     private RectTransform curRectItemTab;
     private GameObject curItemTabTxt;
     private Image curImgItemTab;
-
-    private IEnumerator IEScalingRect(RectTransform rect, Vector2 startScale, Vector2 endScale, float scalingTime, LerpType lerpType)
-    {
-        rect.localScale = startScale;
-        float curTime = 0;
-        if (!rect.Equals(endScale))
-        {
-            while (curTime < scalingTime)
-            {
-                curTime += Time.deltaTime;
-                float factor = EasyType.MatchedLerpType(lerpType, curTime / scalingTime);
-                rect.localScale = Vector2.Lerp(startScale, endScale, factor);
-                yield return null;
-            }
-        }
-    }
-
-    private IEnumerator IESizinggRect(RectTransform rect, Vector2 startSize, Vector2 endSize, float sizingTime, LerpType lerpType)
-    {
-        rect.sizeDelta = startSize;
-        float curTime = 0;
-        if (!rect.Equals(endSize))
-        {
-            while (curTime < sizingTime)
-            {
-                curTime += Time.deltaTime;
-                float factor = EasyType.MatchedLerpType(lerpType, curTime / sizingTime);
-                rect.sizeDelta = Vector2.Lerp(startSize, endSize, factor);
-                yield return null;
-            }
-        }
-    }
+    private Coroutine corouPanel;
 
     private void OpenButtonTab(RectTransform rectTfm, Image img, GameObject goText)
     {
@@ -58,61 +32,79 @@ public class BottomTab : Singleton<BottomTab>
         curImgItemTab = img;
         curItemTabTxt.SetActive(true);
         // transform button
-        Vector2 endsize = new Vector2(rectTfm.sizeDelta.x, 350);
-        StartCoroutine(IESizinggRect(rectTfm, rectTfm.sizeDelta, endsize, sizingBtnTime, LerpType.EaseInQuad));
-        //StartCoroutine(ies(rectTfm, rectTfm.sizeDelta, endsize, sizingBtnTime, LerpType.EaseInQuad));
+        Vector2 endsize = rectTfm.sizeDelta;
+        endsize.y = 350;
+        StartCoroutine(UITransformController.Instance.IESizinggRect(rectTfm, rectTfm.sizeDelta, endsize, sizingBtnTime, LerpType.EaseInQuad));
     }
 
     private void CloseButtonTab(RectTransform rect, Image img, GameObject goTxt, float height)
     {
         img.color = colorClosingBtn;
-        rect.sizeDelta = new Vector2(rect.sizeDelta.x, height);
+        Vector2 sizeDelta = rect.sizeDelta;
+        sizeDelta.y = height;
+        rect.sizeDelta = sizeDelta;
         goTxt.SetActive(false);
         curRectItemTab = null;
         curItemTabTxt = null;
         curImgItemTab = null;
     }
 
-    public void OnClickHeroStatsBtn()
+    private void OpenPanel(RectTransform rectTfm, Vector2 startPos, Vector2 endPos, float time)
     {
-        if (rectHeroStatsManager.gameObject.activeInHierarchy)
+        if (corouPanel != null)
         {
-            CloseButtonTab(rectItemTabBtnList[0], imgItemTabBtnList[0], itemTabTxtList[0], 230);
+            StopCoroutine(corouPanel);
+            corouPanel = null;
+        }
+        // moving effect
+        corouPanel = StartCoroutine(UITransformController.Instance.IEMovingRect(rectTfm, startPos, endPos, time, LerpType.EaseOutBack));
+    }
+
+    public void OnClickTabBtn(int bottomTabTypeInt)
+    {
+        // handle bottom tab buttons
+        if (curRectItemTab == rectItemTabBtnList[bottomTabTypeInt])
+        {
+            // close tab button
+            CloseButtonTab(rectItemTabBtnList[bottomTabTypeInt], imgItemTabBtnList[bottomTabTypeInt], itemTabTxtList[bottomTabTypeInt], 230);
         }
         else
         {
             if (curRectItemTab != null)
                 CloseButtonTab(curRectItemTab, curImgItemTab, curItemTabTxt, 230);
-            OpenButtonTab(rectItemTabBtnList[0], imgItemTabBtnList[0], itemTabTxtList[0]);
+            OpenButtonTab(rectItemTabBtnList[bottomTabTypeInt], imgItemTabBtnList[bottomTabTypeInt], itemTabTxtList[bottomTabTypeInt]);
         }
-    }
 
-    public void OnClickGearStatsBtn()
-    {
-        if (rectGearsStatsManager.gameObject.activeInHierarchy)
-        {
-            CloseButtonTab(rectItemTabBtnList[1], imgItemTabBtnList[1], itemTabTxtList[1], 230);
-        }
-        else
-        {
-            if (curRectItemTab != null)
-                CloseButtonTab(curRectItemTab, curImgItemTab, curItemTabTxt, 230);
-            OpenButtonTab(rectItemTabBtnList[1], imgItemTabBtnList[1], itemTabTxtList[1]);
-        }
-    }
+        // handle panels
+        BottomTabType type = (BottomTabType)bottomTabTypeInt;
+        heroStatsManager.SetActive(type == BottomTabType.Hero && !heroStatsManager.activeInHierarchy);
+        gearsStatsManager.SetActive(type == BottomTabType.Gear && !gearsStatsManager.activeInHierarchy);
+        skillStatsManager.SetActive(type == BottomTabType.Skill && !skillStatsManager.activeInHierarchy);
 
-    public void OnClickSkillStatsBtn()
-    {
-        if (rectSkillStatsManager.gameObject.activeInHierarchy)
-        {
-            CloseButtonTab(rectItemTabBtnList[2], imgItemTabBtnList[2], itemTabTxtList[2], 230);
-        }
-        else
-        {
-            if (curRectItemTab != null)
-                CloseButtonTab(curRectItemTab, curImgItemTab, curItemTabTxt, 230);
-            OpenButtonTab(rectItemTabBtnList[2], imgItemTabBtnList[2], itemTabTxtList[2]);
-        }
-    }
+        RectTransform rectTfm = null;
+        Vector2 startPos = Vector2.zero;
+        Vector2 endPos;
 
+        switch (type)
+        {
+            case BottomTabType.Hero:
+                rectTfm = rectHeroStatsManager;
+                startPos = rectHeroStatsManager.anchoredPosition;
+                startPos.y = -840;
+                break;
+            case BottomTabType.Gear:
+                rectTfm = rectGearsStatsManager;
+                startPos = rectGearsStatsManager.anchoredPosition;
+                startPos.y = -752;
+                break;
+            case BottomTabType.Skill:
+                rectTfm = rectSkillStatsManager;
+                startPos = rectGearsStatsManager.anchoredPosition;
+                startPos.y = -703;
+                break;
+        }
+        endPos = startPos;
+        endPos.y = startPos.y * -1;
+        OpenPanel(rectTfm, startPos, endPos, movingTime);
+    }
 }

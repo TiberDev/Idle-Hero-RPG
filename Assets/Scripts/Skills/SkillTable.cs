@@ -7,7 +7,6 @@ public class SkillTable : MonoBehaviour
 {
     [SerializeField] private SkillTableItem[] skillTableItemList;
     [SerializeField] private RectTransform rectTfmStar;
-    [SerializeField] private SkillStatsManager skillStatsManager;
     [SerializeField] private TMP_Text txtAuto;
     [SerializeField] private Color colorAuto, colorNotAuto, colorTxtAuto, colorTxtNotAuto;
     [SerializeField] private Image imgAutoBtn;
@@ -50,8 +49,6 @@ public class SkillTable : MonoBehaviour
         skillTableItemList[index].SetImageIcon();
         skillTableItemList[index].ResetExecutingSkill();
     }
-
-    public SkillStatsManager GetSkillStatsManager() => skillStatsManager;
 
     public void ResetAllSkillTableItem()
     {

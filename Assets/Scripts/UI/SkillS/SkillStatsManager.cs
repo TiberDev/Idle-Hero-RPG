@@ -12,12 +12,13 @@ public class SkillStatsManager : MonoBehaviour
     [SerializeField] private SkillItem skillItemPrefab;
     [SerializeField] private Button btnEnhanceAll;
     [SerializeField] private GameObject gObjCoverItemList;
-    [SerializeField] private Image imgItemIconover;
+    [SerializeField] private Image imgItemIconover, imgEnhanceAll;
     [SerializeField] private TMP_Text txtTotalOwnedEffectValue;
     [SerializeField] private SkillItemEquippedManager skillItemEquippedManager;
     [SerializeField] private SObjMapConditionConfig[] mapConditionConfigs;
     [SerializeField] private MapManager mapManager;
     [SerializeField] private SkillTable skillTable;
+    [SerializeField] private Color colorDisableBtn, colorEnhanceAll;
 
     public List<SkillItem> skillItemsEnhance = new List<SkillItem>();
     public List<SkillItem> skillItems = new List<SkillItem>();
@@ -98,6 +99,7 @@ public class SkillStatsManager : MonoBehaviour
     {
         // reset 
         btnEnhanceAll.interactable = false;
+        imgEnhanceAll.color = colorDisableBtn;
         skillItemsEnhance.Clear();
         SkillItem skillItem = null;
         for (int index = 0; index < skillStatsList.Count; index++)
@@ -125,6 +127,7 @@ public class SkillStatsManager : MonoBehaviour
             {
                 skillItemsEnhance.Add(skillItem);
                 btnEnhanceAll.interactable = true;
+                imgEnhanceAll.color = colorEnhanceAll;
             }
             skillItem.SetUnlock(skillStatsList[index].unblocked);
             skillItem.gameObject.SetActive(true);

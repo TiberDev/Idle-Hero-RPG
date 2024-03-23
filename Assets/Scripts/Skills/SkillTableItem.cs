@@ -30,7 +30,7 @@ public class SkillTableItem : MonoBehaviour
 
     public void SetTextCounter(float time)
     {
-        txtCounter.text = ((int)time + 1).ToString();
+        txtCounter.text = ((int)time).ToString() + "s";
     }
 
     public void SetTextCounter()
@@ -95,13 +95,13 @@ public class SkillTableItem : MonoBehaviour
 
     public void SetImageIcon(bool unlock)
     {
-        imgItemIcon.color = Color.black;
+        imgItemIcon.color = unlock ? Color.white : Color.black;
         goLock.SetActive(!unlock);
     }
 
     public void SetImageIcon()
     {
-        imgItemIcon.color = Color.black;
+        imgItemIcon.color = Color.white;
     }
 
     private void SetInteractButton(bool interactable)
@@ -152,8 +152,7 @@ public class SkillTableItem : MonoBehaviour
         }
         else
         {
-            BottomTab.Instance.OnClickSkillStatsBtn();
-            UIManager.Instance.PressSkillStatsBtn();
+            BottomTab.Instance.OnClickTabBtn(2);
         }
     }
 }

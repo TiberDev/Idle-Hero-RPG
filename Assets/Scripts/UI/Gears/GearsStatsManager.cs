@@ -15,8 +15,8 @@ public class GearsStatsManager : MonoBehaviour
     [SerializeField] private Button btnWeapon, btnArmor, btnEnhanceAll;
     [SerializeField] private RectTransform rectTfmEquipped;
     [SerializeField] private TMP_Text txtTotalOwnedEffectValue;
-    [SerializeField] private Color colorSelectedGearType, colorUnselectedGearType;
-    [SerializeField] private Image imgWeapon, imgArmor;
+    [SerializeField] private Color colorSelectedGearType, colorUnselectedGearType, colorDisableBtn, colorEnhanceAllBtn, colorBuyBtn;
+    [SerializeField] private Image imgWeapon, imgArmor, imgEnhanceAll;
 
     private List<GearItem> gearItems = new List<GearItem>();
     private List<GearItem> gearItemsEnhance = new List<GearItem>();
@@ -67,6 +67,7 @@ public class GearsStatsManager : MonoBehaviour
         btnArmor.interactable = gearType == GearType.Weapon;
         // reset 
         btnEnhanceAll.interactable = false;
+        imgEnhanceAll.color = colorDisableBtn;
         gearItemsEnhance.Clear();
 
         GearConfig gearConfig = Array.Find(gearConfigs, config => config.type == gearType);
@@ -98,6 +99,7 @@ public class GearsStatsManager : MonoBehaviour
             {
                 gearItemsEnhance.Add(gearItem);
                 btnEnhanceAll.interactable = true;
+                imgEnhanceAll.color = colorEnhanceAllBtn;
             }
             gearItem.SetBlock(gearStatsList[index].unblocked);
             gearItems[index].gameObject.SetActive(true);
