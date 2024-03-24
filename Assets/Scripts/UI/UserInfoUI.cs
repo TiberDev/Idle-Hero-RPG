@@ -4,6 +4,40 @@ using UnityEngine;
 public class UserInfoUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text txtATK, txtHp, txtHitCriticalChance, txtHitCriticalDamage, txtATKSpeed, txtHpRecovery, txtSkillDamage, txtGoldObtain, txtBossDamage;
+    [SerializeField] private GameObject gObj;
+    [SerializeField] private RectTransform rectTfm;
+
+    [SerializeField] private float scalingUpTime, scalingDownTime;
+
+    private Coroutine corouInfo;
+
+    public void SetActive(bool active)
+    {
+        // effect
+        TransformUIPanel(active);
+    }
+
+    private void SetInActive()
+    {
+        gObj.SetActive(false);
+        corouInfo = null;
+    }
+
+    public void TransformUIPanel(bool open)
+    {
+        if (open)
+        {
+            gObj.SetActive(true);
+            corouInfo = StartCoroutine(UITransformController.Instance.IEScalingRect(rectTfm, Vector2.one * 0.5f, Vector2.one, scalingUpTime, LerpType.EaseOutBack));
+        }
+        else
+        {
+            StopCoroutine(corouInfo);
+            corouInfo = null;
+            corouInfo = StartCoroutine(UITransformController.Instance.IEScalingRect(rectTfm, rectTfm.localScale, Vector2.one * 0.5f, scalingDownTime, LerpType.EaseInBack, SetInActive));
+        }
+
+    }
 
     private void OnEnable()
     {
