@@ -12,8 +12,6 @@ public class CharacterMovement : MonoBehaviour
         {
             agent.enabled = true;
             agent.speed = speed;
-            agent.acceleration = speed;
-            agent.isStopped = false;
             agent.SetDestination(target.position);
         }
     }
