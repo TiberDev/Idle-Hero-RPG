@@ -7,16 +7,19 @@ using TMPro;
 public class CharacterHpBar : MonoBehaviour
 {
     [SerializeField] private Image imgHpBar;
-    [SerializeField] private float time;
     [SerializeField] private TMP_Text txtInfo;
+    [SerializeField] protected RectTransform rectTfm;
+    [SerializeField] private Color colorTurn, colorBossHp, colorTextTurn, colorTextBossHp;
+
+    [SerializeField] private float time;
 
     private Coroutine corouHpEffect;
-    private float curHpBar;
 
+    private float curHpBar;
     private void LateUpdate()
     {
         if (txtInfo == null)
-            transform.eulerAngles = Vector3.up * 135;
+            transform.eulerAngles = Vector3.up * 134;
     }
 
     public void SetHpUI(BigInteger curHp, BigInteger maxHp, bool isEffect)
@@ -68,7 +71,7 @@ public class CharacterHpBar : MonoBehaviour
     }
 
     /// <summary>
-    /// In boss turn
+    /// In boss stage
     /// </summary>
     public void SetTextInfo()
     {
@@ -78,6 +81,42 @@ public class CharacterHpBar : MonoBehaviour
     public void SetHpBarColor(Color color)
     {
         imgHpBar.color = color;
+    }
+
+    public void SetTurnBarColor(bool bossStage)
+    {
+        if (bossStage)
+        {
+            imgHpBar.color = colorBossHp;
+        }
+        else
+        {
+            imgHpBar.color = colorTurn;
+        }
+    }
+
+    public void SetTextTurnBar(bool bossStage)
+    {
+        if (bossStage)
+        {
+            txtInfo.color = colorTextBossHp;
+        }
+        else
+        {
+            txtInfo.color = colorTextTurn;
+        }
+    }
+
+    public void SetSize(bool bossStage)
+    {
+        if (bossStage)
+        {
+            rectTfm.sizeDelta = new Vector2(900, 75);
+        }
+        else
+        {
+            rectTfm.sizeDelta = new Vector2(465, 65);
+        }
     }
 
     private IEnumerator IEHpEffect(float desireHp, float maxHp)
