@@ -4,14 +4,20 @@ using UnityEngine;
 public class MeleeAttackCharacter : Character
 {
     [SerializeField] private int[] numberOfAttackType;
+    [SerializeField] private GameObject gObjATKBox;
 
     private Coroutine coroutineAttack;
 
     public int indexType, indexRepeat;
 
+    private void OnDisable()
+    {
+        gObjATKBox.SetActive(false);
+    }
+
     private void OnEnable()
     {
-        if(coroutineAttack != null)
+        if (coroutineAttack != null)
         {
             StopCoroutine(coroutineAttack);
             coroutineAttack = null;
@@ -21,7 +27,9 @@ public class MeleeAttackCharacter : Character
     protected override void DoAttack()
     {
         if (coroutineAttack == null)
+        {
             coroutineAttack = StartCoroutine(IEPlayAttackAnimation(numberOfAttackType, AttackAnimationType.MeleeAttack));
+        }
     }
 
     private IEnumerator IEPlayAttackAnimation(int[] numberOfAttackType, AttackAnimationType attackType)
