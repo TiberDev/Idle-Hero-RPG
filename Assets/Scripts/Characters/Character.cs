@@ -2,6 +2,7 @@ using BigInteger = System.Numerics.BigInteger;
 using UnityEngine;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using UnityEditor;
 
 public enum CharacterType
 {
@@ -32,9 +33,15 @@ public class Character : MonoBehaviour
 
     private MagicShieldSkill shieldSkill;
     private UserInfo userInfo;
-    private UnityAction<Character> dieAction;
+    private UnityAction dieAction;
 
     public bool IsBoss { get => isBoss; }
+    public UnityAction DieAction { get => dieAction; set => dieAction = value; }
+
+    private void Awake()
+    {
+        cachedTfm = transform;
+    }
 
     private void Update()
     {
@@ -58,8 +65,8 @@ public class Character : MonoBehaviour
 
         if (target == null)
         {
-            characterMovement.StopMoving();
-            //characterAnimator.PlayIdleAnimation();
+            //characterMovement.StopMoving();
+            characterAnimator.PlayIdleAnimation();
             return;
         }
 
@@ -78,6 +85,7 @@ public class Character : MonoBehaviour
             characterAnimator.PlayMoveAnimation();
             characterMovement.Move(target.GetTransform());
             SetTarget(characterType == CharacterType.Hero ? FindEnemy() : FindHero()); // in move state character still has to find nearest enemy more
+            //SetDirection(target.GetTransform().position);
         }
     }
 
@@ -86,21 +94,14 @@ public class Character : MonoBehaviour
     public virtual void Init()
     {
         curTimeHpRecovery = 0;
-        cachedTfm = transform;
         gameManager = GameManager.Instance;
         objectPooling = ObjectPooling.Instance;
-        switch (characterType)
+
+        if (characterType == CharacterType.Enemy)
         {
-            case CharacterType.Hero:
-                //target = FindEnemy();
-                //SetDirection(target.GetTransform().position);
-                break;
-            case CharacterType.Enemy:
-                List<Character> heroes = gameManager.GetCharacters(CharacterType.Hero);
-                if (heroes.Count > 0)
-                    SetDirection(heroes[0].GetTransform().position);
-                //target = FindHero();
-                break;
+            Character hero = FindHero();
+            SetTarget(hero);
+            SetDirection(hero.GetTransform().position);
         }
         // start idle animation 
         characterAnimator.PlayIdleAnimation();
@@ -162,7 +163,7 @@ public class Character : MonoBehaviour
         userInfo = info;
         if (characterType == CharacterType.Hero)
         {
-            characterInfo.damage = 5;
+            characterInfo.damage = 10;
             characterInfo.maxHp = 100;
             characterInfo.curHp = 100;
             characterInfo._damage = characterInfo.damage.ToString();
@@ -175,15 +176,16 @@ public class Character : MonoBehaviour
     {
         userInfo = new UserInfo();
         userInfo.atkSpeed = 1; // attack speed of all enemies is 1
-        characterInfo.damage = 5;
+        characterInfo.damage = 1;
         characterInfo.maxHp = 100;
         characterInfo.curHp = 100;
         characterInfo._damage = characterInfo.damage.ToString();
         characterInfo._maxHp = characterInfo.maxHp.ToString();
         characterInfo._curHp = characterInfo.curHp.ToString();
     }
+
     /// <summary>
-    /// Set attack  for hero
+    /// Set attack for hero
     /// </summary>
     public void SetAttack()
     {
@@ -243,7 +245,7 @@ public class Character : MonoBehaviour
 
     public void TakeDamage(BigInteger damageTaken)
     {
-        if (characterInfo.curHp <= 0)
+        if (characterInfo.curHp <= 0 || DarkBoardLoadingUI.Fading)
             return;
 
         if (shieldSkill != null)
@@ -260,7 +262,7 @@ public class Character : MonoBehaviour
             gameManager.NotifyGameOverAction -= SetGameOverState;
             // Remove character in list
             gameManager.RemoveCharacterFromList(this, characterType);
-            dieAction?.Invoke(this);
+            dieAction?.Invoke();
             dieAction = null;
         }
         characterInfo._damage = characterInfo.damage.ToString();
@@ -275,12 +277,12 @@ public class Character : MonoBehaviour
         if (characterType == CharacterType.Hero)
         {
             float random = Random.Range(0f, 1f);
-            BigInteger percent = 0;
-            if (boss) // interactive character is boss
-                percent += userInfo.bossDamage - 100;
-            if (random <= userInfo.criticalHitChance / 100)
-                percent += userInfo.criticalHitDamage;
-            totalDamage = characterInfo.damage + userInfo.atk * percent;
+            //BigInteger percent = 0;
+            //if (boss) // interactive character is boss
+            //    percent += userInfo.bossDamage - 100;
+            //if (random <= userInfo.criticalHitChance / 100)
+            //    percent += userInfo.criticalHitDamage;
+            totalDamage = characterInfo.damage/* + userInfo.atk * percent*/;
         }
         return totalDamage;
     }
@@ -305,22 +307,19 @@ public class Character : MonoBehaviour
     public void SetTarget(Character newTarget)
     {
         if (target != null) // remove pre action
-            target.dieAction -= CheckCharacterDie;
+            target.dieAction -= CheckTargetDie;
 
         target = newTarget;
         if (target == null)
             return;
 
-        target.dieAction += CheckCharacterDie;
+        target.dieAction += CheckTargetDie;
     }
 
-    public void CheckCharacterDie(Character characterDie)
+    public virtual void CheckTargetDie()
     {
-        if (target == characterDie)
-        {
-            preTarget = target;
-            SetTarget(characterType == CharacterType.Hero ? FindEnemy() : FindHero());
-        }
+        preTarget = target;
+        SetTarget(characterType == CharacterType.Hero ? FindEnemy() : FindHero());
     }
 
     public CharacterType GetCharacterType() => characterType;

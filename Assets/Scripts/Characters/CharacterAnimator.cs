@@ -38,11 +38,9 @@ public class CharacterAnimator : MonoBehaviour
         {
             case AttackAnimationType.MeleeAttack:
                 animator.SetInteger(meleeAttackType, type);
-                //animator.SetInteger(longAttackType, 0);
                 break;
             case AttackAnimationType.LongAttack:
                 animator.SetInteger(longAttackType, type);
-                //animator.SetInteger(meleeAttackType, 0);
                 break;
         }
         animator.SetBool(isIdle, false);
