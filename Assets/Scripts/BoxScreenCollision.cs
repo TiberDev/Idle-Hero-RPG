@@ -12,7 +12,6 @@ public class BoxScreenCollision : Singleton<BoxScreenCollision>, ICharacterColli
     private List<Character> enemyInBoxList = new List<Character>();
     private Transform cachedTfm;
     private Vector3 top, bottom, right;
-    public Transform tfmTop, tfmBottomm, tfmRight;
 
     private void Start()
     {
@@ -42,9 +41,6 @@ public class BoxScreenCollision : Singleton<BoxScreenCollision>, ICharacterColli
         ray = mainCamera.ScreenPointToRay(position);
         Physics.Raycast(ray, out hit);
         right = hit.point;
-        tfmBottomm.position = bottom;
-        tfmTop.position = top;
-        tfmRight.position = right;
     }
 
     private void SetBox()
@@ -67,10 +63,6 @@ public class BoxScreenCollision : Singleton<BoxScreenCollision>, ICharacterColli
     void ICharacterCollisionHandler.HandleCollision(Character character)
     {
         enemyInBoxList.Add(character);
-        if (!character.IsBoss)
-        {
-            character.SetTarget(character.FindHero());
-        }
         skillTable.HandleAutomatic();
     }
 
