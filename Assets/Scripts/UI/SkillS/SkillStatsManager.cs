@@ -4,14 +4,15 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SkillStatsManager : MonoBehaviour
+public class SkillStatsManager : MonoBehaviour, IBottomTabHandler
 {
+    [SerializeField] private RectTransform rectTfm;
     [SerializeField] private SkillInfoUI skillInfoUI;
     [SerializeField] private SObjSkillStatsConfig[] skillStatsConfigs;
     [SerializeField] private Transform tfmSkillItemParent;
     [SerializeField] private SkillItem skillItemPrefab;
     [SerializeField] private Button btnEnhanceAll;
-    [SerializeField] private GameObject gObjCoverItemList;
+    [SerializeField] private GameObject gObjCoverItemList, gObj;
     [SerializeField] private Image imgItemIconover, imgEnhanceAll;
     [SerializeField] private TMP_Text txtTotalOwnedEffectValue;
     [SerializeField] private SkillItemEquippedManager skillItemEquippedManager;
@@ -19,6 +20,8 @@ public class SkillStatsManager : MonoBehaviour
     [SerializeField] private MapManager mapManager;
     [SerializeField] private SkillTable skillTable;
     [SerializeField] private Color colorDisableBtn, colorEnhanceAll;
+
+    [SerializeField] private float movingTime;
 
     public List<SkillItem> skillItemsEnhance = new List<SkillItem>();
     public List<SkillItem> skillItems = new List<SkillItem>();
@@ -317,6 +320,12 @@ public class SkillStatsManager : MonoBehaviour
         SetAllSkillItemsEnhance();
     }
 
+    public void OnClickBuy()
+    {
+        // Go to shop
+        BottomTab.Instance.OnClickTabBtn(3);
+    }
+
     public BigInteger GetAllOwnedEffect()
     {
         int damagePercent = 0;
@@ -329,4 +338,28 @@ public class SkillStatsManager : MonoBehaviour
         }
         return damagePercent;
     }
+    public void SetPanelActive(bool active)
+    {
+        // effect
+        if (active)
+        {
+            gameObject.SetActive(true);
+            TransformUIPanel();
+        }
+        else
+        {
+            StopAllCoroutines();
+            gameObject.SetActive(false);
+        }
+    }
+
+    public void TransformUIPanel()
+    {
+        Vector2 startPos = rectTfm.anchoredPosition;
+        startPos.y = -703;
+        Vector2 endPos = startPos;
+        endPos.y = startPos.y * -1;
+        StartCoroutine(UITransformController.Instance.IEMovingRect(rectTfm, startPos, endPos, movingTime, LerpType.EaseOutBack));
+    }
+
 }

@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Numerics;
+using BigInteger = System.Numerics.BigInteger;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GearsStatsManager : MonoBehaviour
+public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
 {
+    [SerializeField] private RectTransform rectTfm;
+    [SerializeField] private GameObject gObj;
     [SerializeField] private Transform tfmGearItemParent;
     [SerializeField] private GearItem gearItemPrefab;
     [SerializeField] private GearInfoUI gearInfoUI;
@@ -14,9 +16,11 @@ public class GearsStatsManager : MonoBehaviour
     [SerializeField] private GearModeConfig[] gearModeConfigs;
     [SerializeField] private Button btnWeapon, btnArmor, btnEnhanceAll;
     [SerializeField] private RectTransform rectTfmEquipped;
-    [SerializeField] private TMP_Text txtTotalOwnedEffectValue;
+    [SerializeField] private TMP_Text txtTotalOwnedEffectValue, txtGearName;
     [SerializeField] private Color colorSelectedGearType, colorUnselectedGearType, colorDisableBtn, colorEnhanceAllBtn, colorBuyBtn;
     [SerializeField] private Image imgWeapon, imgArmor, imgEnhanceAll;
+
+    [SerializeField] private float movingTime;
 
     private List<GearItem> gearItems = new List<GearItem>();
     private List<GearItem> gearItemsEnhance = new List<GearItem>();
@@ -152,9 +156,10 @@ public class GearsStatsManager : MonoBehaviour
             gearStatsEquipped = newGearStatsEquipped;
             Db.SaveGearData(gearStatsEquipped, gearStatsEquipped.name, gearStatsEquipped.type);
         }
+        txtGearName.text = gearStatsEquipped.name;
         rectTfmEquipped.SetParent(tfmGearItem.transform);
-        rectTfmEquipped.anchoredPosition = UnityEngine.Vector2.zero;
-        rectTfmEquipped.sizeDelta = UnityEngine.Vector2.one * -32;
+        rectTfmEquipped.anchoredPosition = Vector2.zero;
+        rectTfmEquipped.sizeDelta = Vector2.one * -32;
         if (!pressed)
             return;
         if (gearStatsEquipped.type == GearType.Weapon)
@@ -207,6 +212,12 @@ public class GearsStatsManager : MonoBehaviour
         gearInfoUI.SetActive(false);
     }
 
+    public void OnClickBuy()
+    {
+        // Go to shop
+        BottomTab.Instance.OnClickTabBtn(3);
+    }
+
     public BigInteger GetAllOwnedEffect(GearType type)
     {
         BigInteger damagePercent = 0;
@@ -221,4 +232,29 @@ public class GearsStatsManager : MonoBehaviour
         }
         return damagePercent;
     }
+
+    public void SetPanelActive(bool active)
+    {
+        // effect
+        if (active)
+        {
+            gameObject.SetActive(true);
+            TransformUIPanel();
+        }
+        else
+        {
+            StopAllCoroutines();
+            gameObject.SetActive(false);
+        }
+    }
+
+    public void TransformUIPanel()
+    {
+        Vector2 startPos = rectTfm.anchoredPosition;
+        startPos.y = -752;
+        Vector2 endPos = startPos;
+        endPos.y = startPos.y * -1;
+        StartCoroutine(UITransformController.Instance.IEMovingRect(rectTfm, startPos, endPos, movingTime, LerpType.EaseOutBack));
+    }
+
 }

@@ -1,14 +1,19 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class HeroStatsManager : MonoBehaviour
+public class HeroStatsManager : MonoBehaviour, IBottomTabHandler
 {
+    [SerializeField] private RectTransform rectTfm;
+    [SerializeField] private GameObject gObj;
     [SerializeField] private HeroInfoUI heroInfoUI;
     [SerializeField] private HeroItem[] heroItems;
+    [SerializeField] private DarkBoardLoadingUI darkBoardLoading;
+    [SerializeField] private BossStage bossStage;
     [SerializeField] private Transform rectTfmInUse;
     [SerializeField] private SObjHeroStatConfig[] heroStatConfigs;
+
+    [SerializeField] private float movingTime;
 
     public List<HeroStats> heroStatsList = new List<HeroStats>();
     public HeroStats heroInUse;
@@ -61,7 +66,7 @@ public class HeroStatsManager : MonoBehaviour
             if (heroInUse == heroStatsList[index])
             {
                 SetHeroItemSelected(heroItems[index], heroStatConfigs[index]);
-                SetHeroItemInUse(heroInUse,false);
+                SetHeroItemInUse(heroInUse, false);
             }
         }
     }
@@ -96,7 +101,7 @@ public class HeroStatsManager : MonoBehaviour
         heroInfoUI.CheckEffectUnBlock();
     }
 
-    public void SetHeroItemInUse(HeroStats newHeroInUse,bool pressed)
+    public void SetHeroItemInUse(HeroStats newHeroInUse, bool pressed)
     {
         if (heroInUse != newHeroInUse)
         {
@@ -110,8 +115,18 @@ public class HeroStatsManager : MonoBehaviour
         if (pressed)
         {
             SetUserInfo(heroInUse);
-            // Reload scene to get new hero
-            GameManager.Instance.ResetGameState();
+            // Reset game to get new hero
+            if (!GameManager.Instance.BossDie) // can not load game when boss just died
+            {
+                bossStage.TerminateExcecution();
+                bossStage.gameObject.SetActive(false);
+                darkBoardLoading.StartFadeBoard(false, () =>
+                {
+                    bossStage.gameObject.SetActive(true);
+                    GameManager.Instance.RenewGameState(true);
+                });
+            }
+
         }
     }
 
@@ -164,5 +179,29 @@ public class HeroStatsManager : MonoBehaviour
             }
         }
         return damagePercent;
+    }
+
+    public void SetPanelActive(bool active)
+    {
+        // effect
+        if (active)
+        {
+            gameObject.SetActive(true);
+            TransformUIPanel();
+        }
+        else
+        {
+            StopAllCoroutines();
+            gameObject.SetActive(false);
+        }
+    }
+
+    public void TransformUIPanel()
+    {
+        Vector2 startPos = rectTfm.anchoredPosition;
+        startPos.y = -840;
+        Vector2 endPos = startPos;
+        endPos.y = startPos.y * -1;
+        StartCoroutine(UITransformController.Instance.IEMovingRect(rectTfm, startPos, endPos, movingTime, LerpType.EaseOutBack));
     }
 }

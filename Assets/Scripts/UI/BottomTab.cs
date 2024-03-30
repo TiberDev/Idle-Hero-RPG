@@ -6,6 +6,7 @@ public enum BottomTabType
     Hero = 0,
     Gear = 1,
     Skill = 2,
+    Shop = 3,
 }
 
 public class BottomTab : Singleton<BottomTab>
@@ -13,24 +14,27 @@ public class BottomTab : Singleton<BottomTab>
     [SerializeField] private RectTransform[] rectItemTabBtnList;
     [SerializeField] private Image[] imgItemTabBtnList;
     [SerializeField] private GameObject[] itemTabTxtList;
-    [SerializeField] private RectTransform rectHeroStatsManager, rectGearsStatsManager, rectSkillStatsManager;
-    [SerializeField] private GameObject heroStatsManager, gearsStatsManager, skillStatsManager;
+    [SerializeField] private GameObject[] gObjPanels;
     [SerializeField] private Color colorOpeningBtn, colorClosingBtn;
 
-    [SerializeField] private float sizingBtnTime, movingTime;
+    [SerializeField] private float sizingBtnTime;
 
-    private RectTransform curRectItemTab;
-    private GameObject curItemTabTxt;
-    private Image curImgItemTab;
-    private Coroutine corouPanel;
+    private IBottomTabHandler[] bottomTabHandlers;
+    private int curTypeInt = -1;
+
+    private void Start()
+    {
+        bottomTabHandlers = new IBottomTabHandler[gObjPanels.Length];
+        for (int i = 0; i < gObjPanels.Length; i++)
+        {
+            bottomTabHandlers[i] = gObjPanels[i].GetComponent<IBottomTabHandler>();
+        }
+    }
 
     private void OpenButtonTab(RectTransform rectTfm, Image img, GameObject goText)
     {
         img.color = colorOpeningBtn;
-        curRectItemTab = rectTfm;
-        curItemTabTxt = goText;
-        curImgItemTab = img;
-        curItemTabTxt.SetActive(true);
+        goText.SetActive(true);
         // transform button
         Vector2 endsize = rectTfm.sizeDelta;
         endsize.y = 350;
@@ -44,67 +48,28 @@ public class BottomTab : Singleton<BottomTab>
         sizeDelta.y = height;
         rect.sizeDelta = sizeDelta;
         goTxt.SetActive(false);
-        curRectItemTab = null;
-        curItemTabTxt = null;
-        curImgItemTab = null;
-    }
-
-    private void OpenPanel(RectTransform rectTfm, Vector2 startPos, Vector2 endPos, float time)
-    {
-        if (corouPanel != null)
-        {
-            StopCoroutine(corouPanel);
-            corouPanel = null;
-        }
-        // moving effect
-        corouPanel = StartCoroutine(UITransformController.Instance.IEMovingRect(rectTfm, startPos, endPos, time, LerpType.EaseOutBack));
     }
 
     public void OnClickTabBtn(int bottomTabTypeInt)
     {
         // handle bottom tab buttons
-        if (curRectItemTab == rectItemTabBtnList[bottomTabTypeInt])
+        if (curTypeInt == bottomTabTypeInt)
         {
             // close tab button
             CloseButtonTab(rectItemTabBtnList[bottomTabTypeInt], imgItemTabBtnList[bottomTabTypeInt], itemTabTxtList[bottomTabTypeInt], 230);
+            bottomTabHandlers[bottomTabTypeInt].SetPanelActive(false);
+            curTypeInt = -1;
         }
         else
         {
-            if (curRectItemTab != null)
-                CloseButtonTab(curRectItemTab, curImgItemTab, curItemTabTxt, 230);
+            if (curTypeInt > -1)
+            {
+                CloseButtonTab(rectItemTabBtnList[curTypeInt], imgItemTabBtnList[curTypeInt], itemTabTxtList[curTypeInt], 230);
+                bottomTabHandlers[curTypeInt].SetPanelActive(false);
+            }
+            curTypeInt = bottomTabTypeInt;
             OpenButtonTab(rectItemTabBtnList[bottomTabTypeInt], imgItemTabBtnList[bottomTabTypeInt], itemTabTxtList[bottomTabTypeInt]);
+            bottomTabHandlers[bottomTabTypeInt].SetPanelActive(true);
         }
-
-        // handle panels
-        BottomTabType type = (BottomTabType)bottomTabTypeInt;
-        heroStatsManager.SetActive(type == BottomTabType.Hero && !heroStatsManager.activeInHierarchy);
-        gearsStatsManager.SetActive(type == BottomTabType.Gear && !gearsStatsManager.activeInHierarchy);
-        skillStatsManager.SetActive(type == BottomTabType.Skill && !skillStatsManager.activeInHierarchy);
-
-        RectTransform rectTfm = null;
-        Vector2 startPos = Vector2.zero;
-        Vector2 endPos;
-
-        switch (type)
-        {
-            case BottomTabType.Hero:
-                rectTfm = rectHeroStatsManager;
-                startPos = rectHeroStatsManager.anchoredPosition;
-                startPos.y = -840;
-                break;
-            case BottomTabType.Gear:
-                rectTfm = rectGearsStatsManager;
-                startPos = rectGearsStatsManager.anchoredPosition;
-                startPos.y = -752;
-                break;
-            case BottomTabType.Skill:
-                rectTfm = rectSkillStatsManager;
-                startPos = rectGearsStatsManager.anchoredPosition;
-                startPos.y = -703;
-                break;
-        }
-        endPos = startPos;
-        endPos.y = startPos.y * -1;
-        OpenPanel(rectTfm, startPos, endPos, movingTime);
     }
 }
