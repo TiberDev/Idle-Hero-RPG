@@ -11,6 +11,7 @@ public class SkillTableItem : MonoBehaviour
     [SerializeField] private Button btn;
     [SerializeField] private TMP_Text txtCounter;
     [SerializeField] private Color colorWorkingCircle, colorIdlingCircle;
+    [SerializeField] private Sprite emptySpt;
 
     private SkillStats skillStats;
     private SObjSkillStatsConfig skillStatsConfig;
@@ -102,6 +103,7 @@ public class SkillTableItem : MonoBehaviour
     public void SetImageIcon()
     {
         imgItemIcon.color = Color.white;
+        imgItemIcon.sprite = emptySpt;
     }
 
     private void SetInteractButton(bool interactable)

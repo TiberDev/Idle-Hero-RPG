@@ -2,15 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
-using UnityEngine.TextCore.Text;
 using BigInteger = System.Numerics.BigInteger;
-
-[System.Serializable]
-public class CharacterPosition
-{
-    public Transform tfmSwnHero;
-    public int indexBackSwnEnemy, indexNextSwnEnemy;
-}
 
 public class GameManager : Singleton<GameManager>
 {
@@ -20,9 +12,13 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private SkillStatsManager skillStatsManager;
     [SerializeField] private CameraController cameraController;
     [SerializeField] private MapManager mapManager;
+    [SerializeField] private BoxScreenCollision boxScreenCollision;
+    [SerializeField] private BossStage bossStage;
     [SerializeField] private UIManager uiManager;
-    [SerializeField] private Transform tfmHeroPool, tfmEnemyPool, tfmSkillPool;
+    [SerializeField] private DarkBoardLoadingUI darkBoardLoading;
+    [SerializeField] private Transform tfmHeroPool, tfmEnemyPool, tfmSkillPool, tfmBulletPool;
     [SerializeField] private SkillTable skillTable;
+
     [SerializeField] private Color colorHero;
 
     [SerializeField] private int numberOfEnemyMax;
@@ -30,17 +26,15 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private string goldString;
     [SerializeField] private string gemString;
 
-    private int curIndexPosSwnEnemy;
-    private bool isIndexPosSwnEIncreasing;
-
     private BigInteger gold = 100000000000000, gem = 100000000000000;
     private UnityAction notifyGameOverAction;
     private UserInfo userInfo;
     private UserInfoManager userInfoManager;
     private ObjectPooling objectPooling;
     private List<Character> enemyList = new List<Character>(), heroList = new List<Character>();
-    private Transform[] tfmSwnEnemyList;
     private CharacterPosition[] characterPositions;
+
+    public bool BossDie { get; private set; }
 
     public bool IsOver { get; private set; }
 
@@ -58,7 +52,7 @@ public class GameManager : Singleton<GameManager>
         SetUserInfoData();
         SetDontDestroyOnLoad();
         MapData mapData = mapManager.GetMapData();
-        SceneManager.LoadScene($"Map{mapData.map}_Round{mapData.round}");
+        SceneManager.LoadScene($"Map{mapData.map}");
     }
 
     private void LoadAllDatas()
@@ -98,16 +92,22 @@ public class GameManager : Singleton<GameManager>
         DontDestroyOnLoad(tfmHeroPool);
         DontDestroyOnLoad(tfmEnemyPool);
         DontDestroyOnLoad(tfmSkillPool);
+        DontDestroyOnLoad(tfmBulletPool);
     }
 
-    public void StartGameState()
-    {
-        InitCharacters();
-        skillTable.ResetAllSkillTableItem();
-    }
+    ///// <summary>
+    ///// 
+    ///// </summary>
+    //public void StartGameInNewMap()
+    //{
+    //    InitCharacters();
+    //    skillTable.ResetAllSkillTableItem();
+    //}
 
-    public void ResetGameState()
+    public void RenewGameState(bool resetWave)
     {
+        BossDie = false;
+        boxScreenCollision.ClearEnemyInBox();
         // Remove all heroes and enemies are in battle field
         while (enemyList.Count > 0)
         {
@@ -121,71 +121,46 @@ public class GameManager : Singleton<GameManager>
         }
         // Load new hero 
         SpawnHeroInGame();
-        // Reload wave
-        mapManager.ReloadWave();
+
+        if (resetWave)
+            mapManager.ResetWave();
+        else
+            mapManager.LoadNextWave();
+
         SetFirstTarget();
+        skillTable.ResetAllSkillTableItem();
     }
 
-
-    /// <summary>
-    /// Spawn hero end enemy when load new map model (next round and map)
-    /// </summary>
-    private void InitCharacters()
-    {
-        while (heroList.Count > 0)
-        {
-            objectPooling.RemoveGOInPool(heroList[0].gameObject, PoolType.Hero, heroList[0].name);
-            heroList.RemoveAt(0);
-        }
-        SpawnHeroInGame();
-        mapManager.LoadNextWave();
-        SetFirstTarget();
-    }
+    ///// <summary>
+    ///// Spawn hero end enemy when load new map model (next round and map)
+    ///// </summary>
+    //private void InitCharacters()
+    //{
+    //    while (heroList.Count > 0)
+    //    {
+    //        objectPooling.RemoveGOInPool(heroList[0].gameObject, PoolType.Hero, heroList[0].name);
+    //        heroList.RemoveAt(0);
+    //    }
+    //    SpawnHeroInGame();
+    //    mapManager.LoadNextWave();
+    //    SetFirstTarget();
+    //}
 
     private void SetFirstTarget()
     {
         // Find enemy
         Character hero = GetCharacters(CharacterType.Hero)[0];
         Character target = hero.FindEnemy();
-        hero.SetTarget(target);
-        hero.SetDirection(target.GetTransform().position);
-
-    }
-
-    public void SetEnemySwnPosition(Transform[] tfms)
-    {
-        tfmSwnEnemyList = tfms;
+        if (target != null)
+        {
+            hero.SetTarget(target);
+            hero.SetDirection(target.GetTransform().position);
+        }
     }
 
     public void SetHeroSwnPosition(CharacterPosition[] positions)
     {
         characterPositions = positions;
-    }
-
-    private void ChangeIndexPosSwnEnemy()
-    {
-        if (isIndexPosSwnEIncreasing) // increase
-        {
-            if (curIndexPosSwnEnemy == tfmSwnEnemyList.Length - 1) // turn back 
-            {
-                curIndexPosSwnEnemy = 0;
-            }
-            else
-            {
-                curIndexPosSwnEnemy++;
-            }
-        }
-        else // decrease
-        {
-            if (curIndexPosSwnEnemy == 0)
-            {
-                curIndexPosSwnEnemy = tfmSwnEnemyList.Length - 1;
-            }
-            else
-            {
-                curIndexPosSwnEnemy--;
-            }
-        }
     }
 
     public BigInteger GetGold()
@@ -214,10 +189,13 @@ public class GameManager : Singleton<GameManager>
 
     private void SpawnHeroInGame()
     {
-        int index = Random.Range(0, characterPositions.Length);
+        int index = /*Random.Range(0, characterPositions.Length)*/0;
         Vector3 posSwnHero = characterPositions[index].tfmSwnHero.position;
-        isIndexPosSwnEIncreasing = Random.Range(0, 1) == 0 ? false : true;
-        curIndexPosSwnEnemy = !isIndexPosSwnEIncreasing ? characterPositions[index].indexBackSwnEnemy : characterPositions[index].indexNextSwnEnemy;
+        bool waveIndexIncreasing = Random.Range(0, 1) == 0 ? false : true;
+        int indexWave = !waveIndexIncreasing ? characterPositions[index].frontWaveIndex : characterPositions[index].behindWaveIndex;
+        // Get wave index to spawn enemies
+        mapManager.SetFirstWaveIndex(indexWave, waveIndexIncreasing);
+
         GameObject prefabHero = GetHeroPrefab();
         Character character = SpawnHero(prefabHero, userInfo, posSwnHero, colorHero);
         character.GetTransform().SetParent(tfmHeroPool);
@@ -237,23 +215,19 @@ public class GameManager : Singleton<GameManager>
         return hero;
     }
 
-    public void SpawnEnemyInGame(Character prefab, int quantity, int atk, int hp)
+    public void SpawnEnemyInGame(Character prefab, Vector3 position, int atk, int hp)
     {
-        for (int i = 0; i < quantity; i++)
-        {
-            Vector3 enemyPosition = new Vector3(tfmSwnEnemyList[curIndexPosSwnEnemy].position.x + i % numberOfEnemyInRow,
-                 tfmSwnEnemyList[curIndexPosSwnEnemy].position.y, tfmSwnEnemyList[curIndexPosSwnEnemy].position.z + i / numberOfEnemyInRow * 1.5f);
-            Character character = objectPooling.SpawnG0InPool(prefab.gameObject, enemyPosition, PoolType.Enemy).GetComponent<Character>();
-            character.transform.rotation = Quaternion.identity;
-            character.name = prefab.name;
-            if (character.IsBoss)
-                character.SetHpBar(uiManager.GetTurnBar());
-            character.transform.SetParent(tfmEnemyPool);
-            character.SetCharacterInfo(atk, hp);
-            character.SetAttackSpeed(1);
-            character.Init();
-            enemyList.Add(character);
-        }
+        Character character = objectPooling.SpawnG0InPool(prefab.gameObject, position, PoolType.Enemy).GetComponent<Character>();
+        character.transform.rotation = Quaternion.identity;
+        character.name = prefab.name;
+
+        if (character.IsBoss)
+            bossStage.StartBossStage(character);
+        character.transform.SetParent(tfmEnemyPool);
+        character.SetCharacterInfo(atk, hp);
+        character.SetAttackSpeed(1);
+        character.Init();
+        enemyList.Add(character);
     }
 
     public List<Character> GetCharacters(CharacterType type) => type == CharacterType.Enemy ? enemyList : heroList;
@@ -273,14 +247,14 @@ public class GameManager : Singleton<GameManager>
                     //// game win
                     //IsOver = true;
                     //notifyGameOverAction();
-                    BoxScreenCollision.Instance.ClearEnemyInBox();
+                    boxScreenCollision.ClearEnemyInBox();
                     if (character.IsBoss)
                     {
+                        BossDie = true;
                         mapManager.LoadNextTurn();
                     }
                     else
                     {
-                        ChangeIndexPosSwnEnemy();
                         mapManager.LoadNextWave();
                     }
                 }
@@ -301,9 +275,12 @@ public class GameManager : Singleton<GameManager>
                     }
                     // game lose
                     IsOver = true;
-                    notifyGameOverAction();
+                    // load dark efect
+                    darkBoardLoading.StartFadeBoard(true, () => RenewGameState(true));
+                    //notifyGameOverAction();
                 }
-                heroList.Remove(character);
+                else
+                    heroList.Remove(character);
             }
         }
     }
@@ -335,5 +312,9 @@ public class GameManager : Singleton<GameManager>
         return nearestCharacter;
     }
 
+    public MapManager GetMapManager() => mapManager;
+
     public Transform GetSkillPoolTfm() => tfmSkillPool;
+
+    public Transform GetBulletPoolTfm() => tfmBulletPool;
 }
