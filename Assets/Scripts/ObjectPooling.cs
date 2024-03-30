@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class ObjectPooling : Singleton<ObjectPooling>
 {
+    [SerializeField] private static int a;
+
     private Dictionary<PoolType, List<ObjPool>> objPValue = new Dictionary<PoolType, List<ObjPool>>();
 
     public GameObject SpawnG0InPool(GameObject prefab, Vector3 position, PoolType type)
@@ -18,10 +20,11 @@ public class ObjectPooling : Singleton<ObjectPooling>
                     localGO = objPool.objList[0];
                     objPool.objList.RemoveAt(0);
                     localGO.SetActive(true);
+                    localGO.transform.position = position;
                 }
                 else
                 {
-                    localGO = Instantiate(prefab);
+                    localGO = Instantiate(prefab, position, Quaternion.identity);
                     localGO.name = prefab.name;
                 }
             }
@@ -33,7 +36,7 @@ public class ObjectPooling : Singleton<ObjectPooling>
                     objList = new List<GameObject>()
                 };
                 objPValue[type].Add(objPool);
-                localGO = Instantiate(prefab);
+                localGO = Instantiate(prefab, position, Quaternion.identity);
                 localGO.name = prefab.name;
             }
         }
@@ -45,10 +48,10 @@ public class ObjectPooling : Singleton<ObjectPooling>
                 objList = new List<GameObject>()
             };
             objPValue.Add(type, new List<ObjPool> { objPool });
-            localGO = Instantiate(prefab);
+            localGO = Instantiate(prefab, position, Quaternion.identity);
             localGO.name = prefab.name;
         }
-        localGO.transform.position = position;
+        //localGO.transform.position = position;
         return localGO;
     }
 
