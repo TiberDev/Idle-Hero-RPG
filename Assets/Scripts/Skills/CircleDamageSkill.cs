@@ -10,7 +10,7 @@ public class CircleDamageSkill : Skill, ICharacterCollisionHandler
 
     public override void Execute()
     {
-        curTimeDamage = 0f;
+        curTimeDamage = 1f;
         charactersInRange.Clear();
         hero = gameManager.GetCharacters(CharacterType.Hero)[0];
         SetParent(gameManager.GetSkillPoolTfm(), true);
@@ -29,7 +29,7 @@ public class CircleDamageSkill : Skill, ICharacterCollisionHandler
     private void Update()
     {
         curTimeDamage += Time.deltaTime;
-        if (curTimeDamage >= 1)
+        if (curTimeDamage >= 0.25f)
         {
             curTimeDamage = 0;
             for (int i = 0; i < charactersInRange.Count; i++)
