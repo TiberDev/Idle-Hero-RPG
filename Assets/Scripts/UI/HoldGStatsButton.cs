@@ -22,6 +22,7 @@ public class HoldGStatsButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     private void Start()
     {
         uiTransformController = UITransformController.Instance;
+        increaseTime = increaseDuration;
     }
 
     private void Update()
@@ -86,7 +87,7 @@ public class HoldGStatsButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         corouBtn = StartCoroutine(uiTransformController.IEScalingRect(rectTfm, rectTfm.localScale, Vector2.one * 0.9f, scalingTime, LerpType.Liner));
         isHolding = true;
         holdTime = 0;
-        increaseTime = 0;
+        increaseTime = increaseDuration;
     }
 
     /// <summary>
@@ -104,11 +105,10 @@ public class HoldGStatsButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
             corouBtn = null;
             corouBtn = StartCoroutine(uiTransformController.IEScalingRect(rectTfm, rectTfm.localScale, Vector2.one, scalingTime, LerpType.Liner));
         }
-
         isHolding = false;
         if (holdTime < holdDuration) // increase gold by 1 time if user doesn't hold button for long
         {
-            generalItem.EnhanceItem();  
+            generalItem.EnhanceItem();
         }
     }
 
