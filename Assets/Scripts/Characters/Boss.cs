@@ -9,15 +9,16 @@ public class Boss : MeleeAttackCharacter
         gameManager = GameManager.Instance;
         objectPooling = ObjectPooling.Instance;
         // Find hero
-        target = FindHero();
-        // Show info to UI
-        characterHpBar.SetHpUI(characterInfo.curHp, characterInfo.maxHp, false);
-        // delegate method 
+        SetTarget(FindHero());
+        //// Show info to UI
+        //characterHpBar.SetHpUI(characterInfo.curHp, characterInfo.maxHp, false);
         gameManager.NotifyGameOverAction += SetGameOverState;
     }
 
     public override void SetHpBar(CharacterHpBar hpBar)
     {
         characterHpBar = hpBar;
+        // Show info to UI
+        characterHpBar.SetHpUI(characterInfo.curHp, characterInfo.maxHp, false);
     }
 }
