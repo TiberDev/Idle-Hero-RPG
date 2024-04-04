@@ -7,12 +7,18 @@ public class GearItem : MonoBehaviour
 {
     [SerializeField] private TMP_Text txtLv, txtPoint;
     [SerializeField] private Image imgAmountPoint, imgGearBgr, imgGearIcon;
-    [SerializeField] private GameObject gObjlock;
+    [SerializeField] private GameObject gObjLock;
 
     public GearStats gearStats;
     private GearsStatsManager gearsStatsManager;
     private Sprite gearIcon;
     private SObjGearsStatsConfig gearsStatsConfig;
+    private Transform cachedTfm;
+
+    private void Awake()
+    {
+        cachedTfm = transform;
+    }
 
     public void Init(GearStats stats, GearsStatsManager manager, SObjGearsStatsConfig config)
     {
@@ -20,6 +26,8 @@ public class GearItem : MonoBehaviour
         gearsStatsManager = manager;
         gearsStatsConfig = config;
     }
+
+    public Transform GetTransform() => cachedTfm;
 
     public void SetTextLevel(string lv)
     {
@@ -39,7 +47,7 @@ public class GearItem : MonoBehaviour
 
     public void SetBlock(bool unlock)
     {
-        gObjlock.SetActive(!unlock);
+        gObjLock.SetActive(!unlock);
     }
 
     public void SetGearPointUI(int point, int totalPoint)
@@ -59,38 +67,38 @@ public class GearItem : MonoBehaviour
     /// <summary>
     /// Enhance gear stats by points
     /// </summary>
-    public void SetEnhance(bool isEnhanceAll)
+    public void SetEnhance()
     {
         while (gearStats.numberOfPoints >= gearStats.totalPoint && gearStats.level < gearsStatsConfig.levelMax) // check next point
         {
             gearStats.numberOfPoints -= gearStats.totalPoint;
             gearStats.level += 1;
-            gearStats.equippedEffect = (BigInteger.Parse(gearStats.equippedEffect) + gearStats.level).ToString();
-            gearStats.ownedEffect = (BigInteger.Parse(gearStats.ownedEffect) + gearStats.level).ToString();
-            gearStats.totalPoint = gearsStatsConfig.totalPointByXLv * gearStats.level;
+            gearStats.equippedEffect = (gearsStatsConfig.firstEquippedEffect + gearStats.level).ToString();
+
+            gearsStatsManager.SetTotalOwnedEffectValue(gearStats.ownedEffect, false, gearStats.type);
+            gearStats.ownedEffect = (gearsStatsConfig.firstOwnedEffect + gearStats.level).ToString();
+            gearsStatsManager.SetTotalOwnedEffectValue(gearStats.ownedEffect, true, gearStats.type);
+
+            gearStats.totalPoint = gearsStatsConfig.pointPerLv + (gearStats.level * gearsStatsConfig.maxPercentLevel / 100);
         }
         // Change UI when enhance successfully
         SetTextLevel(gearStats.level.ToString());
         if (gearStats.level == gearsStatsConfig.levelMax)
         {
             SetGearPointUI();
+            Debug.Log(gearStats.ownedEffect);
         }
         else
         {
             SetGearPointUI(gearStats.numberOfPoints, gearStats.totalPoint);
         }
         // Save data
-        Db.SaveGearData(gearStats, gearStats.name, gearStats.type);
+        gearsStatsManager.SaveData(gearsStatsConfig.type);
         gearsStatsManager.RemoveGearItemEnhance(this);
-        // Change OE value when enhance successfully
-        gearsStatsManager.SetTotalOwnedEffectValue();
-        if (!isEnhanceAll)
-        {
-            if (gearStats.type == GearType.Weapon)
-                UserInfoManager.Instance.SetATK();
-            else
-                UserInfoManager.Instance.SetHp();
-        }
+        if (gearStats.type == GearType.Weapon)
+            UserInfoManager.Instance.SetATK();
+        else
+            UserInfoManager.Instance.SetHp();
     }
 
     public void OnClickItem()

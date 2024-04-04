@@ -4,9 +4,17 @@ using BigInteger = System.Numerics.BigInteger;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEditorInternal.Profiling.Memory.Experimental;
+
 
 public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
 {
+    private class IndividualGearStats
+    {
+        public GearStats gearStatsEquipped;
+        public BigInteger totalOEDamage; // owned effects damage
+    }
+
     [SerializeField] private RectTransform rectTfm;
     [SerializeField] private GameObject gObj;
     [SerializeField] private Transform tfmGearItemParent;
@@ -22,43 +30,58 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
 
     [SerializeField] private float movingTime;
 
+    private IndividualGearStats[] individualGearStats = new IndividualGearStats[2] { new IndividualGearStats(), new IndividualGearStats() }; // index 0 is Weapon, 1 is Armor 
     private List<GearItem> gearItems = new List<GearItem>();
     private List<GearItem> gearItemsEnhance = new List<GearItem>();
-    private Dictionary<GearType, List<GearStats>> gearStatsDic = new Dictionary<GearType, List<GearStats>>();
-    private GearStats gearStatsEquipped;
+    private Dictionary<GearType, GearStatsList> gearStatsDic = new Dictionary<GearType, GearStatsList>();
+
+    private readonly string DATAKEY = "GEARSTATSLISTDATA";
 
     private void OnEnable()
     {
         SetGearItem(GearType.Weapon);
     }
 
+    public void SaveData(GearType gearType)
+    {
+        PlayerPrefs.SetString(gearType + DATAKEY, JsonUtility.ToJson(gearStatsDic[gearType]));
+    }
+
     public void LoadGearsData(GearType gearType)
     {
-        List<GearStats> gearStatsList = new List<GearStats>();
+        GearStatsList gearStatsList = new GearStatsList();
         GearConfig gearConfig = Array.Find(gearConfigs, config => config.type == gearType);
-        for (int i = 0; i < gearConfig.gearsStatsConfigs.Length; i++)
+        SObjGearsStatsConfig gearStatsConfig = gearConfig.gearsStatsConfigs[0];
+        var json = PlayerPrefs.GetString(gearStatsConfig.type + DATAKEY, null);
+        gearStatsList = JsonUtility.FromJson<GearStatsList>(json);
+        if (gearStatsList == null) // new user
         {
-            GearStats gearStats = Db.ReadGearData(gearConfig.gearsStatsConfigs[i].gearName, gearConfig.gearsStatsConfigs[i].type);
-            if (gearStats == null) // new user or new item
+            GearStats gearStats = new GearStats()
             {
-                gearStats = new GearStats()
-                {
-                    name = gearConfig.gearsStatsConfigs[i].gearName,
-                    level = 1,
-                    numberOfPoints = 1,
-                    totalPoint = gearConfig.gearsStatsConfigs[i].totalPointByXLv,
-                    type = gearConfig.gearsStatsConfigs[i].type,
-                    mode = gearConfig.gearsStatsConfigs[i].mode,
-                    ownedEffect = gearConfig.gearsStatsConfigs[i].ownedEffect,
-                    equippedEffect = gearConfig.gearsStatsConfigs[i].equippedEffect,
-                    equipped = i <= 0, // when i = 0, it means the first item is newly initialized
-                    unblocked = i <= 0, // as above
-                };
-                Db.SaveGearData(gearStats, gearStats.name, gearStats.type);
-            }
-            gearStatsList.Add(gearStats);
+                name = gearStatsConfig.gearName,
+                level = 1,
+                numberOfPoints = 1,
+                totalPoint = gearStatsConfig.pointPerLv + (1 * gearStatsConfig.maxPercentLevel / 100),
+                type = gearStatsConfig.type,
+                mode = gearStatsConfig.mode,
+                ownedEffect = gearStatsConfig.firstOwnedEffect.ToString(),
+                equippedEffect = gearStatsConfig.firstEquippedEffect.ToString(),
+                equipped = true,
+                unblocked = true,
+                position = 1,
+            };
+            gearStatsList = new GearStatsList();
+            gearStatsList.list.Add(gearStats);
+            individualGearStats[(int)gearType].gearStatsEquipped = gearStats;
+        }
+        else
+        {
+            individualGearStats[(int)gearType].gearStatsEquipped = gearStatsList.list.Find(stats => stats.equipped);
         }
         gearStatsDic.Add(gearType, gearStatsList);
+        SaveData(gearType);
+        // Display total OE value UI
+        SetTotalOwnedEffectValue(gearType);
     }
 
     private void SetGearItem(GearType gearType)
@@ -75,50 +98,77 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
         gearItemsEnhance.Clear();
 
         GearConfig gearConfig = Array.Find(gearConfigs, config => config.type == gearType);
-        List<GearStats> gearStatsList = gearStatsDic[gearType];
-        GearItem gearItem = null;
+        GearStatsList gearStatsList = gearStatsDic[gearType];
+        int statsListIndex = 0;
         for (int index = 0; index < gearConfig.gearsStatsConfigs.Length; index++)
         {
+            GearItem gearItem = null;
             if (gearItems.Count < index + 1) // spawn gear item if not spawned yet
             {
                 gearItem = Instantiate(gearItemPrefab, tfmGearItemParent);
                 gearItems.Add(gearItem);
             }
+            GearStats gearStats = null;
+            SObjGearsStatsConfig gearStatsConfig = gearConfig.gearsStatsConfigs[index];
+
+            if (statsListIndex < gearStatsList.list.Count)
+            {
+                if (index + 1 == gearStatsList.list[statsListIndex].position) // gears owned is in gear item list
+                {
+                    gearStats = gearStatsList.list[statsListIndex];
+                    statsListIndex++;
+                }
+            }
+            if (gearStats == null)
+            {
+                gearStats = new GearStats()
+                {
+                    name = gearStatsConfig.gearName,
+                    level = 1,
+                    numberOfPoints = 0,
+                    totalPoint = gearStatsConfig.pointPerLv + (1 * gearStatsConfig.maxPercentLevel / 100),
+                    type = gearStatsConfig.type,
+                    mode = gearStatsConfig.mode,
+                    ownedEffect = gearStatsConfig.firstOwnedEffect.ToString(),
+                    equippedEffect = gearStatsConfig.firstEquippedEffect.ToString(),
+                    equipped = false,
+                    unblocked = false,
+                    position = index + 1
+                };
+            }
             // Init gear item
             gearItem = gearItems[index];
-            gearItem.Init(gearStatsList[index], this, gearConfig.gearsStatsConfigs[index]);
-            gearItem.SetTextLevel(gearStatsList[index].level.ToString());
-            gearItem.SetGearBackGround(Array.Find(gearModeConfigs, config => config.mode == gearStatsList[index].mode).spt);
-            gearItem.SetGearIcon(gearConfig.gearsStatsConfigs[index].gearSpt);
-            if (gearStatsList[index].level == gearConfig.gearsStatsConfigs[index].levelMax)
+            gearItem.Init(gearStats, this, gearConfig.gearsStatsConfigs[index]);
+            gearItem.SetTextLevel(gearStats.level.ToString());
+            gearItem.SetGearBackGround(Array.Find(gearModeConfigs, config => config.mode == gearStats.mode).spt);
+            gearItem.SetGearIcon(gearStatsConfig.gearSpt);
+            if (gearStats.level == gearStatsConfig.levelMax)
             {
                 gearItem.SetGearPointUI();
             }
             else
             {
-                gearItem.SetGearPointUI(gearStatsList[index].numberOfPoints, gearStatsList[index].totalPoint);
+                gearItem.SetGearPointUI(gearStats.numberOfPoints, gearStats.totalPoint);
             }
             // Check points to enhance later
-            if (gearStatsList[index].numberOfPoints >= gearStatsList[index].totalPoint && gearStatsList[index].level < gearConfig.gearsStatsConfigs[index].levelMax)
+            if (gearStats.numberOfPoints >= gearStats.totalPoint && gearStats.level < gearStatsConfig.levelMax)
             {
                 gearItemsEnhance.Add(gearItem);
                 btnEnhanceAll.interactable = true;
                 imgEnhanceAll.color = colorEnhanceAllBtn;
             }
-            gearItem.SetBlock(gearStatsList[index].unblocked);
+            gearItem.SetBlock(gearStats.unblocked);
             gearItems[index].gameObject.SetActive(true);
-            if (gearStatsList[index].equipped)
-            {
-                gearStatsEquipped = gearStatsList[index];
-                SetGearItemEquip(gearStatsEquipped, gearItem.transform, false);
-            }
+
+            if (gearStats.equipped)
+                SetGearItemEquip(gearItem, false, gearType);
         }
         for (int i = gearConfig.gearsStatsConfigs.Length; i < gearItems.Count; i++)// if enable gearitem gameobject that is within range gearStatsConfigs
         {
             gearItems[i].gameObject.SetActive(false);
         }
-        // Display total OE value UI
-        SetTotalOwnedEffectValue();
+        // Show Owned Effect on UI
+        SetOEUI(gearType);
     }
 
     public void SetGearInfoUI(GearStats gearStats, Sprite icon, GearItem gearItem, SObjGearsStatsConfig gearsStatsConfig)
@@ -147,22 +197,22 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
         gearInfoUI.SetActive(true);
     }
 
-    public void SetGearItemEquip(GearStats newGearStatsEquipped, Transform tfmGearItem, bool pressed)
+    public void SetGearItemEquip(GearItem gearItem, bool pressed, GearType gearType, GearStats newGearStatsEquipped = null)
     {
-        if (gearStatsEquipped != newGearStatsEquipped)
+        if (newGearStatsEquipped != null)
         {
-            gearStatsEquipped.equipped = false;
-            Db.SaveGearData(gearStatsEquipped, gearStatsEquipped.name, gearStatsEquipped.type);
-            gearStatsEquipped = newGearStatsEquipped;
-            Db.SaveGearData(gearStatsEquipped, gearStatsEquipped.name, gearStatsEquipped.type);
+            individualGearStats[(int)gearType].gearStatsEquipped.equipped = false;
+            individualGearStats[(int)gearType].gearStatsEquipped = newGearStatsEquipped;
+            SaveData(individualGearStats[(int)gearType].gearStatsEquipped.type);
         }
-        txtGearName.text = gearStatsEquipped.name;
-        rectTfmEquipped.SetParent(tfmGearItem.transform);
+        txtGearName.text = individualGearStats[(int)gearType].gearStatsEquipped.name;
+        rectTfmEquipped.gameObject.SetActive(true);
+        rectTfmEquipped.SetParent(gearItem.GetTransform());
         rectTfmEquipped.anchoredPosition = Vector2.zero;
-        rectTfmEquipped.sizeDelta = Vector2.one * -32;
+        rectTfmEquipped.sizeDelta = Vector2.zero;
         if (!pressed)
             return;
-        if (gearStatsEquipped.type == GearType.Weapon)
+        if (gearType == GearType.Weapon)
             UserInfoManager.Instance.SetATK();
         else
             UserInfoManager.Instance.SetHp();
@@ -178,16 +228,39 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
             gearItemsEnhance.Remove(item);
     }
 
-    public void SetTotalOwnedEffectValue()
+    public void SetTotalOwnedEffectValue(GearType gearType)
     {
-        BigInteger totalOEValue = 0; // total owned effect value
-        for (int i = 0; i < gearStatsDic[gearStatsEquipped.type].Count; i++)
+        for (int i = 0; i < gearStatsDic[gearType].list.Count; i++)
         {
-            if (gearStatsDic[gearStatsEquipped.type][i].unblocked)
-                totalOEValue += BigInteger.Parse(gearStatsDic[gearStatsEquipped.type][i].ownedEffect);
+            if (gearStatsDic[gearType].list[i].unblocked)
+                individualGearStats[(int)gearType].totalOEDamage += BigInteger.Parse(gearStatsDic[gearType].list[i].ownedEffect);
         }
-        string type = gearStatsEquipped.type == GearType.Weapon ? "ATK + " : "HP + ";
-        txtTotalOwnedEffectValue.text = "Owned Effects: " + type + FillData.Instance.FormatNumber(totalOEValue) + "%";
+    }
+
+    /// <summary>
+    /// Set total with one gear item is enhanced
+    /// </summary>
+    /// <param name="ownedEffect"></param>
+    /// <param name="additional"></param>
+    public void SetTotalOwnedEffectValue(string ownedEffect, bool additional, GearType type)
+    {
+        if (additional)
+            individualGearStats[(int)type].totalOEDamage += BigInteger.Parse(ownedEffect);
+        else
+            individualGearStats[(int)type].totalOEDamage -= BigInteger.Parse(ownedEffect);
+
+        SetOEUI(type);
+    }
+
+    public BigInteger GetAllEffectDamage(GearType type)
+    {
+        return BigInteger.Parse(individualGearStats[(int)type].gearStatsEquipped.equippedEffect) + individualGearStats[(int)type].totalOEDamage;
+    }
+
+    public void SetOEUI(GearType gearType)
+    {
+        string type = gearType == GearType.Weapon ? "ATK + " : "HP + ";
+        txtTotalOwnedEffectValue.text = "Owned Effects: " + type + FillData.Instance.FormatNumber(individualGearStats[(int)gearType].totalOEDamage) + "%";
     }
 
     public void OnClickEnhanceAll()
@@ -195,7 +268,7 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
         // Enhance all gear items in list then remove them
         while (gearItemsEnhance.Count > 0)
         {
-            gearItemsEnhance[0].SetEnhance(true);
+            gearItemsEnhance[0].SetEnhance();
         }
     }
 
@@ -216,21 +289,6 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
     {
         // Go to shop
         BottomTab.Instance.OnClickTabBtn(3);
-    }
-
-    public BigInteger GetAllOwnedEffect(GearType type)
-    {
-        BigInteger damagePercent = 0;
-        for (int index = 0; index < gearStatsDic[type].Count; index++)
-        {
-            GearStats stats = gearStatsDic[type][index];
-            if (stats.unblocked)
-            {
-                damagePercent += BigInteger.Parse(stats.ownedEffect);
-                damagePercent += stats.equipped ? BigInteger.Parse(stats.equippedEffect) : 0;
-            }
-        }
-        return damagePercent;
     }
 
     public void SetPanelActive(bool active)

@@ -141,13 +141,13 @@ public class GearInfoUI : MonoBehaviour
     {
         gearStats.equipped = true;
         SetEquipBtn(true, gearStats.unblocked);
-        gearsStatsManager.SetGearItemEquip(gearStats, gearItemSelected.transform, true);
+        gearsStatsManager.SetGearItemEquip(gearItemSelected, true, gearStats.type, gearStats);
         gearsStatsManager.OnClickSpace();
     }
 
     public void OnClickEnhanceBtn()
     {
-        gearItemSelected.SetEnhance(false);
+        gearItemSelected.SetEnhance();
         //// Show UI
         SetTextLevel(gearStats.level.ToString());
         SetTextEquippedEffect(gearStats.equippedEffect);
