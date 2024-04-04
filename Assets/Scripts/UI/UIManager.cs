@@ -9,7 +9,7 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private GearsStatsManager gearsStatsManager;
     [SerializeField] private SkillStatsManager skillStatsManager;
     [SerializeField] private CharacterHpBar turnBar;
-    [SerializeField] private TMP_Text txtGold, txtGem;
+    [SerializeField] private TMP_Text txtGold, txtPinkGem, txtBlueGem;
 
     public CharacterHpBar GetTurnBar()
     {
@@ -21,9 +21,14 @@ public class UIManager : Singleton<UIManager>
         txtGold.text = FillData.Instance.FormatNumber(gold);
     }
 
-    public void SetTextGem(BigInteger gem)
+    public void SetTextBlueGem(BigInteger gem)
     {
-        txtGem.text = FillData.Instance.FormatNumber(gem);
+        txtBlueGem.text = FillData.Instance.FormatNumber(gem);
+    }
+
+    public void SetTextPinkGem(BigInteger gem)
+    {
+        txtPinkGem.text = FillData.Instance.FormatNumber(gem);
     }
 
 }
