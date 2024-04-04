@@ -1,4 +1,12 @@
+using System.Collections.Generic;
 using UnityEngine;
+
+[System.Serializable]
+public class GearStatsList
+{
+    public List<GearStats> list = new List<GearStats>();
+}
+
 
 [System.Serializable]
 public class GearStats
@@ -11,6 +19,7 @@ public class GearStats
     public string ownedEffect, equippedEffect; // % damage
     public bool equipped;
     public bool unblocked;
+    public int position; // postion putted in item list
 }
 
 [System.Serializable]

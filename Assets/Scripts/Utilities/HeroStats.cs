@@ -1,4 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
+
+[System.Serializable]   
+public class HeroStatsList
+{
+    public List<HeroStats> list = new List<HeroStats>();
+}
 
 [System.Serializable]
 public class HeroStats
@@ -8,7 +15,7 @@ public class HeroStats
     public int numberOfPoints, totalPoint;
     public bool inUse;
     public bool unblocked;
-    public AddtionalEffect[] addtionalEffects;
+    public int position; // position is in hero item list
 }
 
 [System.Serializable]
@@ -16,7 +23,6 @@ public class AddtionalEffect
 {
     public AddtionalEffectType type;
     public int percent;
-    public bool unblock;
 }
 
 [System.Serializable]
