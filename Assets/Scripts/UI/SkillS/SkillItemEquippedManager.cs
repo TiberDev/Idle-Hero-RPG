@@ -27,7 +27,8 @@ public class SkillItemEquippedManager : MonoBehaviour
         {
             skillItem.SetSkillPointUI(skillStats.numberOfPoints, skillStats.totalPoint);
         }
-        skillItem.SetEquipped_RemoveImage(skillStats.equipped);
+        skillItem.SetEquipped_RemoveGOActive(skillStats.unblocked);
+        skillItem.SetEquipped_RemoveIcon(skillStats.equipped);
         skillItems[index].gameObject.SetActive(true);
     }
 

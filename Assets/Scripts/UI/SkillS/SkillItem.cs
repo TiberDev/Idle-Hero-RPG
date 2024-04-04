@@ -7,7 +7,7 @@ public class SkillItem : MonoBehaviour
     [SerializeField] private TMP_Text txtLv, txtPoint;
     [SerializeField] private Image imgAmountPoint, imgSkillIcon, imgEquippedIcon;
     [SerializeField] private Sprite equippedSpt, removedSpt;
-    [SerializeField] private GameObject gObjlock, gObjEquipped;
+    [SerializeField] private GameObject gObjLock, gObjEquipped, gObjCover;
 
     public SkillStats skillStats;
     private SkillStatsManager skillStatsManager;
@@ -15,7 +15,7 @@ public class SkillItem : MonoBehaviour
     private Sprite skillIcon;
     private bool isOnEquippedItemListPanel;
 
-    public void Init(SkillStats stats, SkillStatsManager manager, SObjSkillStatsConfig config,bool onPanel = false)
+    public void Init(SkillStats stats, SkillStatsManager manager, SObjSkillStatsConfig config, bool onPanel = false)
     {
         skillStats = stats;
         skillStatsManager = manager;
@@ -36,10 +36,12 @@ public class SkillItem : MonoBehaviour
 
     public void SetUnlock(bool unlock)
     {
-        gObjlock.SetActive(!unlock);
+        gObjLock.SetActive(!unlock);
+        if (gObjCover != null)
+            gObjCover.SetActive(!unlock);
     }
 
-    public void SetEquipped_RemoveImage(bool equipped)
+    public void SetEquipped_RemoveIcon(bool equipped)
     {
         imgEquippedIcon.sprite = equipped ? removedSpt : equippedSpt;
     }
@@ -76,6 +78,8 @@ public class SkillItem : MonoBehaviour
     public void ShowEquippedText(bool isActive)
     {
         gObjEquipped.SetActive(isActive);
+        if (gObjCover != null)
+            gObjCover.SetActive(isActive);
     }
 
     public void SetEnhanceUI()
@@ -90,9 +94,9 @@ public class SkillItem : MonoBehaviour
         {
             SetSkillPointUI(skillStats.numberOfPoints, skillStats.totalPoint);
         }
-        skillStatsManager.RemoveGearItemEnhance(this);
-        // Change OE value when enhance successfully
-        skillStatsManager.SetTotalOwnedEffectValue();
+        skillStatsManager.RemoveSkillItemEnhance(this);
+        //// Change OE value when enhance successfully
+        //skillStatsManager.SetTotalOwnedEffectValue();
     }
 
     public void OnClickItem()

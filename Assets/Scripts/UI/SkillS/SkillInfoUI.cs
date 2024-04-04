@@ -9,7 +9,7 @@ public class SkillInfoUI : MonoBehaviour
     [SerializeField] private TMP_Text txtName, txtLv, txtDescribe, txtCoolTime, txtPoint, txtEquip, txtEnhance, txtOwnedEffect;
     [SerializeField] private Image imgAmountPoint, imgGearIcon, imgEquip_Remove, imgEnhance;
     [SerializeField] private Button btnEquip, btnEnhance;
-    [SerializeField] private Color colorDescribe, colorDisableBtn, colorEquip, colorRemove, colorEnhance, colorMax;
+    [SerializeField] private Color colorCoolTime, colorDescribe, colorDisableBtn, colorEquip, colorRemove, colorEnhance, colorMax;
     [SerializeField] private float scalingUpTime, scalingDownTime;
 
     private SkillStats skillStats;
@@ -51,7 +51,6 @@ public class SkillInfoUI : MonoBehaviour
             corouSkillInfo = null;
             corouSkillInfo = StartCoroutine(UITransformController.Instance.IEScalingRect(rectTfm, rectTfm.localScale, Vector2.one * 0.5f, scalingDownTime, LerpType.EaseInBack, SetInActive));
         }
-
     }
 
     public void SetTextName(string name)
@@ -106,7 +105,7 @@ public class SkillInfoUI : MonoBehaviour
 
     public void SetTextCoolTime(int coolTime)
     {
-        txtCoolTime.text = "Cool Time: " + coolTime.ToString();
+        txtCoolTime.text = $"Cool Time: <color=#{ColorUtility.ToHtmlStringRGB(colorCoolTime)}>{coolTime}s</color>";
     }
 
     public void SetTextOwnedEffect(int value)
