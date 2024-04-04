@@ -26,7 +26,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private string goldString;
     [SerializeField] private string gemString;
 
-    private BigInteger gold = 100000000000000, gem = 100000000000000;
+    private BigInteger gold = 100000000000000, blueGem = 100000000000000, pinkGem = 100000000000000;
     private UnityAction notifyGameOverAction;
     private UserInfo userInfo;
     private UserInfoManager userInfoManager;
@@ -59,10 +59,11 @@ public class GameManager : Singleton<GameManager>
     {
         // gold, gem
         uiManager.SetTextGold(gold);
-        uiManager.SetTextGem(gem);
+        uiManager.SetTextPinkGem(pinkGem);
+        uiManager.SetTextBlueGem(blueGem);
         // stats
         generalManager.LoadGeneralData();
-        heroStatsManager.LoadHeroData();
+        heroStatsManager.LoadHeroesData();
         gearsStatsManager.LoadGearsData(GearType.Weapon);
         gearsStatsManager.LoadGearsData(GearType.Armor);
         skillStatsManager.CheckUnlockSkillItem();
@@ -175,17 +176,30 @@ public class GameManager : Singleton<GameManager>
         uiManager.SetTextGold(gold);
     }
 
-    public BigInteger GetGem()
+    public BigInteger GetPinkGem()
     {
-        gem = BigInteger.Parse(gemString);
-        return gem;
+        pinkGem = BigInteger.Parse(gemString);
+        return pinkGem;
     }
 
-    public void SetGem(BigInteger remainGem)
+    public void SetPinkGem(BigInteger remainGem)
     {
-        gem = remainGem;
-        uiManager.SetTextGem(gem);
+        pinkGem = remainGem;
+        uiManager.SetTextPinkGem(pinkGem);
     }
+
+    public BigInteger GetBlueGem()
+    {
+        blueGem = BigInteger.Parse(gemString);
+        return blueGem;
+    }
+
+    public void SetBlueGem(BigInteger remainGem)
+    {
+        blueGem = remainGem;
+        uiManager.SetTextPinkGem(blueGem);
+    }
+
 
     private void SpawnHeroInGame()
     {
