@@ -9,6 +9,8 @@ public class FillData : Singleton<FillData>
     [SerializeField] private SObjGearsStatsConfig[] sObjGearsStatsConfig;
     [SerializeField] private SObjSkillStatsConfig[] sObjSkillStatsConfig;
 
+    public GameObject[] gObjs;
+
     [ContextMenu("Config")]
     private void Config()
     {
@@ -34,22 +36,25 @@ public class FillData : Singleton<FillData>
     [ContextMenu("Update data")]
     private void UpdateData()
     {
-        for (int i = 0; i < file.Length; i++)
+        for (int i = 0; i < gObjs.Length; i++)
         {
-            SkillStats skillStats = Db.ReadHSkillData(file[i].name);
-            skillStats.numberOfPoints = numberOfPoints;
-            skillStats.totalPoint = totalPoint;
-            skillStats.level = 1;
-            skillStats.unblocked = true;
-            Db.SaveSkillData(skillStats, skillStats.name);
+            gObjs[i].name = "EnemySwnPos_" + (i + 1);
         }
+    }
+
+    [ContextMenuItem("Test Big Number", "TestBigNumber")]
+    public string number;
+    public void TestBigNumber()
+    {
+        Debug.Log(FormatNumber(BigInteger.Parse(number)));
     }
 
     public string FormatNumber(BigInteger value)
     {
+        // 5067     
         int unitIndex = -1;
-        BigInteger quotient, balanceNumber, count = 10, countDivide = 1000;
-        while (value / countDivide >= 1)
+        BigInteger quotient, balanceNumber, countDivide = 1000;
+        while (value / countDivide >= 1) // 1000 or more
         {
             unitIndex += 1;
             if (unitIndex >= units.Count)
@@ -59,8 +64,7 @@ public class FillData : Singleton<FillData>
             }
             quotient = value / countDivide;
             balanceNumber = value % countDivide;
-            if (countDivide >= 1000000)
-                count *= 1000;
+            balanceNumber /= countDivide / 1000;
             countDivide *= 1000;
         }
         if (value < 1000)
@@ -69,18 +73,23 @@ public class FillData : Singleton<FillData>
         }
         else
         {
-            BigInteger roundNumber = balanceNumber / count; // 0 -> 99
-            if (roundNumber == 0)
+            // calculate balance number to get tens unit
+            if (balanceNumber == 0)
             {
                 return $"{quotient}{units[unitIndex]}";
             }
-            else
+            else if (balanceNumber < 100) // 000 -> 099
             {
-                if (roundNumber % 10 == 0)
+                return $"{quotient}.0{balanceNumber / 10}{units[unitIndex]}";
+            }
+            else // 100 -> 999
+            {
+                balanceNumber /= 10; // 10 -> 99
+                if (balanceNumber % 10 == 0)
                 {
-                    roundNumber /= 10;
+                    balanceNumber /= 10;
                 }
-                return $"{quotient}.{roundNumber}{units[unitIndex]}";
+                return $"{quotient}.{balanceNumber}{units[unitIndex]}";
             }
         }
     }
