@@ -5,20 +5,23 @@ using UnityEngine.UI;
 
 public class HeroInfoUI : MonoBehaviour
 {
+    [SerializeField] private GameObject gObjGemEnhance;
     [SerializeField] private Image imgHeroAvatar, imgPoint;
     [SerializeField] private Image imgInUse, imgEnhance;
     [SerializeField] private Button btnUse, btnEnhance;
-    [SerializeField] private TMP_Text txtLv, txtName, txtInUse, txtGemEnhance, txtPoint, txtDescibleEffect;
+    [SerializeField] private TMP_Text txtLv, txtName, txtInUse, txtEnhance, txtGemEnhance, txtPoint, txtDescibleEffect;
     [SerializeField] private AddtionalEffectImage[] addtionalEffectImages;
     [SerializeField] private AddtionalEffectItem[] addtionalEffectItems;
-    [SerializeField] private RectTransform rectTfmDescibleEffect;
+    [SerializeField] private RectTransform rectTfmDescibleEffect, rectTfmTxtEnhance;
     [SerializeField] private int[] effectLevels;
-    [SerializeField] private Color colorMax, colorPointNor, colorDisableBtn, colorEnhanceBtn, colorInUseBtn;
+    [SerializeField] private Color colorMax, colorPointNor, colorDisableBtn, colorEnhanceBtn, colorInUseBtn, colorTxtUse, colorTxtUseDisable;
 
     private HeroStats heroStats;
     private HeroStatsManager heroStatsManager;
     private SObjHeroStatConfig heroStatConfig;
     private RectTransform rectTfmEffectItem;
+
+    private int effectLvIndex = 0;
 
     public void Init(HeroStats stat, HeroStatsManager statsManager, SObjHeroStatConfig config)
     {
@@ -28,6 +31,8 @@ public class HeroInfoUI : MonoBehaviour
         // reset describe effect
         SetDescribeEffect();
     }
+
+    public int[] GetEffectLevels() => effectLevels;
 
     public void SetTextName(string name)
     {
@@ -64,19 +69,22 @@ public class HeroInfoUI : MonoBehaviour
         {
             btnUse.interactable = false;
             imgInUse.color = colorDisableBtn;
-            txtInUse.text = "Waiting...";
+            txtInUse.text = "Not yet obtained";
+            txtInUse.color = colorTxtUseDisable;
             return;
         }
         if (inUse)
         {
             btnUse.interactable = false;
             imgInUse.color = colorDisableBtn;
+            txtInUse.color = colorTxtUseDisable;
             txtInUse.text = "In Use";
         }
         else
         {
             btnUse.interactable = true;
             imgInUse.color = colorInUseBtn;
+            txtInUse.color = colorTxtUse;
             txtInUse.text = "Use";
         }
     }
@@ -84,26 +92,46 @@ public class HeroInfoUI : MonoBehaviour
     public void SetEnhanceUI()
     {
         int gemEnhance = heroStatConfig.gemToEnhance;
-        btnEnhance.interactable = gemEnhance <= GameManager.Instance.GetGem() && heroStats.unblocked;
-        imgEnhance.color = gemEnhance <= GameManager.Instance.GetGem() && heroStats.unblocked ? colorEnhanceBtn : colorDisableBtn;
+        rectTfmTxtEnhance.anchoredPosition = new Vector2(0, 28);
+        btnEnhance.interactable = gemEnhance <= GameManager.Instance.GetPinkGem() && heroStats.unblocked;
+        imgEnhance.color = gemEnhance <= GameManager.Instance.GetPinkGem() && heroStats.unblocked ? colorEnhanceBtn : colorDisableBtn;
+        txtEnhance.text = "Enhance";
         txtGemEnhance.text = gemEnhance.ToString();
+        gObjGemEnhance.SetActive(true);
     }
 
     public void SetEnhanceMaxUI()
     {
+        rectTfmTxtEnhance.anchoredPosition = Vector2.zero;
         imgEnhance.color = colorMax;
         btnEnhance.interactable = false;
-        txtGemEnhance.text = "...";
+        txtEnhance.text = "MAX";
+        txtEnhance.color = Color.white;
+        gObjGemEnhance.SetActive(false);
     }
 
     public void SetAddtionalEffects()
     {
-        for (int i = 0; i < heroStats.addtionalEffects.Length; i++)
+        effectLvIndex = 0;
+        for (int i = 0; i < heroStatConfig.addtionalEffects.Length; i++)
         {
-            addtionalEffectItems[i].Init(heroStats.addtionalEffects[i], this);
+            AddtionalEffect addtionalEffect = heroStatConfig.addtionalEffects[i];
+            addtionalEffectItems[i].Init(addtionalEffect, this);
             AddtionalEffectImage effectImage = Array.Find(addtionalEffectImages,
-                effect => effect.type == heroStats.addtionalEffects[i].type);
+                effect => effect.type == addtionalEffect.type);
             addtionalEffectItems[i].SetEffectImage(effectImage.sprite);
+
+            // check unlock
+            if (heroStats.level >= effectLevels[i])
+            {
+                // unlock
+                addtionalEffectItems[i].SetEffectBlock(false);
+                effectLvIndex = i + 1;
+            }
+            else
+            {
+                addtionalEffectItems[i].SetEffectBlock(true);
+            }
         }
     }
 
@@ -128,29 +156,20 @@ public class HeroInfoUI : MonoBehaviour
     /// </summary>
     public void CheckEffectUnBlock()
     {
-        for (int i = 0; i < heroStats.addtionalEffects.Length; i++)
+        if (heroStats.level >= effectLevels[effectLvIndex])
         {
-            if (heroStats.level >= effectLevels[i])
-            {
-                // unlock
-                bool old = heroStats.addtionalEffects[i].unblock;
-                heroStats.addtionalEffects[i].unblock = true;
-                if (!old) // newly unlock
-                    heroStatsManager.SetUserInfo(heroStats);
-                addtionalEffectItems[i].SetEffectBlock(false);
-            }
-            else
-            {
-                heroStats.addtionalEffects[i].unblock = false;
-                addtionalEffectItems[i].SetEffectBlock(true);
-            }
+            // unlock new addtional effect
+            if (heroStats.inUse)
+                heroStatsManager.SetUserInfo(heroStats, heroStatConfig);
+            addtionalEffectItems[effectLvIndex].SetEffectBlock(false);
+            effectLvIndex++;
         }
     }
 
     public void OnClickInUseBtn()
     {
         heroStats.inUse = true;
-        heroStatsManager.SetHeroItemInUse(heroStats,true);
+        heroStatsManager.SetHeroItemInUse(heroStats, true);
         SetInUseUI(true, heroStats.unblocked);
     }
 
@@ -159,12 +178,13 @@ public class HeroInfoUI : MonoBehaviour
     /// </summary>
     public void OnClickEnhanceBtn()
     {
-        heroStats.numberOfPoints += heroStatConfig.increasedPoint;
+        heroStats.numberOfPoints += heroStats.totalPoint / heroStatConfig.increasedPoint;
         if (heroStats.numberOfPoints >= heroStats.totalPoint)
         {
             // next level, next point
             heroStats.level += 1;
-            heroStats.totalPoint += heroStatConfig.pointPerLv;
+            heroStats.numberOfPoints -= heroStats.totalPoint;
+            heroStats.totalPoint = (heroStatConfig.pointPerLv + heroStats.level) / 2;
             SetTextLevel(heroStats.level.ToString());
             // Check effect to unlock
             CheckEffectUnBlock();
@@ -181,7 +201,7 @@ public class HeroInfoUI : MonoBehaviour
             SetEnhanceUI();
         }
         // Save data
-        Db.SaveHeroData(heroStats, heroStats.name);
-        GameManager.Instance.SetGem(GameManager.Instance.GetGem() - heroStatConfig.gemToEnhance);
+        heroStatsManager.SaveData();
+        GameManager.Instance.SetPinkGem(GameManager.Instance.GetPinkGem() - heroStatConfig.gemToEnhance);
     }
 }

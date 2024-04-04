@@ -7,63 +7,107 @@ public class HeroStatsManager : MonoBehaviour, IBottomTabHandler
     [SerializeField] private RectTransform rectTfm;
     [SerializeField] private GameObject gObj;
     [SerializeField] private HeroInfoUI heroInfoUI;
-    [SerializeField] private HeroItem[] heroItems;
     [SerializeField] private DarkBoardLoadingUI darkBoardLoading;
     [SerializeField] private BossStage bossStage;
     [SerializeField] private Transform rectTfmInUse;
     [SerializeField] private SObjHeroStatConfig[] heroStatConfigs;
+    [SerializeField] private HeroItem heroItemPrefab;
+    [SerializeField] private Transform tfmHeroItemParent;
 
     [SerializeField] private float movingTime;
 
-    public List<HeroStats> heroStatsList = new List<HeroStats>();
-    public HeroStats heroInUse;
-    public HeroItem heroItemSelected;
-    public SObjHeroStatConfig heroStatConfigSelected, heroStatConfigInUse;
-    private UserInfoManager userInfoManager;
+    private List<HeroItem> heroItems = new List<HeroItem>();
+    private HeroStatsList heroStatsList = null;
+    private HeroStats heroInUse;
+    private HeroItem heroItemSelected;
+    private SObjHeroStatConfig heroStatConfigSelected, heroStatConfigInUse;
+
+    private readonly string DATAKEY = "HEROSTATSLISTDATA";
 
     private void OnEnable()
     {
-        userInfoManager = UserInfoManager.Instance;
         SetHeroItem();
         SetHeroInfoUI(heroInUse, Array.Find(heroStatConfigs, heroConfig => heroConfig.heroName == heroInUse.name).heroSpt);
     }
 
-    public void LoadHeroData()
+    public void SaveData()
     {
-        for (int i = 0; i < heroStatConfigs.Length; i++)
+        PlayerPrefs.SetString(DATAKEY, JsonUtility.ToJson(heroStatsList));
+    }
+
+    public void LoadHeroesData()
+    {
+        var json = PlayerPrefs.GetString(DATAKEY, null);
+        heroStatsList = JsonUtility.FromJson<HeroStatsList>(json);
+        if (heroStatsList == null) // new user 
         {
-            HeroStats heroStats = Db.ReadHeroData(heroStatConfigs[i].heroName);
-            if (heroStats == null) // new user or new hero
+            heroStatsList = new HeroStatsList();
+            HeroStats heroStats = new HeroStats
             {
-                heroStats = new HeroStats
+                name = heroStatConfigs[0].heroName,
+                level = 1,
+                numberOfPoints = 0,
+                totalPoint = (heroStatConfigs[0].pointPerLv + 1) / 2,
+                inUse = true,
+                unblocked = true,
+                position = 1,
+            };
+            heroStatConfigInUse = heroStatConfigs[0];
+            heroInUse = heroStats;
+            heroStatsList.list.Add(heroStats);
+            SaveData();
+        }
+        else // heroes that user owned
+        {
+            for (int i = 0; i < heroStatsList.list.Count; i++)
+            {
+                HeroStats heroStats = heroStatsList.list[i];
+                if (heroStats.inUse)
                 {
-                    name = heroStatConfigs[i].heroName,
-                    level = 1,
-                    numberOfPoints = 0,
-                    totalPoint = heroStatConfigs[i].pointPerLv,
-                    inUse = i <= 0,
-                    unblocked = i <= 0,
-                    addtionalEffects = heroStatConfigs[i].addtionalEffects
-                };
-                Db.SaveHeroData(heroStats, heroStats.name);
+                    heroStatConfigInUse = heroStatConfigs[i];
+                    heroInUse = heroStats;
+                }
             }
-            if (heroStats.inUse)
-            {
-                heroStatConfigInUse = heroStatConfigs[i];
-                heroInUse = heroStats;
-            }
-            heroStatsList.Add(heroStats);
         }
     }
 
     private void SetHeroItem()
     {
+        int statsListIndex = 0;
         for (int index = 0; index < heroStatConfigs.Length; index++)
         {
-            heroItems[index].Init(this, heroStatsList[index], heroStatConfigs[index]);
+            if (heroItems.Count < index + 1) // spawn skill item if not spawned yet
+                heroItems.Add(Instantiate(heroItemPrefab, tfmHeroItemParent));
+
+            HeroStats heroStats = null;
+            if (statsListIndex < heroStatsList.list.Count)
+            {
+                if (index + 1 == heroStatsList.list[statsListIndex].position) // hero owned is in hero item list
+                {
+                    heroStats = heroStatsList.list[statsListIndex];
+                    statsListIndex++;
+                }
+            }
+
+            if (heroStats == null)
+            {
+                heroStats = new HeroStats()
+                {
+                    name = heroStatConfigs[index].heroName,
+                    level = 1,
+                    numberOfPoints = 0,
+                    totalPoint = (heroStatConfigs[index].pointPerLv + 1) / 2,
+                    inUse = false,
+                    unblocked = false,
+                    position = index + 1
+                };
+            }
+
+            heroItems[index].Init(this, heroStats, heroStatConfigs[index]);
             heroItems[index].SetHeroImage(heroStatConfigs[index].heroSpt);
             heroItems[index].SetUnblockedHero();
-            if (heroInUse == heroStatsList[index])
+            //Debug.Log($"heroInUse:  {heroInUse}     ")
+            if (heroInUse == heroStats)
             {
                 SetHeroItemSelected(heroItems[index], heroStatConfigs[index]);
                 SetHeroItemInUse(heroInUse, false);
@@ -98,7 +142,6 @@ public class HeroStatsManager : MonoBehaviour, IBottomTabHandler
         }
         heroInfoUI.SetInUseUI(heroStats.inUse, heroStats.unblocked);
         heroInfoUI.SetAddtionalEffects();
-        heroInfoUI.CheckEffectUnBlock();
     }
 
     public void SetHeroItemInUse(HeroStats newHeroInUse, bool pressed)
@@ -106,15 +149,15 @@ public class HeroStatsManager : MonoBehaviour, IBottomTabHandler
         if (heroInUse != newHeroInUse)
         {
             heroInUse.inUse = false;
-            Db.SaveHeroData(heroInUse, heroInUse.name);
             heroStatConfigInUse = heroStatConfigSelected;
             heroInUse = newHeroInUse;
-            Db.SaveHeroData(heroInUse, heroInUse.name);
+            SaveData();
         }
+        rectTfmInUse.gameObject.SetActive(true);
         rectTfmInUse.SetParent(heroItemSelected.transform, false);
         if (pressed)
         {
-            SetUserInfo(heroInUse);
+            SetUserInfo(heroInUse, heroStatConfigInUse);
             // Reset game to get new hero
             if (!GameManager.Instance.BossDie) // can not load game when boss just died
             {
@@ -126,19 +169,22 @@ public class HeroStatsManager : MonoBehaviour, IBottomTabHandler
                     GameManager.Instance.RenewGameState(true);
                 });
             }
-
         }
     }
 
-    public void SetUserInfo(HeroStats heroStats)
+    public void SetUserInfo(HeroStats heroStats, SObjHeroStatConfig heroConfig)
     {
         AddtionalEffectType type = AddtionalEffectType.IncreaseATK;
-        for (int i = 0; i < heroStats.addtionalEffects.Length; i++)
+        for (int i = 0; i < heroConfig.addtionalEffects.Length; i++)
         {
-            if (heroInUse.addtionalEffects[i].unblock)
+            AddtionalEffect addtionalEffect = heroConfig.addtionalEffects[i];
+            int effectLv = heroInfoUI.GetEffectLevels()[i];
+            if (heroStats.level >= effectLv)
             {
-                type = heroInUse.addtionalEffects[i].type;
+                // unlock
+                type = addtionalEffect.type;
             }
+            UserInfoManager userInfoManager = UserInfoManager.Instance;
             switch (type)
             {
                 case AddtionalEffectType.IncreaseATK:
@@ -171,11 +217,12 @@ public class HeroStatsManager : MonoBehaviour, IBottomTabHandler
     public int GetEffectDamagePercent(AddtionalEffectType type)
     {
         int damagePercent = 0;
-        for (int i = 0; i < heroInUse.addtionalEffects.Length; i++)
+        for (int i = 0; i < heroStatConfigInUse.addtionalEffects.Length; i++)
         {
-            if (heroInUse.addtionalEffects[i].type == type && heroInUse.addtionalEffects[i].unblock)
+            AddtionalEffect addtionalEffect = heroStatConfigInUse.addtionalEffects[i];
+            if (addtionalEffect.type == type && heroInUse.level >= heroInfoUI.GetEffectLevels()[i])
             {
-                damagePercent += heroInUse.addtionalEffects[i].percent;
+                damagePercent += addtionalEffect.percent;
             }
         }
         return damagePercent;
