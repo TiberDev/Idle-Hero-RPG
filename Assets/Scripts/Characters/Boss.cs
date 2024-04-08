@@ -1,6 +1,4 @@
 
-using UnityEngine;
-
 public class Boss : MeleeAttackCharacter
 {
     public override void Init()
@@ -19,6 +17,6 @@ public class Boss : MeleeAttackCharacter
     {
         characterHpBar = hpBar;
         // Show info to UI
-        characterHpBar.SetHpUI(characterInfo.curHp, characterInfo.maxHp, false);
+        characterHpBar.SetFillAmountUI(characterInfo.curHp, characterInfo.maxHp, false);
     }
 }
