@@ -16,7 +16,7 @@ public class GearStats
     public int numberOfPoints, totalPoint;
     public GearType type;
     public GearMode mode;
-    public string ownedEffect, equippedEffect; // % damage
+    public int ownedEffect, equippedEffect; // % damage
     public bool equipped;
     public bool unblocked;
     public int position; // postion putted in item list
