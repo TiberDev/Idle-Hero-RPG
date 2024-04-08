@@ -44,7 +44,7 @@ public class CircleHighDamageSkill : Skill, ICharacterCollisionHandler
         BigInteger damage = hero.GetDamage() * value / 100;
         for (int i = 0; i < charactersInRange.Count; i++)
         {
-            charactersInRange[i].TakeDamage(damage);
+            charactersInRange[i].TakeDamage(damage, DamageTakenType.Skill);
         }
     }
 
