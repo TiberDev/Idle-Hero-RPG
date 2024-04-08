@@ -1,4 +1,3 @@
-using System.Collections;
 using BigInteger = System.Numerics.BigInteger;
 using TMPro;
 using UnityEngine;
