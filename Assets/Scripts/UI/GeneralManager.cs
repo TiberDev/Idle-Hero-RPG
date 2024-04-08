@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Numerics;
+using BigInteger = System.Numerics.BigInteger;
 using UnityEngine;
 
 public class GeneralManager : MonoBehaviour
@@ -7,21 +7,33 @@ public class GeneralManager : MonoBehaviour
     [SerializeField] private GeneralItem[] generalItems;
     [SerializeField] private SObjGeneralStatsConfig[] generalStatsConfigs;
 
-    private UserInfoManager userInfoManager;
-    private List<GeneralStat> generalStats = new List<GeneralStat>();
+    private List<int> maximumItemIndexList = new List<int>();
+    private GeneralStatList generalStatList = null;
+
+    private int numberOfItemsMax;
+    private readonly string DATAKEY = "GENERALSTATLISTDATA";
 
     private void Start()
     {
-        userInfoManager = UserInfoManager.Instance;
         EventDispatcher.Push(EventId.CheckGoldToEnhance, GameManager.Instance.GetGold());
+    }
+
+    private void SaveData()
+    {
+        PlayerPrefs.SetString(DATAKEY, JsonUtility.ToJson(generalStatList));
     }
 
     public void LoadGeneralData()
     {
+        var json = PlayerPrefs.GetString(DATAKEY, null);
+        generalStatList = JsonUtility.FromJson<GeneralStatList>(json);
+        if (generalStatList == null)
+            generalStatList = new GeneralStatList();
+
         for (int i = 0; i < generalStatsConfigs.Length; i++)
         {
-            GeneralStat generalStat = Db.ReadGeneralData(generalStatsConfigs[i].statName);
-            if (generalStat == null) // new user
+            GeneralStat generalStat = null;
+            if (json == null || json == "") // new user
             {
                 generalStat = new GeneralStat()
                 {
@@ -31,9 +43,19 @@ public class GeneralManager : MonoBehaviour
                     stat = generalStatsConfigs[i].statLv1,
                     type = generalStatsConfigs[i].type,
                 };
-                Db.SaveGeneralData(generalStat, generalStat.name);
+                generalStatList.list.Add(generalStat);
             }
-            generalStats.Add(generalStat);
+            else
+            {
+                generalStat = generalStatList.list[i];
+            }
+            // Check level max
+            if (generalStatsConfigs[i].isValueSmall && int.Parse(generalStat.level) >= generalStatsConfigs[i].levelMax) // some stats have a maximum level
+            {
+                generalItems[i].GetTransform().SetSiblingIndex(generalStat.positionIndex);
+                maximumItemIndexList.Add(i);
+                numberOfItemsMax++;
+            }
             // Set item
             generalItems[i].SetStat(generalStat, generalStatsConfigs[i]);
         }
@@ -41,14 +63,23 @@ public class GeneralManager : MonoBehaviour
 
     public void ChangeGeneralData(BigInteger enhanceGold, GeneralStat generalStat)
     {
-        Db.SaveGeneralData(generalStat, generalStat.name);
+        SaveData();
         GameManager.Instance.SetGold(GameManager.Instance.GetGold() - enhanceGold);
         EventDispatcher.Push(EventId.CheckGoldToEnhance, GameManager.Instance.GetGold());
         SetUserInfo(generalStat.type);
     }
 
+    public void ChangeGeneralItemPostion(GeneralItem generalItem, GeneralStat generalStat)
+    {
+        int changingPositionIndex = generalStatsConfigs.Length - numberOfItemsMax - 1;
+        generalStat.positionIndex = changingPositionIndex;
+        generalItem.GetTransform().SetSiblingIndex(changingPositionIndex);
+        numberOfItemsMax++;
+    }
+
     public void SetUserInfo(GeneralStatsType type)
     {
+        UserInfoManager userInfoManager = UserInfoManager.Instance;
         switch (type)
         {
             case GeneralStatsType.Attack:
@@ -79,10 +110,10 @@ public class GeneralManager : MonoBehaviour
     /// <returns></returns>
     public BigInteger GetBigValue(GeneralStatsType type)
     {
-        GeneralStat generalStat = generalStats.Find(stat => stat.type == type);
+        GeneralStat generalStat = generalStatList.list[(int)type]/*.Find(stat => stat.type == type)*/;
         return BigInteger.Parse(generalStat.stat);
     }
-    
+
     /// <summary>
     /// Get values: atk speed, hp recovery, critical hit chance
     /// </summary>
@@ -90,7 +121,7 @@ public class GeneralManager : MonoBehaviour
     /// <returns></returns>
     public float GetSmallValue(GeneralStatsType type)
     {
-        GeneralStat generalStat = generalStats.Find(stat => stat.type == type);
+        GeneralStat generalStat = generalStatList.list[(int)type];
         return float.Parse(generalStat.stat);
     }
 

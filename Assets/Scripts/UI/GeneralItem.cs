@@ -1,5 +1,5 @@
 using System;
-using System.Numerics;
+using BigInteger = System.Numerics.BigInteger;
 using TMPro;
 using UnityEngine;
 
@@ -7,31 +7,74 @@ public class GeneralItem : MonoBehaviour
 {
     [SerializeField] private TMP_Text txtLv, txtStat, txtGold;
     [SerializeField] private HoldGStatsButton holdGStatsButton;
-    [SerializeField] private GeneralManager GeneralManager;
+    [SerializeField] private GeneralManager generalManager;
     [SerializeField] private string unit;
 
-    private BigInteger level, bigValue, gold;
+    private Transform cachedTfm;
     private GeneralStat generalStat;
     private SObjGeneralStatsConfig generalStatsConfig;
+
+    private BigInteger level, bigValue, gold;
 
     private float smallValue;
 
     private void Awake()
     {
+        cachedTfm = transform;
+    }
+
+    private void OnEnable()
+    {
         EventDispatcher.Register(EventId.CheckGoldToEnhance, CheckGoldEnough);
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         EventDispatcher.RemoveCallback(EventId.CheckGoldToEnhance, CheckGoldEnough);
     }
 
-    private void CheckMaxLevel()
+    private void CheckMaxLevel(bool enhance)
     {
-        if (generalStatsConfig.levelMax > 0 && generalStatsConfig.levelMax <= level) // levelMax <= 0 means item doesn't need check max level
+        if (generalStatsConfig.isValueSmall && generalStatsConfig.levelMax <= level)
         {
             // block button
             holdGStatsButton.SetMaxLv();
+            if (enhance)
+                generalManager.ChangeGeneralItemPostion(this, generalStat);
+        }
+    }
+
+    private void SetTxtLevel(BigInteger lv)
+    {
+        txtLv.text = "Level " + lv.ToString();
+    }
+
+
+    private void SetTextGold(BigInteger gold)
+    {
+        txtGold.text = FillData.Instance.FormatNumber(gold);
+    }
+
+    private void SetTxtStat(BigInteger stat)
+    {
+        txtStat.text = FillData.Instance.FormatNumber(stat) + unit;
+    }
+
+    private void SetTxtStat(float stat)
+    {
+        txtStat.text = stat.ToString() + unit;
+    }
+
+    private void CheckGoldEnough(object _gold)
+    {
+        BigInteger ownedGold = (BigInteger)_gold;
+        if (ownedGold < gold) // can't enhance
+        {
+            holdGStatsButton.SetInteractive(false);
+        }
+        else
+        {
+            holdGStatsButton.SetInteractive(true);
         }
     }
 
@@ -40,7 +83,7 @@ public class GeneralItem : MonoBehaviour
         generalStat = _stat;
         generalStatsConfig = config;
         level = BigInteger.Parse(generalStat.level);
-        CheckMaxLevel();
+        CheckMaxLevel(false);
         gold = BigInteger.Parse(generalStat.gold);
         if (generalStatsConfig.isValueSmall)
         {
@@ -56,45 +99,12 @@ public class GeneralItem : MonoBehaviour
         SetTextGold(gold);
     }
 
-    public void SetTxtLevel(BigInteger lv)
-    {
-        txtLv.text = "Level " + lv.ToString();
-    }
-
-    public void SetTextGold(BigInteger gold)
-    {
-        txtGold.text = FillData.Instance.FormatNumber(gold);
-    }
-
-    public void SetTxtStat(BigInteger stat)
-    {
-        txtStat.text = FillData.Instance.FormatNumber(stat) + unit;
-    }
-
-    public void SetTxtStat(float stat)
-    {
-        txtStat.text = stat.ToString() + unit;
-    }
-
-    public void CheckGoldEnough(object _gold)
-    {
-        BigInteger ownedGold = (BigInteger)_gold;
-        if (ownedGold < gold) // can't enhance
-        {
-            holdGStatsButton.SetInteractive(false);
-        }
-        else
-        {
-            holdGStatsButton.SetInteractive(true);
-        }
-    }
-
     public void EnhanceItem()
     {
         // increase lv, stat, gold
-        level += Mathf.RoundToInt(generalStatsConfig.levelEnhance);
+        level += 1;
         // check max level
-        CheckMaxLevel();
+        CheckMaxLevel(true);
         BigInteger enhanceGold = gold;
         gold += Mathf.RoundToInt(generalStatsConfig.goldPerLv);
         if (generalStatsConfig.isValueSmall)
@@ -115,6 +125,8 @@ public class GeneralItem : MonoBehaviour
         SetTxtLevel(level);
         SetTextGold(gold);
         // save db
-        GeneralManager.ChangeGeneralData(enhanceGold,generalStat);
+        generalManager.ChangeGeneralData(enhanceGold, generalStat);
     }
+
+    public Transform GetTransform() => cachedTfm;
 }
