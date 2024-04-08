@@ -10,13 +10,18 @@ public class DarkBoardLoadingUI : MonoBehaviour
 
     public static bool Fading { get; private set; }
 
+    private void Start()
+    {
+        Fading = false;
+    }
+
     public void StartFadeBoard(bool delay, UnityAction resetAction)
     {
         Fading = true;
         StopAllCoroutines();
         StartCoroutine(IEStartFade(delay, resetAction));
     }
-        
+
     private IEnumerator IEStartFade(bool delay, UnityAction resetAction)
     {
         // delay
