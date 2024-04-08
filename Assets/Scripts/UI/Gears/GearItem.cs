@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
@@ -73,10 +74,10 @@ public class GearItem : MonoBehaviour
         {
             gearStats.numberOfPoints -= gearStats.totalPoint;
             gearStats.level += 1;
-            gearStats.equippedEffect = (gearsStatsConfig.firstEquippedEffect + gearStats.level).ToString();
+            gearStats.equippedEffect = (gearsStatsConfig.firstEquippedEffect + gearStats.level);
 
             gearsStatsManager.SetTotalOwnedEffectValue(gearStats.ownedEffect, false, gearStats.type);
-            gearStats.ownedEffect = (gearsStatsConfig.firstOwnedEffect + gearStats.level).ToString();
+            gearStats.ownedEffect = (gearsStatsConfig.firstOwnedEffect + gearStats.level);
             gearsStatsManager.SetTotalOwnedEffectValue(gearStats.ownedEffect, true, gearStats.type);
 
             gearStats.totalPoint = gearsStatsConfig.pointPerLv + (gearStats.level * gearsStatsConfig.maxPercentLevel / 100);
@@ -86,7 +87,6 @@ public class GearItem : MonoBehaviour
         if (gearStats.level == gearsStatsConfig.levelMax)
         {
             SetGearPointUI();
-            Debug.Log(gearStats.ownedEffect);
         }
         else
         {

@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using BigInteger = System.Numerics.BigInteger;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEditorInternal.Profiling.Memory.Experimental;
 
 
 public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
@@ -12,7 +10,7 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
     private class IndividualGearStats
     {
         public GearStats gearStatsEquipped;
-        public BigInteger totalOEDamage; // owned effects damage
+        public int totalOEDamage; // owned effects damage
     }
 
     [SerializeField] private RectTransform rectTfm;
@@ -64,8 +62,8 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
                 totalPoint = gearStatsConfig.pointPerLv + (1 * gearStatsConfig.maxPercentLevel / 100),
                 type = gearStatsConfig.type,
                 mode = gearStatsConfig.mode,
-                ownedEffect = gearStatsConfig.firstOwnedEffect.ToString(),
-                equippedEffect = gearStatsConfig.firstEquippedEffect.ToString(),
+                ownedEffect = gearStatsConfig.firstOwnedEffect,
+                equippedEffect = gearStatsConfig.firstEquippedEffect,
                 equipped = true,
                 unblocked = true,
                 position = 1,
@@ -129,8 +127,8 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
                     totalPoint = gearStatsConfig.pointPerLv + (1 * gearStatsConfig.maxPercentLevel / 100),
                     type = gearStatsConfig.type,
                     mode = gearStatsConfig.mode,
-                    ownedEffect = gearStatsConfig.firstOwnedEffect.ToString(),
-                    equippedEffect = gearStatsConfig.firstEquippedEffect.ToString(),
+                    ownedEffect = gearStatsConfig.firstOwnedEffect,
+                    equippedEffect = gearStatsConfig.firstEquippedEffect,   
                     equipped = false,
                     unblocked = false,
                     position = index + 1
@@ -233,7 +231,7 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
         for (int i = 0; i < gearStatsDic[gearType].list.Count; i++)
         {
             if (gearStatsDic[gearType].list[i].unblocked)
-                individualGearStats[(int)gearType].totalOEDamage += BigInteger.Parse(gearStatsDic[gearType].list[i].ownedEffect);
+                individualGearStats[(int)gearType].totalOEDamage += gearStatsDic[gearType].list[i].ownedEffect;
         }
     }
 
@@ -242,19 +240,19 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
     /// </summary>
     /// <param name="ownedEffect"></param>
     /// <param name="additional"></param>
-    public void SetTotalOwnedEffectValue(string ownedEffect, bool additional, GearType type)
+    public void SetTotalOwnedEffectValue(int ownedEffect, bool additional, GearType type)
     {
         if (additional)
-            individualGearStats[(int)type].totalOEDamage += BigInteger.Parse(ownedEffect);
+            individualGearStats[(int)type].totalOEDamage += ownedEffect;
         else
-            individualGearStats[(int)type].totalOEDamage -= BigInteger.Parse(ownedEffect);
+            individualGearStats[(int)type].totalOEDamage -= ownedEffect;
 
         SetOEUI(type);
     }
 
-    public BigInteger GetAllEffectDamage(GearType type)
+    public int GetAllEffectDamage(GearType type)
     {
-        return BigInteger.Parse(individualGearStats[(int)type].gearStatsEquipped.equippedEffect) + individualGearStats[(int)type].totalOEDamage;
+        return individualGearStats[(int)type].gearStatsEquipped.equippedEffect + individualGearStats[(int)type].totalOEDamage;
     }
 
     public void SetOEUI(GearType gearType)
@@ -265,7 +263,10 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
 
     public void OnClickEnhanceAll()
     {
-        // Enhance all gear items in list then remove them
+        // Disable button
+        btnEnhanceAll.interactable = false;
+        imgEnhanceAll.color = colorDisableBtn;
+        // Enhance all gear items in list
         while (gearItemsEnhance.Count > 0)
         {
             gearItemsEnhance[0].SetEnhance();

@@ -94,14 +94,14 @@ public class GearInfoUI : MonoBehaviour
         imgAmountPoint.fillAmount = 1;
     }
 
-    public void SetTxtOwnedEffect(string value)
+    public void SetTxtOwnedEffect(int value)
     {
-        txtOwnedEffect.text = GetTypeDescribeEffect() + FillData.Instance.FormatNumber(BigInteger.Parse(value)) + "%";
+        txtOwnedEffect.text = GetTypeDescribeEffect() + FillData.Instance.FormatNumber(value) + "%";
     }
 
-    public void SetTextEquippedEffect(string value)
+    public void SetTextEquippedEffect(int value)
     {
-        txtEquippedEffect.text = GetTypeDescribeEffect() + FillData.Instance.FormatNumber(BigInteger.Parse(value)) + "%";
+        txtEquippedEffect.text = GetTypeDescribeEffect() + FillData.Instance.FormatNumber(value) + "%";
     }
 
     public string GetTypeDescribeEffect()
