@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 
@@ -16,7 +16,6 @@ public class GearModeTool
     public int toEquippedEffect;
 }
 
-[ExecuteInEditMode]
 public class GearStatsTool : MonoBehaviour
 {
     public GearModeTool[] gearModeTools;
@@ -123,8 +122,8 @@ public class GearStatsTool : MonoBehaviour
 
             int index = gearStats.position - 1;
             gearStats.totalPoint = configs[index].pointPerLv + (1 * configs[index].maxPercentLevel / 100);
-            gearStats.ownedEffect = configs[index].firstOwnedEffect.ToString();
-            gearStats.equippedEffect = configs[index].firstEquippedEffect.ToString();
+            gearStats.ownedEffect = configs[index].firstOwnedEffect;
+            gearStats.equippedEffect = configs[index].firstEquippedEffect;
 
         }
         PlayerPrefs.SetString(type + DATAKEY, JsonUtility.ToJson(gearStatsList));
@@ -158,8 +157,8 @@ public class GearStatsTool : MonoBehaviour
                 totalPoint = configs[0].pointPerLv,
                 type = configs[0].type,
                 mode = configs[0].mode,
-                ownedEffect = configs[0].firstOwnedEffect.ToString(),
-                equippedEffect = configs[0].firstEquippedEffect.ToString(),
+                ownedEffect = configs[0].firstOwnedEffect,
+                equippedEffect = configs[0].firstEquippedEffect,
                 equipped = true,
                 unblocked = true,
                 position = 1,
@@ -180,8 +179,8 @@ public class GearStatsTool : MonoBehaviour
                     totalPoint = configs[index].pointPerLv,
                     type = configs[index].type,
                     mode = configs[index].mode,
-                    ownedEffect = configs[index].firstOwnedEffect.ToString(),
-                    equippedEffect = configs[index].firstEquippedEffect.ToString(),
+                    ownedEffect = configs[index].firstOwnedEffect,
+                    equippedEffect = configs[index].firstEquippedEffect,
                     equipped = numberOfSpawn == 1,
                     unblocked = true,
                     position = index + 1,
@@ -233,8 +232,8 @@ public class GearStatsTool : MonoBehaviour
                     totalPoint = configs[index].pointPerLv,
                     type = configs[index].type,
                     mode = configs[index].mode,
-                    ownedEffect = configs[index].firstOwnedEffect.ToString(),
-                    equippedEffect = configs[index].firstEquippedEffect.ToString(),
+                    ownedEffect = configs[index].firstOwnedEffect,
+                    equippedEffect = configs[index].firstEquippedEffect,
                     equipped = false,
                     unblocked = true,
                     position = index + 1,
@@ -247,7 +246,7 @@ public class GearStatsTool : MonoBehaviour
                 gearStatsList.list.Add(gearStats);
             }
         }
-        Debug.Log(JsonUtility.ToJson(gearStatsList));
         PlayerPrefs.SetString(type + DATAKEY, JsonUtility.ToJson(gearStatsList));
     }
 }
+#endif

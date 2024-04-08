@@ -1,4 +1,4 @@
-using System;
+#if UNITY_EDITOR
 using UnityEngine;
 
 public class HeroStatsTool : MonoBehaviour
@@ -135,3 +135,4 @@ public class HeroStatsTool : MonoBehaviour
         PlayerPrefs.SetString(DATAKEY, JsonUtility.ToJson(heroStatsList));
     }
 }
+#endif
