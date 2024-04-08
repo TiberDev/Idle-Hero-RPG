@@ -3,6 +3,7 @@ using BigInteger = System.Numerics.BigInteger;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Reflection;
 
 public class CharacterHpBar : MonoBehaviour
 {
@@ -15,14 +16,27 @@ public class CharacterHpBar : MonoBehaviour
 
     private Coroutine corouHpEffect;
 
-    private float curHpBar;
+    private float curPoint;
     private void LateUpdate()
     {
         if (txtInfo == null)
             transform.eulerAngles = Vector3.up * 134;
     }
 
-    public void SetHpUI(BigInteger curHp, BigInteger maxHp, bool isEffect)
+    private IEnumerator IEHpEffect(float desireHp, float maxHp)
+    {
+        float curTime = time;
+        float tempHp = curPoint;
+        while (curTime > 0)
+        {
+            curTime -= Time.deltaTime;
+            curPoint = Mathf.Lerp(desireHp, tempHp, curTime / time);
+            imgHpBar.fillAmount = curPoint / maxHp;
+            yield return null;
+        }
+    }
+
+    public void SetFillAmountUI(BigInteger curHp, BigInteger maxHp, bool isEffect)
     {
         int exponential_1 = 0, exponential_2 = 0;
         while (curHp > (BigInteger)float.MaxValue)
@@ -50,7 +64,7 @@ public class CharacterHpBar : MonoBehaviour
 
         if (!isEffect)
         {
-            curHpBar = newCurHp;
+            curPoint = newCurHp;
             imgHpBar.fillAmount = newCurHp / newMaxHp;
             if (corouHpEffect != null)
                 StopCoroutine(corouHpEffect);
@@ -59,6 +73,21 @@ public class CharacterHpBar : MonoBehaviour
         if (corouHpEffect != null)
             StopCoroutine(corouHpEffect);
         corouHpEffect = StartCoroutine(IEHpEffect(newCurHp, newMaxHp));
+    }
+
+    public void SetFillAmountUI(int curWave, int totalWave, bool isEffect)
+    {
+        if (!isEffect)
+        {
+            curPoint = curWave;
+            imgHpBar.fillAmount = curPoint / totalWave;
+            if (corouHpEffect != null)
+                StopCoroutine(corouHpEffect);
+            return;
+        }
+        if (corouHpEffect != null)
+            StopCoroutine(corouHpEffect);
+        corouHpEffect = StartCoroutine(IEHpEffect(curWave, totalWave));
     }
 
     /// <summary>
@@ -116,19 +145,6 @@ public class CharacterHpBar : MonoBehaviour
         else
         {
             rectTfm.sizeDelta = new Vector2(465, 65);
-        }
-    }
-
-    private IEnumerator IEHpEffect(float desireHp, float maxHp)
-    {
-        float curTime = time;
-        float tempHp = curHpBar;
-        while (curTime > 0)
-        {
-            curTime -= Time.deltaTime;
-            curHpBar = Mathf.Lerp(desireHp, tempHp, curTime / time);
-            imgHpBar.fillAmount = curHpBar / maxHp;
-            yield return null;
         }
     }
 }
