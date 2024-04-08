@@ -24,7 +24,8 @@ public class UserInfoManager : Singleton<UserInfoManager>
         Debug.Log($"base ATK: {baseATK}    addition effect: {heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseATK)}%   " +
             $"gear:  {gearsStatsManager.GetAllEffectDamage(GearType.Weapon)}%      skill: {skillStatsManager.GetAllOEDamage()}%");
 
-        userInfo.atk = baseATK + baseATK * maxATKPercent;
+        userInfo.atk = baseATK + baseATK * maxATKPercent / 100;
+        Debug.Log("Hero: ATK: " + userInfo.atk);
 
         List<Character> heroes = GameManager.Instance.GetCharacters(CharacterType.Hero);
         if (heroes != null & heroes.Count > 0)
@@ -40,12 +41,12 @@ public class UserInfoManager : Singleton<UserInfoManager>
         Debug.Log($"base HP: {baseHP}    addition effect: {heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseHp)}%   " +
            $"gear:  {gearsStatsManager.GetAllEffectDamage(GearType.Armor)}%");
 
-        BigInteger preHP = userInfo.hp;
-        userInfo.hp = baseHP + baseHP * maxHPPercent;
+        userInfo.hp = baseHP + baseHP * maxHPPercent / 100;
+        Debug.Log("Hero: HP: " + userInfo.hp);
 
         List<Character> heroes = GameManager.Instance.GetCharacters(CharacterType.Hero);
         if (heroes != null & heroes.Count > 0)
-            heroes[0].SetMaxHp(userInfo.hp - preHP);
+            heroes[0].SetMaxHp(userInfo.hp);
     }
 
     public void SetATKSpeed()
@@ -71,7 +72,7 @@ public class UserInfoManager : Singleton<UserInfoManager>
         BigInteger baseCHD = generalManager.GetBigValue(GeneralStatsType.CriticalHitDamage);
         BigInteger percent = heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseCriticalHitDamage);
 
-        Debug.Log($"base CriticalHitDamage: {baseCHD}    addition effect: {percent}%");
+        //Debug.Log($"base CriticalHitDamage: {baseCHD}    addition effect: {percent}%");
         userInfo.criticalHitDamage = baseCHD + baseCHD * percent;
     }
 
@@ -80,7 +81,7 @@ public class UserInfoManager : Singleton<UserInfoManager>
         BigInteger baseBossDamage = 100;
         BigInteger percent = heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseBossDamage);
 
-        Debug.Log($"base BossDamage: {baseBossDamage}    addition effect: {percent}%");
+        //Debug.Log($"base BossDamage: {baseBossDamage}    addition effect: {percent}%");
         userInfo.bossDamage = baseBossDamage + baseBossDamage * percent;
     }
 
@@ -89,7 +90,7 @@ public class UserInfoManager : Singleton<UserInfoManager>
         BigInteger baseSkillDamage = 100;
         BigInteger percent = heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseSkillDamage);
 
-        Debug.Log($"base SkillDamage: {baseSkillDamage}    addition effect: {percent}%");
+        //Debug.Log($"base SkillDamage: {baseSkillDamage}    addition effect: {percent}%");
         userInfo.skillDamage = baseSkillDamage + baseSkillDamage * percent;
     }
 
@@ -98,7 +99,7 @@ public class UserInfoManager : Singleton<UserInfoManager>
         BigInteger baseGoldObtain = 100;
         BigInteger percent = heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseGoldObtain);
 
-        Debug.Log($"base GoldObtain: {baseGoldObtain}    addition effect: {percent}%");
+        //Debug.Log($"base GoldObtain: {baseGoldObtain}    addition effect: {percent}%");
         userInfo.goldObtain = baseGoldObtain + baseGoldObtain * percent;
     }
 }
