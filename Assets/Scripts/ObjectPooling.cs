@@ -86,6 +86,7 @@ public enum PoolType
     Enemy,
     Skill,
     Bullet,
+    Effect,
 }
 
 public class ObjPool
