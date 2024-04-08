@@ -95,8 +95,6 @@ public class SkillItem : MonoBehaviour
             SetSkillPointUI(skillStats.numberOfPoints, skillStats.totalPoint);
         }
         skillStatsManager.RemoveSkillItemEnhance(this);
-        //// Change OE value when enhance successfully
-        //skillStatsManager.SetTotalOwnedEffectValue();
     }
 
     public void OnClickItem()
