@@ -6,10 +6,9 @@ public class Bullet : MonoBehaviour, ICharacterCollisionHandler
     [SerializeField] private float moveSpeed;
 
     private Character target, owner;
-    private Transform cachedTfm, cachedTarget;
+    private Transform cachedTfm, tfmTarget;
     private ObjectPooling objectPooling;
 
-    private Vector3 destination;
     private bool enableMove;
 
     private void Awake()
@@ -25,18 +24,16 @@ public class Bullet : MonoBehaviour, ICharacterCollisionHandler
 
     private void Update()
     {
-        if (!enableMove)                             
+        if (!enableMove)
             return;
 
-        if (target != null)
-        {
-            destination = cachedTarget.position;
-            if (target.IsBoss)
-                destination.y += 2;
-        }
-        cachedTfm.position = Vector3.MoveTowards(cachedTfm.position, destination, moveSpeed * Time.deltaTime);
-        SetDirection(destination);
-        if (cachedTfm.position == destination && target == null)
+        //if (target != null)
+        //{
+
+        //}
+        cachedTfm.position = Vector3.MoveTowards(cachedTfm.position, tfmTarget.position, moveSpeed * Time.deltaTime);
+        SetDirection(tfmTarget.position);
+        if (cachedTfm.position == tfmTarget.position && target == null)
         {
             enableMove = false;
             objectPooling.RemoveGOInPool(gameObject, PoolType.Bullet, name);
@@ -58,16 +55,13 @@ public class Bullet : MonoBehaviour, ICharacterCollisionHandler
     private void TargetDie()
     {
         target.DieAction -= TargetDie;
-        destination = cachedTarget.position;
-        if (target.IsBoss)
-            destination.y += 2;
         RemoveTarget();
     }
 
     private void RemoveTarget()
     {
         target = null;
-        cachedTarget = null;
+        tfmTarget = null;
     }
 
     public void Init(Character _target, Character _owner)
@@ -75,7 +69,7 @@ public class Bullet : MonoBehaviour, ICharacterCollisionHandler
         owner = _owner;
         target = _target;
         target.DieAction += TargetDie;
-        cachedTarget = _target.GetTransform();
+        tfmTarget = _target.GetHeadTransform();
         enableMove = true;
     }
 
@@ -89,7 +83,7 @@ public class Bullet : MonoBehaviour, ICharacterCollisionHandler
         enableMove = false;
         target.DieAction -= TargetDie;
         RemoveTarget();
-        character.TakeDamage(owner.GetTotalDamage(character.IsBoss));
+        character.TakeDamage(owner.GetTotalDamage(character.IsBoss), DamageTakenType.Normal);
         objectPooling.RemoveGOInPool(gameObject, PoolType.Bullet, name);
     }
 
