@@ -364,6 +364,10 @@ public class SkillStatsManager : MonoBehaviour, IBottomTabHandler
 
     private void SetAllSkillItemsEnhance()
     {
+        // Disable button
+        btnEnhanceAll.interactable = false;
+        imgEnhanceAll.color = colorDisableBtn;
+
         for (int i = 0; i < skillStatsList.list.Count; i++)
         {
             IncreasePointSkillItem(skillStatsList.list[i], skillStatsConfigs[i]);
