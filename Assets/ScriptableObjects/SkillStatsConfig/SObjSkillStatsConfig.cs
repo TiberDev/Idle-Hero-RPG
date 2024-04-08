@@ -8,8 +8,9 @@ public class SObjSkillStatsConfig : ScriptableObject
     public string describe_2;
     public int cooldown;
     public int levelMax = 10;
-    public int totalPointByXLv = 6; // total point is define by multipe current level
-    public int damage, ownedEffect; // next value = current value + level (maybe change later)
+    public int maxPercentLevel;
+    public int pointPerLv; // total point is define by pointPerLv + (level * maxPercentLevel / 100)
+    public int damage, ownedEffect; // next value = damage level 1 + level (%)
     public Sprite skillSpt;
     public Skill prefab;
 }
