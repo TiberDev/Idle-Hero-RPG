@@ -16,7 +16,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private BossStage bossStage;
     [SerializeField] private UIManager uiManager;
     [SerializeField] private DarkBoardLoadingUI darkBoardLoading;
-    [SerializeField] private Transform tfmHeroPool, tfmEnemyPool, tfmSkillPool, tfmBulletPool;
+    [SerializeField] private Transform tfmHeroPool, tfmEnemyPool, tfmSkillPool, tfmBulletPool, tfmEffectPool;
     [SerializeField] private SkillTable skillTable;
 
     [SerializeField] private Color colorHero;
@@ -94,6 +94,7 @@ public class GameManager : Singleton<GameManager>
         DontDestroyOnLoad(tfmEnemyPool);
         DontDestroyOnLoad(tfmSkillPool);
         DontDestroyOnLoad(tfmBulletPool);
+        DontDestroyOnLoad(tfmEffectPool);
     }
 
     ///// <summary>
@@ -229,7 +230,7 @@ public class GameManager : Singleton<GameManager>
         return hero;
     }
 
-    public void SpawnEnemyInGame(Character prefab, Vector3 position, int atk, int hp)
+    public void SpawnEnemyInGame(Character prefab, Vector3 position, BigInteger atk, BigInteger hp)
     {
         Character character = objectPooling.SpawnG0InPool(prefab.gameObject, position, PoolType.Enemy).GetComponent<Character>();
         character.transform.rotation = Quaternion.identity;
@@ -285,7 +286,7 @@ public class GameManager : Singleton<GameManager>
                     {
                         Character cloneHero = heroList[1];
                         heroList.RemoveAt(1);
-                        cloneHero.TakeDamage(cloneHero.GetMaxHp());
+                        cloneHero.TakeDamage(cloneHero.GetMaxHp(), DamageTakenType.Normal);
                     }
                     // game lose
                     IsOver = true;
