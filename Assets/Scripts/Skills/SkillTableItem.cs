@@ -125,9 +125,6 @@ public class SkillTableItem : MonoBehaviour
 
     public void ResetExecutingSkill()
     {
-        //if (skillStatsConfig == null) // item is null
-        //    return;
-
         if (skill != null)
             skill.EndExistence();
 
