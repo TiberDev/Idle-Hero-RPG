@@ -6,10 +6,10 @@ public class DamageTaken : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-       if(other.CompareTag("Hero") || other.CompareTag("Enemy"))
+        if (other.CompareTag("Hero") || other.CompareTag("Enemy"))
         {
             Character collider = other.GetComponentInParent<Character>();
-            character.TakeDamage(collider.GetTotalDamage(character.IsBoss));
+            character.TakeDamage(collider.GetTotalDamage(character.IsBoss), DamageTakenType.Skill);
         }
     }
 }
