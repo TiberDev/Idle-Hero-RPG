@@ -9,7 +9,7 @@ public class Skill : MonoBehaviour
     protected ObjectPooling objectPooling;
     protected Transform cachedTfm;
 
-    protected int value;
+    protected int value; // total value include % skill damage
 
     public void Init(SkillTableItem item)
     {
@@ -31,6 +31,8 @@ public class Skill : MonoBehaviour
     public void SetValue(int _value)
     {
         value = _value;
+        value += value * (UserInfoManager.Instance.GetUserInfo().skillDamage - 100) / 100;
+        Debug.Log($"skill name: {name}     baseValue:{_value}   totalValue: {value}");
     }
 
     protected void SetExistingCooldown()
