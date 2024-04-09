@@ -10,7 +10,7 @@ public class Boss : MeleeAttackCharacter
         SetTarget(FindHero());
         //// Show info to UI
         //characterHpBar.SetHpUI(characterInfo.curHp, characterInfo.maxHp, false);
-        gameManager.NotifyGameOverAction += SetGameOverState;
+        gameManager.NotifyGameOverAction += EndGameState;
     }
 
     public override void SetHpBar(CharacterHpBar hpBar)
