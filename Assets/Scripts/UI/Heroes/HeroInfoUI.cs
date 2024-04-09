@@ -189,6 +189,11 @@ public class HeroInfoUI : MonoBehaviour
             // Check effect to unlock
             CheckEffectUnBlock();
         }
+        GameManager gameManager = GameManager.Instance;
+        gameManager.SetPinkGem(heroStatConfig.gemToEnhance, false);
+        gameManager.UiManager.SetTextPinkGem(heroStatConfig.gemToEnhance, false);
+        // Save data
+        heroStatsManager.SaveData();
         // Show UI
         if (heroStats.level == heroStatConfig.levelMax)
         {
@@ -200,8 +205,5 @@ public class HeroInfoUI : MonoBehaviour
             SetHeroPointUI(heroStats.numberOfPoints, heroStats.totalPoint);
             SetEnhanceUI();
         }
-        // Save data
-        heroStatsManager.SaveData();
-        GameManager.Instance.SetPinkGem(GameManager.Instance.GetPinkGem() - heroStatConfig.gemToEnhance);
     }
 }

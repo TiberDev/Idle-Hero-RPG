@@ -41,7 +41,7 @@ public class UserInfoUI : MonoBehaviour
 
     private void OnEnable()
     {
-        UserInfo userInfo = UserInfoManager.Instance.userInfo;
+        UserInfo userInfo = UserInfoManager.Instance.GetUserInfo();
         txtATK.text = FillData.Instance.FormatNumber(userInfo.atk);
         txtHp.text = FillData.Instance.FormatNumber(userInfo.hp);
         txtATKSpeed.text = userInfo.atkSpeed.ToString();

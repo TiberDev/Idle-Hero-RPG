@@ -10,24 +10,29 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private CharacterHpBar turnBar;
     [SerializeField] private TMP_Text txtGold, txtPinkGem, txtBlueGem;
 
+    private BigInteger goldUI, blueGemUI, pinkGemUI;
     public CharacterHpBar GetTurnBar()
     {
         return turnBar;
     }
 
-    public void SetTextGold(BigInteger gold)
+    public void SetTextGold(BigInteger gold, bool addtional)
     {
-        txtGold.text = FillData.Instance.FormatNumber(gold);
+        goldUI += addtional ? gold : -gold;
+        txtGold.text = FillData.Instance.FormatNumber(goldUI);
+        EventDispatcher.Push(EventId.CheckGoldToEnhance, goldUI);
     }
 
-    public void SetTextBlueGem(BigInteger gem)
+    public void SetTextBlueGem(BigInteger gem, bool addtional)
     {
-        txtBlueGem.text = FillData.Instance.FormatNumber(gem);
+        blueGemUI += addtional ? gem : -gem;
+        txtBlueGem.text = FillData.Instance.FormatNumber(blueGemUI);
     }
 
-    public void SetTextPinkGem(BigInteger gem)
+    public void SetTextPinkGem(BigInteger gem, bool additional)
     {
-        txtPinkGem.text = FillData.Instance.FormatNumber(gem);
+        pinkGemUI += additional ? gem : -gem;
+        txtPinkGem.text = FillData.Instance.FormatNumber(pinkGemUI);
     }
 
 }

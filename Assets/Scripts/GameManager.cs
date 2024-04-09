@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -23,10 +25,9 @@ public class GameManager : Singleton<GameManager>
 
     [SerializeField] private int numberOfEnemyMax;
     [SerializeField] private int numberOfEnemyInRow;
-    [SerializeField] private string goldString;
-    [SerializeField] private string gemString;
+    [SerializeField] private string earlyGold, earlyBlueGem, earlyPinkGem;
 
-    private BigInteger gold = 100000000000000, blueGem = 100000000000000, pinkGem = 100000000000000;
+    private BigInteger gold, blueGem, pinkGem;
     private UnityAction notifyGameOverAction;
     private UserInfo userInfo;
     private UserInfoManager userInfoManager;
@@ -41,6 +42,7 @@ public class GameManager : Singleton<GameManager>
     public UnityAction NotifyGameOverAction { get => notifyGameOverAction; set => notifyGameOverAction = value; }
 
     public UserInfo UserInfo { get => userInfo; }
+    public UIManager UiManager { get => uiManager; }
 
     private void Start()
     {
@@ -57,12 +59,18 @@ public class GameManager : Singleton<GameManager>
 
     private void LoadAllDatas()
     {
-        // gold, gem
-        uiManager.SetTextGold(gold);
-        uiManager.SetTextPinkGem(pinkGem);
-        uiManager.SetTextBlueGem(blueGem);
+        // gold, gems
+        gold = BigInteger.Parse(PlayerPrefs.GetString("GOLDDATA", earlyGold));
+        blueGem = BigInteger.Parse(PlayerPrefs.GetString("BLUEGEMDATA", earlyBlueGem));
+        pinkGem = BigInteger.Parse(PlayerPrefs.GetString("PINKGEMDATA", earlyPinkGem));
+        // show on ui
+        uiManager.SetTextGold(gold,true);
+        uiManager.SetTextPinkGem(pinkGem, true);
+        uiManager.SetTextBlueGem(blueGem, true);
         // stats
         generalManager.LoadGeneralData();
+        EventDispatcher.Push(EventId.CheckGoldToEnhance, gold);
+
         heroStatsManager.LoadHeroesData();
         gearsStatsManager.LoadGearsData(GearType.Weapon);
         gearsStatsManager.LoadGearsData(GearType.Armor);
@@ -72,7 +80,7 @@ public class GameManager : Singleton<GameManager>
 
     private void SetUserInfoData()
     {
-        userInfo = userInfoManager.userInfo;
+        userInfo = userInfoManager.GetUserInfo();
         userInfoManager.SetATK();
         userInfoManager.SetHp();
         userInfoManager.SetATKSpeed();
@@ -96,15 +104,6 @@ public class GameManager : Singleton<GameManager>
         DontDestroyOnLoad(tfmBulletPool);
         DontDestroyOnLoad(tfmEffectPool);
     }
-
-    ///// <summary>
-    ///// 
-    ///// </summary>
-    //public void StartGameInNewMap()
-    //{
-    //    InitCharacters();
-    //    skillTable.ResetAllSkillTableItem();
-    //}
 
     public void RenewGameState(bool resetWave)
     {
@@ -133,21 +132,6 @@ public class GameManager : Singleton<GameManager>
         skillTable.ResetAllSkillTableItem();
     }
 
-    ///// <summary>
-    ///// Spawn hero end enemy when load new map model (next round and map)
-    ///// </summary>
-    //private void InitCharacters()
-    //{
-    //    while (heroList.Count > 0)
-    //    {
-    //        objectPooling.RemoveGOInPool(heroList[0].gameObject, PoolType.Hero, heroList[0].name);
-    //        heroList.RemoveAt(0);
-    //    }
-    //    SpawnHeroInGame();
-    //    mapManager.LoadNextWave();
-    //    SetFirstTarget();
-    //}
-
     private void SetFirstTarget()
     {
         // Find enemy
@@ -167,40 +151,33 @@ public class GameManager : Singleton<GameManager>
 
     public BigInteger GetGold()
     {
-        gold = BigInteger.Parse(goldString);
         return gold;
     }
 
-    public void SetGold(BigInteger remainGold)
+    public void SetGold(BigInteger _gold, bool addtional)
     {
-        gold = remainGold;
-        uiManager.SetTextGold(gold);
+        gold += addtional ? _gold : -_gold;
     }
 
     public BigInteger GetPinkGem()
     {
-        pinkGem = BigInteger.Parse(gemString);
         return pinkGem;
     }
 
-    public void SetPinkGem(BigInteger remainGem)
+    public void SetPinkGem(BigInteger _gem, bool addtional)
     {
-        pinkGem = remainGem;
-        uiManager.SetTextPinkGem(pinkGem);
+        pinkGem += addtional ? _gem : -_gem;
     }
 
     public BigInteger GetBlueGem()
     {
-        blueGem = BigInteger.Parse(gemString);
         return blueGem;
     }
 
-    public void SetBlueGem(BigInteger remainGem)
+    public void SetBlueGem(BigInteger _gem, bool addtional)
     {
-        blueGem = remainGem;
-        uiManager.SetTextPinkGem(blueGem);
+        blueGem += addtional ? _gem : -_gem;
     }
-
 
     private void SpawnHeroInGame()
     {
@@ -261,10 +238,10 @@ public class GameManager : Singleton<GameManager>
                     //// check next move point
                     //// game win
                     //IsOver = true;
-                    //notifyGameOverAction();
                     boxScreenCollision.ClearEnemyInBox();
                     if (character.IsBoss)
                     {
+                        notifyGameOverAction();
                         BossDie = true;
                         mapManager.LoadNextTurn();
                     }
@@ -290,9 +267,9 @@ public class GameManager : Singleton<GameManager>
                     }
                     // game lose
                     IsOver = true;
+                    notifyGameOverAction();
                     // load dark efect
                     darkBoardLoading.StartFadeBoard(true, () => RenewGameState(true));
-                    //notifyGameOverAction();
                 }
                 else
                     heroList.Remove(character);

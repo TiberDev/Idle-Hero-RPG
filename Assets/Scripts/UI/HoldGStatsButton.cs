@@ -115,7 +115,7 @@ public class HoldGStatsButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     public void SetInteractive(bool isActive)
     {
         interactive = isActive;
-        imgBtn.color = !isActive ? Color.red : Color.green;
+        imgBtn.color = !isActive ? Color.grey : Color.green;
         if (isHolding && !isActive)
         {
             isHolding = false;

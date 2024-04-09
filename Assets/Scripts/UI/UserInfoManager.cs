@@ -1,9 +1,6 @@
-using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Numerics;
-using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class UserInfoManager : Singleton<UserInfoManager>
 {
@@ -12,7 +9,9 @@ public class UserInfoManager : Singleton<UserInfoManager>
     [SerializeField] private GearsStatsManager gearsStatsManager;
     [SerializeField] private SkillStatsManager skillStatsManager;
 
-    public UserInfo userInfo = new UserInfo();
+    private UserInfo userInfo = new UserInfo();
+
+    public UserInfo GetUserInfo() => userInfo;
 
     public void SetATK()
     {
@@ -22,10 +21,9 @@ public class UserInfoManager : Singleton<UserInfoManager>
             + gearsStatsManager.GetAllEffectDamage(GearType.Weapon) + skillStatsManager.GetAllOEDamage();
 
         Debug.Log($"base ATK: {baseATK}    addition effect: {heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseATK)}%   " +
-            $"gear:  {gearsStatsManager.GetAllEffectDamage(GearType.Weapon)}%      skill: {skillStatsManager.GetAllOEDamage()}%");
+            $"gear:  {gearsStatsManager.GetAllEffectDamage(GearType.Weapon)}%      owed effect skill: {skillStatsManager.GetAllOEDamage()}%");
 
         userInfo.atk = baseATK + baseATK * maxATKPercent / 100;
-        Debug.Log("Hero: ATK: " + userInfo.atk);
 
         List<Character> heroes = GameManager.Instance.GetCharacters(CharacterType.Hero);
         if (heroes != null & heroes.Count > 0)
@@ -42,7 +40,6 @@ public class UserInfoManager : Singleton<UserInfoManager>
            $"gear:  {gearsStatsManager.GetAllEffectDamage(GearType.Armor)}%");
 
         userInfo.hp = baseHP + baseHP * maxHPPercent / 100;
-        Debug.Log("Hero: HP: " + userInfo.hp);
 
         List<Character> heroes = GameManager.Instance.GetCharacters(CharacterType.Hero);
         if (heroes != null & heroes.Count > 0)
@@ -72,8 +69,8 @@ public class UserInfoManager : Singleton<UserInfoManager>
         BigInteger baseCHD = generalManager.GetBigValue(GeneralStatsType.CriticalHitDamage);
         BigInteger percent = heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseCriticalHitDamage);
 
-        //Debug.Log($"base CriticalHitDamage: {baseCHD}    addition effect: {percent}%");
-        userInfo.criticalHitDamage = baseCHD + baseCHD * percent;
+        Debug.Log($"base CriticalHitDamage: {baseCHD}    addition effect: {percent}%");
+        userInfo.criticalHitDamage = baseCHD + percent;
     }
 
     public void SetBossDamage()
@@ -81,26 +78,26 @@ public class UserInfoManager : Singleton<UserInfoManager>
         BigInteger baseBossDamage = 100;
         BigInteger percent = heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseBossDamage);
 
-        //Debug.Log($"base BossDamage: {baseBossDamage}    addition effect: {percent}%");
-        userInfo.bossDamage = baseBossDamage + baseBossDamage * percent;
+        Debug.Log($"base BossDamage: {baseBossDamage}    addition effect: {percent}%");
+        userInfo.bossDamage = baseBossDamage + percent;
     }
 
     public void SetSkillsDamage()
     {
-        BigInteger baseSkillDamage = 100;
-        BigInteger percent = heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseSkillDamage);
+        int baseSkillDamage = 100;
+        int percent = heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseSkillDamage);
 
-        //Debug.Log($"base SkillDamage: {baseSkillDamage}    addition effect: {percent}%");
-        userInfo.skillDamage = baseSkillDamage + baseSkillDamage * percent;
+        Debug.Log($"base SkillDamage: {baseSkillDamage}    addition effect: {percent}%");
+        userInfo.skillDamage = baseSkillDamage + percent;
     }
 
     public void SetGoldObtain()
     {
-        BigInteger baseGoldObtain = 100;
-        BigInteger percent = heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseGoldObtain);
+        int baseGoldObtain = 100;
+        int percent = heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseGoldObtain);
 
-        //Debug.Log($"base GoldObtain: {baseGoldObtain}    addition effect: {percent}%");
-        userInfo.goldObtain = baseGoldObtain + baseGoldObtain * percent;
+        Debug.Log($"base GoldObtain: {baseGoldObtain}    addition effect: {percent}%");
+        userInfo.goldObtain = baseGoldObtain + percent;
     }
 }
 

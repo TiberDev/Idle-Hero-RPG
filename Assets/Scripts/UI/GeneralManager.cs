@@ -13,11 +13,6 @@ public class GeneralManager : MonoBehaviour
     private int numberOfItemsMax;
     private readonly string DATAKEY = "GENERALSTATLISTDATA";
 
-    private void Start()
-    {
-        EventDispatcher.Push(EventId.CheckGoldToEnhance, GameManager.Instance.GetGold());
-    }
-
     private void SaveData()
     {
         PlayerPrefs.SetString(DATAKEY, JsonUtility.ToJson(generalStatList));
@@ -64,8 +59,10 @@ public class GeneralManager : MonoBehaviour
     public void ChangeGeneralData(BigInteger enhanceGold, GeneralStat generalStat)
     {
         SaveData();
-        GameManager.Instance.SetGold(GameManager.Instance.GetGold() - enhanceGold);
-        EventDispatcher.Push(EventId.CheckGoldToEnhance, GameManager.Instance.GetGold());
+        GameManager gameManager = GameManager.Instance;
+        gameManager.SetGold(enhanceGold, false);
+        gameManager.UiManager.SetTextGold(enhanceGold, false);
+        EventDispatcher.Push(EventId.CheckGoldToEnhance, gameManager.GetGold());
         SetUserInfo(generalStat.type);
     }
 

@@ -10,7 +10,7 @@ public class UserInfo
     public float atkSpeed;
     public float criticalHitChance;
     public BigInteger criticalHitDamage;
-    public BigInteger skillDamage;
-    public BigInteger goldObtain;
+    public int skillDamage;
+    public int goldObtain;
     public BigInteger bossDamage;
 }
