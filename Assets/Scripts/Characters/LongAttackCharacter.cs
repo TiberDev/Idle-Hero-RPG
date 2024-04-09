@@ -16,12 +16,19 @@ public class LongAttackCharacter : Character
     private void OnEnable()
     {
         aimingTarget = null;
+        if (coroutineAttack != null)
+        {
+            StopCoroutine(coroutineAttack);
+            coroutineAttack = null;
+        }
     }
 
     protected override void DoAttack()
     {
         if (coroutineAttack == null)
+        {
             coroutineAttack = StartCoroutine(IEPlayAttackAnimation(numberOfRepeatAttackType, AttackAnimationType.LongAttack));
+        }
     }
 
     private IEnumerator IEPlayAttackAnimation(int[] numberOfAttackType, AttackAnimationType attackType)
