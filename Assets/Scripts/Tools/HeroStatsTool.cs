@@ -27,7 +27,7 @@ public class HeroStatsTool : MonoBehaviour
         for (int i = 0; i < heroStatsList.list.Count; i++)
         {
             HeroStats heroStats = heroStatsList.list[i];
-            if (heroConfig.name == heroStats.name)
+            if (heroConfig.heroName == heroStats.name)
             {
                 heroStats.level = level;
                 heroStats.numberOfPoints = 0;
