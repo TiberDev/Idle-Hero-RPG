@@ -26,7 +26,7 @@ public class DarkBoardLoadingUI : MonoBehaviour
     {
         // delay
         if (delay)
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(1.5f);
         Color transparent = Vector4.zero;
         float curTime = 0;
         while (curTime < fadingTime)
