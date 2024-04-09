@@ -20,11 +20,11 @@ public class CharacterAnimator : MonoBehaviour
 
     public Animator Animator { get => animator; }
 
-    public void PlayIdleAnimation()
-    {
-        animator.SetBool(isIdle, true);
-        animator.SetBool(isMoving, false);
-    }
+    //public void PlayIdleAnimation()
+    //{
+    //    animator.SetBool(isIdle, true);
+    //    animator.SetBool(isMoving, false);
+    //}
 
     public void PlayMoveAnimation()
     {
@@ -43,6 +43,7 @@ public class CharacterAnimator : MonoBehaviour
                 animator.SetInteger(longAttackType, type);
                 break;
         }
+        Debug.Log("Attack");
         animator.SetBool(isIdle, false);
         animator.SetBool(isMoving, false);
         animator.SetTrigger(triggerAttack);
