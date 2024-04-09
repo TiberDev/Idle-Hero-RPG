@@ -3,7 +3,7 @@ using System.Numerics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MapManager : MonoBehaviour
+public class MapManager : Singleton<MapManager>
 {
     [SerializeField] private SObjMapConfig[] mapConfigList;
     [SerializeField] private UIManager uiManager;
@@ -20,6 +20,7 @@ public class MapManager : MonoBehaviour
 
     private BigInteger bossATK, bossHP;
     private BigInteger creepATK, creepHP;
+    private BigInteger goldKillBoss, goldKillCreep;
 
     private int indexWave;
     private int curNumberOfWaves;
@@ -45,6 +46,8 @@ public class MapManager : MonoBehaviour
                 bossHP = mapConfigList[0].baseHPBoss.ToString(),
                 creepATK = mapConfigList[0].baseATKCreep.ToString(),
                 creepHP = mapConfigList[0].baseHPCreep.ToString(),
+                goldKillBoss = mapConfigList[0].goldKillBoss.ToString(),
+                goldKillCreep = mapConfigList[0].goldKillCreep.ToString()
             };
         }
         else
@@ -61,6 +64,8 @@ public class MapManager : MonoBehaviour
         bossHP = BigInteger.Parse(data.bossHP);
         creepATK = BigInteger.Parse(data.creepATK);
         creepHP = BigInteger.Parse(data.creepHP);
+        goldKillBoss = BigInteger.Parse(data.goldKillBoss);
+        goldKillCreep = BigInteger.Parse(data.goldKillCreep);
     }
 
     private IEnumerator IEStartNewMap()
@@ -82,6 +87,8 @@ public class MapManager : MonoBehaviour
             bossHP = curMap.baseHPBoss;
             creepATK = curMap.baseATKCreep;
             creepHP = curMap.baseHPCreep;
+            goldKillBoss = curMap.goldKillBoss;
+            goldKillCreep = curMap.goldKillCreep;
         }
         else // loop current map
         {
@@ -90,6 +97,8 @@ public class MapManager : MonoBehaviour
             bossHP = CaculateValue(bossHP, curRound.increaseBaseHPPercentage + curTurn.increaseHPPercentage);
             creepATK = CaculateValue(creepATK, curRound.increaseBaseHPPercentage + curTurn.increaseHPPercentage);
             creepHP = CaculateValue(creepHP, curRound.increaseBaseHPPercentage + curTurn.increaseHPPercentage);
+            goldKillBoss = CaculateValue(goldKillBoss, curRound.increaseGoldPercentage + curTurn.increaseGoldPercentage);
+            goldKillCreep = CaculateValue(goldKillCreep, curRound.increaseGoldPercentage + curTurn.increaseGoldPercentage);
         }
         data.round = 1;
         data.turn = 1;
@@ -97,6 +106,8 @@ public class MapManager : MonoBehaviour
         data.bossHP = bossHP.ToString();
         data.creepATK = creepATK.ToString();
         data.creepHP = creepHP.ToString();
+        data.goldKillBoss = goldKillBoss.ToString();
+        data.goldKillCreep = goldKillCreep.ToString();
 
         curRound = curMap.roundList[data.round - 1];
         curTurn = curRound.turnList[data.turn - 1];
@@ -149,7 +160,6 @@ public class MapManager : MonoBehaviour
         BigInteger atk = CaculateValue(bossATK, curRound.increaseBaseATKPercentage + curTurn.increaseATKPercentage);
         BigInteger hp = CaculateValue(bossHP, curRound.increaseBaseHPPercentage + curTurn.increaseHPPercentage);
         gameManager.SpawnEnemyInGame(curTurn.boss, curWave.enemyTypesInWave[0].tfmSwnPositionList[0].position, atk, hp);
-        Debug.Log($"Boss:  ATK: {atk}      hp:{hp}");
 
     }
 
@@ -157,7 +167,6 @@ public class MapManager : MonoBehaviour
     {
         BigInteger atk = CaculateValue(creepATK, curRound.increaseBaseATKPercentage + curTurn.increaseATKPercentage);
         BigInteger hp = CaculateValue(creepHP, curRound.increaseBaseHPPercentage + curTurn.increaseHPPercentage);
-        Debug.Log($"Creep:  ATK: {atk}      hp:{hp}");
         for (int indexList = 0; indexList < curWave.enemyTypesInWave.Length; indexList++)
         {
             EnemyTypeInWave enemyTypeInWave = curWave.enemyTypesInWave[indexList];
@@ -247,4 +256,9 @@ public class MapManager : MonoBehaviour
     }
 
     public MapData GetMapData() => data;
+
+    public BigInteger GetGoldKillEnemy(bool boss)
+    {
+        return boss ? goldKillBoss : goldKillCreep;
+    }
 }
