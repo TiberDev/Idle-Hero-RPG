@@ -13,6 +13,7 @@ public class BossStage : MonoBehaviour
     [SerializeField] private float followingBossTime, movingTime;
 
     private Character boss;
+    public bool FollowingBoss { get; private set; }
 
     private IEnumerator IECountTimeFollowingBoss()
     {
@@ -56,6 +57,7 @@ public class BossStage : MonoBehaviour
 
     private void EndBossStage()
     {
+        FollowingBoss = false;
         cameraController.SetTfmBoss(null);
         boxScreenCollision.gameObject.SetActive(true);
         skillTable.ResetAllSkillTableItem();
@@ -67,6 +69,7 @@ public class BossStage : MonoBehaviour
         if (!gObjTurnBar.activeInHierarchy)
             return;
 
+        FollowingBoss = true;
         boss = _boss;
         // changes camera view
         cameraController.SetTfmBoss(boss.GetTransform());
@@ -76,6 +79,7 @@ public class BossStage : MonoBehaviour
 
     public void TerminateExcecution()
     {
+        FollowingBoss = false;
         StopAllCoroutines();
         cameraController.SetTfmBoss(null);
         boxScreenCollision.gameObject.SetActive(true);
