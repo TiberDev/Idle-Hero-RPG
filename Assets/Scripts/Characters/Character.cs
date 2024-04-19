@@ -1,12 +1,18 @@
 using BigInteger = System.Numerics.BigInteger;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEditor.Experimental.GraphView;
 
 public enum CharacterType
 {
     Hero = 0,
     Enemy = 1
+}
+
+public enum HeroType
+{
+    Knight,
+    Gunner,
+    Wizard
 }
 
 [RequireComponent(typeof(CharacterAnimator), typeof(CharacterMovement))]
@@ -16,24 +22,24 @@ public class Character : MonoBehaviour
     [SerializeField] protected CharacterAnimator characterAnimator;
     [SerializeField] protected CharacterMovement characterMovement;
     [SerializeField] protected CharacterType characterType;
-    [SerializeField] protected CharacterInfo characterInfo;
+    [SerializeField] private HeroType heroType;
     [SerializeField] private Transform tfmHead;
 
     [SerializeField] private bool isBoss;
     [SerializeField] protected float rangeAttack;
 
     protected GameManager gameManager;
-    protected ObjectPooling objectPooling;
     protected Transform cachedTfm;
     protected Character preTarget, target;
 
     private MagicShieldSkill shieldSkill;
-    private UserInfo userInfo;
+    protected UserInfo userInfo;
     private UnityAction dieAction;
 
     protected bool attackDone;
     private bool critical, isAttacking;
     private float curTimeHpRecovery, decreasedAttackSpeed;
+    protected BigInteger curHp;
     private BigInteger decreasedAttack;
 
     public bool IsBoss { get => isBoss; }
@@ -45,33 +51,35 @@ public class Character : MonoBehaviour
         cachedTfm = transform;
     }
 
+    protected virtual void OnEnable()
+    {
+        attackDone = true;
+    }
+
     private void Update()
     {
         // character die
-        if (characterInfo.curHp <= 0)
+        if (curHp <= 0)
             return;
 
         // hp recovery
-        if (characterType == CharacterType.Hero && characterInfo.curHp < characterInfo.maxHp)
+        if (characterType == CharacterType.Hero && curHp < userInfo.hp)
         {
 
-            //curTimeHpRecovery += Time.deltaTime;
-            //if (curTimeHpRecovery >= 1)
-            //{
-            //    curTimeHpRecovery = 0;
-            //    BigInteger increasedHp = characterInfo.maxHp * (int)userInfo.hpRecovery / 100;
-            //    characterInfo.curHp = BigInteger.Min(characterInfo.maxHp, characterInfo.curHp + increasedHp);
-            //    characterInfo._curHp = characterInfo.curHp.ToString();
-            //    // Show info to UI
-            //    characterHpBar.SetFillAmountUI(characterInfo.curHp, characterInfo.maxHp, true);
-            //}
+            curTimeHpRecovery += Time.deltaTime;
+            if (curTimeHpRecovery >= 1)
+            {
+                curTimeHpRecovery = 0;
+                BigInteger increasedHp = userInfo.hp * (int)userInfo.hpRecovery / 100;
+                curHp = BigInteger.Min(userInfo.hp, curHp + increasedHp);
+                // Show info to UI
+                characterHpBar.SetFillAmountUI(curHp, userInfo.hp, true);
+            }
         }
 
         if (target == null)
         {
-            //characterMovement.StopMoving();
             isAttacking = false;
-            //characterAnimator.PlayIdleAnimation();
             return;
         }
 
@@ -84,18 +92,21 @@ public class Character : MonoBehaviour
                 SetDirection(target.GetTransform().position);
                 isAttacking = true;
             }
-            if (attackDone) // avoid situation where character rotates while attacking
+            if (attackDone)
+            {
+                // do attack
+                DoAttack();
+                // avoid situation where character rotates while attacking
                 SetDirection(target.GetTransform().position);
-
-            // do attack
-            DoAttack();
-            if(characterType == CharacterType.Hero)
-            Debug.Log("Attackin");
+                if (characterType == CharacterType.Hero)
+                    SoundManager.Instance.PlayAttackSound(heroType);
+            }
         }
         else // move state
         {
-            if(characterType == CharacterType.Hero)
-            Debug.Log("Moving");
+            if (!attackDone) // avoid moving while attack animation is executing
+                return;
+
             isAttacking = false;
             characterAnimator.PlayMoveAnimation();
             characterMovement.Move(target.GetTransform());
@@ -111,19 +122,15 @@ public class Character : MonoBehaviour
     {
         curTimeHpRecovery = 0;
         gameManager = GameManager.Instance;
-        objectPooling = ObjectPooling.Instance;
-
         if (characterType == CharacterType.Enemy)
         {
             Character hero = FindHero();
             SetTarget(hero);
             SetDirection(hero.GetTransform().position);
         }
-        //// start idle animation 
-        //characterAnimator.PlayIdleAnimation();
         // Show info to UI
-        characterHpBar.SetFillAmountUI(characterInfo.curHp, characterInfo.maxHp, false);
-        // delegate method 
+        characterHpBar.SetFillAmountUI(curHp, userInfo.hp, false);
+        // Register for game over event
         gameManager.NotifyGameOverAction += EndGameState;
     }
 
@@ -146,10 +153,12 @@ public class Character : MonoBehaviour
 
     protected virtual void DieEvent()
     {
-        objectPooling.RemoveGOInPool(gameObject, characterType == CharacterType.Enemy ? PoolType.Enemy : PoolType.Hero, name);
+        ObjectPooling.Instance.RemoveGOInPool(gameObject, characterType == CharacterType.Enemy ? PoolType.Enemy : PoolType.Hero);
     }
 
     protected virtual void DoAttack() { }
+
+    protected virtual void DoDie() { }
 
     public virtual void SetHpBar(CharacterHpBar hpBar) { }
 
@@ -174,38 +183,28 @@ public class Character : MonoBehaviour
         return gameManager.FindNearestCharacter(cachedTfm.position, CharacterType.Hero);
     }
 
+    /// <summary>
+    /// Set info to hero
+    /// </summary>
+    /// <param name="info"></param>
     public void SetCharacterInfo(UserInfo info)
     {
         userInfo = info;
-        if (characterType == CharacterType.Hero)
-        {
-            characterInfo.damage = userInfo.atk;
-            characterInfo.maxHp = userInfo.hp;
-            characterInfo.curHp = userInfo.hp;
-            characterInfo._damage = characterInfo.damage.ToString();
-            characterInfo._maxHp = characterInfo.maxHp.ToString();
-            characterInfo._curHp = characterInfo.curHp.ToString();
-        }
+        curHp = userInfo.hp;
     }
 
+    /// <summary>
+    /// Set info to enemy
+    /// </summary>
+    /// <param name="damage"></param>
+    /// <param name="maxHp"></param>
     public void SetCharacterInfo(BigInteger damage, BigInteger maxHp)
     {
         userInfo = new UserInfo();
         userInfo.atkSpeed = 1; // attack speed of all enemies is 1
-        characterInfo.damage = damage;
-        characterInfo.maxHp = maxHp;
-        characterInfo.curHp = maxHp;
-        characterInfo._damage = characterInfo.damage.ToString();
-        characterInfo._maxHp = characterInfo.maxHp.ToString();
-        characterInfo._curHp = characterInfo.curHp.ToString();
-    }
-
-    /// <summary>
-    /// Set attack for hero
-    /// </summary>
-    public void SetAttack()
-    {
-        characterInfo.damage = userInfo.atk;
+        userInfo.atk = damage;
+        userInfo.hp = maxHp;
+        curHp = maxHp;
     }
 
     /// <summary>
@@ -215,27 +214,26 @@ public class Character : MonoBehaviour
     {
         if (!addtional)
         {
-            decreasedAttack = characterInfo.damage * percent / 100;
-            characterInfo.damage -= decreasedAttack;
+            decreasedAttack = userInfo.atk * percent / 100;
+            userInfo.atk -= decreasedAttack;
         }
         else
         {
-            characterInfo.damage += decreasedAttack;
+            userInfo.atk += decreasedAttack;
             decreasedAttack = 0;
         }
     }
 
-    public void SetMaxHp(BigInteger newMaxHP)
+    public void SetMaxHp(BigInteger preHp)
     {
-        BigInteger percent = characterInfo.curHp * 100 / characterInfo.maxHp;
-        Debug.Log($"Early: {characterInfo.curHp * 100 / characterInfo.maxHp}");
+        BigInteger percent = curHp * 100 / preHp;
         if (percent > 0)
-            characterInfo.curHp = newMaxHP * percent / 100;
-        characterInfo.maxHp = newMaxHP;
-        characterInfo._curHp = characterInfo.curHp.ToString();
-        characterInfo._maxHp = characterInfo.maxHp.ToString();
-        Debug.Log($"Later: {characterInfo.curHp * 100 / characterInfo.maxHp}");
-        characterHpBar.SetFillAmountUI(characterInfo.curHp, characterInfo.maxHp, false);
+        {
+            curHp = userInfo.hp * percent / 100 + 1;
+            if (curHp > userInfo.hp)
+                curHp = userInfo.hp;
+        }
+        characterHpBar.SetFillAmountUI(curHp, userInfo.hp, false);
     }
 
     public void SetShieldSkill(MagicShieldSkill shield)
@@ -267,19 +265,21 @@ public class Character : MonoBehaviour
 
     public void TakeDamage(BigInteger damageTaken, DamageTakenType damageTakenType)
     {
-        if (characterInfo.curHp <= 0 || DarkBoardLoadingUI.Fading || damageTaken <= 0)
+        if (curHp <= 0 || DarkBoardLoadingUI.Fading || damageTaken <= 0)
             return;
 
         if (shieldSkill != null)
             damageTaken = shieldSkill.DecreaseDamageTaken(damageTaken);
 
-        characterInfo.curHp -= damageTaken;
+        curHp -= damageTaken;
         // damage effect
-        DamageEffectController.Instance.CreateDmgEffect(tfmHead.position, FillData.Instance.FormatNumber(damageTaken), damageTakenType);
+        DamageEffectController.Instance.CreateDmgEffect(tfmHead.position, NumberConverter.Instance.FormatNumber(damageTaken), damageTakenType);
         // Show info to UI
-        characterHpBar.SetFillAmountUI(characterInfo.curHp, characterInfo.maxHp, true);
-        if (characterInfo.curHp <= 0) // die
+        characterHpBar.SetFillAmountUI(curHp, userInfo.hp, true);
+        if (curHp <= 0) // die
         {
+            DoDie();
+            preTarget = target;
             target = null;
             characterMovement.StopMoving();
             characterAnimator.PlayDieAnimation();
@@ -293,23 +293,19 @@ public class Character : MonoBehaviour
             {
                 BigInteger goldKillEnemy = MapManager.Instance.GetGoldKillEnemy(isBoss);
                 goldKillEnemy += goldKillEnemy * (gameManager.UserInfo.goldObtain - 100) / 100;
-                Debug.Log($"total gold kill enemy: {goldKillEnemy}  goldObtain: {gameManager.UserInfo.goldObtain}");
                 gameManager.SetGold(goldKillEnemy, true);
                 GoldEffectController.Instance.CreateGoldIconEffect(cachedTfm.position, () => gameManager.UiManager.SetTextGold(goldKillEnemy, true));
             }
         }
-        characterInfo._damage = characterInfo.damage.ToString();
-        characterInfo._maxHp = characterInfo.maxHp.ToString();
-        characterInfo._curHp = characterInfo.curHp.ToString();
     }
 
     public BigInteger GetTotalDamage(bool boss)
     {
-        if (characterInfo.curHp <= 0)
+        if (curHp <= 0)
             return 0;
 
         // hero : caculate damage, hit chance, hit damage, boss damage
-        BigInteger totalDamage = characterInfo.damage;
+        BigInteger totalDamage = userInfo.atk;
         if (characterType == CharacterType.Hero)
         {
             float random = Random.Range(0f, 100f);
@@ -325,14 +321,14 @@ public class Character : MonoBehaviour
             else
                 critical = false;
 
-            totalDamage = characterInfo.damage + characterInfo.damage * percent / 100;
+            totalDamage = userInfo.atk + userInfo.atk * percent / 100;
         }
         return totalDamage;
     }
 
-    public BigInteger GetDamage() => characterInfo.damage;
+    public BigInteger GetDamage() => userInfo.atk;
 
-    public BigInteger GetMaxHp() => characterInfo.maxHp;
+    public BigInteger GetMaxHp() => userInfo.hp;
 
     public Vector3 GetTargetPosition()
     {
