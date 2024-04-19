@@ -258,11 +258,12 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
     public void SetOEUI(GearType gearType)
     {
         string type = gearType == GearType.Weapon ? "ATK + " : "HP + ";
-        txtTotalOwnedEffectValue.text = "Owned Effects: " + type + FillData.Instance.FormatNumber(individualGearStats[(int)gearType].totalOEDamage) + "%";
+        txtTotalOwnedEffectValue.text = "Owned Effects: " + type + NumberConverter.Instance.FormatNumber(individualGearStats[(int)gearType].totalOEDamage) + "%";
     }
 
     public void OnClickEnhanceAll()
     {
+        SoundManager.Instance.PlayButtonSound();
         // Disable button
         btnEnhanceAll.interactable = false;
         imgEnhanceAll.color = colorDisableBtn;
@@ -275,21 +276,15 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
 
     public void OnClickGearItemDisplayBtn(int type)
     {
+        SoundManager.Instance.PlayClickSound();
         SetGearItem((GearType)type);
-    }
-
-    /// <summary>
-    /// Close gear info gameobject
-    /// </summary>
-    public void OnClickSpace()
-    {
-        gearInfoUI.SetActive(false);
     }
 
     public void OnClickBuy()
     {
+        SoundManager.Instance.PlayButtonSound();
         // Go to shop
-        BottomTab.Instance.OnClickTabBtn(3);
+        BottomTab.Instance.OpenTab(3);
     }
 
     public void SetPanelActive(bool active)
@@ -297,13 +292,13 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
         // effect
         if (active)
         {
-            gameObject.SetActive(true);
+            gObj.SetActive(true);
             TransformUIPanel();
         }
         else
         {
             StopAllCoroutines();
-            gameObject.SetActive(false);
+            gObj.SetActive(false);
         }
     }
 
