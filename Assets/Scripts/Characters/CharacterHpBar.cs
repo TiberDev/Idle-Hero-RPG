@@ -3,24 +3,43 @@ using BigInteger = System.Numerics.BigInteger;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Reflection;
 
 public class CharacterHpBar : MonoBehaviour
 {
     [SerializeField] private Image imgHpBar;
     [SerializeField] private TMP_Text txtInfo;
     [SerializeField] protected RectTransform rectTfm;
-    [SerializeField] private Color colorTurn, colorBossHp, colorTextTurn, colorTextBossHp;
 
+    [SerializeField] private Vector3 rotationOffset;
+    [SerializeField] private Color colorTurn, colorBossHp, colorTextTurn, colorTextBossHp;
     [SerializeField] private float time;
+    [SerializeField] private float offsetY;
 
     private Coroutine corouHpEffect;
+    private Transform cachedTfm;
+    private Character character;
 
     private float curPoint;
-    private void LateUpdate()
+
+    private void Awake()
+    {
+        cachedTfm = transform;
+    }
+
+    private void Start()
+    {
+        character = GetComponentInParent<Character>();
+    }
+
+    private void Update()
     {
         if (txtInfo == null)
-            transform.eulerAngles = Vector3.up * 134;
+        {
+            Vector3 position = character.GetTransform().position;
+            position.y += offsetY;
+            cachedTfm.eulerAngles = rotationOffset;
+            cachedTfm.position = position + cachedTfm.forward * -20; // place hp bar near camera
+        }
     }
 
     private IEnumerator IEHpEffect(float desireHp, float maxHp)
