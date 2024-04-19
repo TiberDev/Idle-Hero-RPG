@@ -78,7 +78,7 @@ public class SkillItem : MonoBehaviour
     public void ShowEquippedText(bool isActive)
     {
         gObjEquipped.SetActive(isActive);
-        if (gObjCover != null)
+        if (gObjCover != null && skillStats.unblocked)
             gObjCover.SetActive(isActive);
     }
 
