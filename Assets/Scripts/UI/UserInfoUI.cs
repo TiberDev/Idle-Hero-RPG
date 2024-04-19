@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class UserInfoUI : MonoBehaviour
 {
@@ -10,6 +11,21 @@ public class UserInfoUI : MonoBehaviour
     [SerializeField] private float scalingUpTime, scalingDownTime;
 
     private Coroutine corouInfo;
+
+    private void OnEnable()
+    {
+        SoundManager.Instance.PlayClickSound();
+        UserInfo userInfo = UserInfoManager.Instance.GetUserInfo();
+        txtATK.text = NumberConverter.Instance.FormatNumber(userInfo.atk);
+        txtHp.text = NumberConverter.Instance.FormatNumber(userInfo.hp);
+        txtATKSpeed.text = userInfo.atkSpeed.ToString();
+        txtHpRecovery.text = userInfo.hpRecovery.ToString() + "%";
+        txtHitCriticalChance.text = userInfo.criticalHitChance.ToString() + "%";
+        txtHitCriticalDamage.text = NumberConverter.Instance.FormatNumber(userInfo.criticalHitDamage) + "%";
+        txtSkillDamage.text = NumberConverter.Instance.FormatNumber(userInfo.skillDamage) + "%";
+        txtGoldObtain.text = NumberConverter.Instance.FormatNumber(userInfo.goldObtain) + "%";
+        txtBossDamage.text = NumberConverter.Instance.FormatNumber(userInfo.bossDamage) + "%";
+    }
 
     public void SetActive(bool active)
     {
@@ -39,17 +55,12 @@ public class UserInfoUI : MonoBehaviour
 
     }
 
-    private void OnEnable()
+    public void OnClickCover(BaseEventData baseEventData)
     {
-        UserInfo userInfo = UserInfoManager.Instance.GetUserInfo();
-        txtATK.text = FillData.Instance.FormatNumber(userInfo.atk);
-        txtHp.text = FillData.Instance.FormatNumber(userInfo.hp);
-        txtATKSpeed.text = userInfo.atkSpeed.ToString();
-        txtHpRecovery.text = userInfo.hpRecovery.ToString() + "%";
-        txtHitCriticalChance.text = userInfo.criticalHitChance.ToString() + "%";
-        txtHitCriticalDamage.text = FillData.Instance.FormatNumber(userInfo.criticalHitDamage) + "%";
-        txtSkillDamage.text = FillData.Instance.FormatNumber(userInfo.skillDamage) + "%";
-        txtGoldObtain.text = FillData.Instance.FormatNumber(userInfo.goldObtain) + "%";
-        txtBossDamage.text = FillData.Instance.FormatNumber(userInfo.bossDamage) + "%";
+        PointerEventData pointerEvent = baseEventData as PointerEventData;
+        if (pointerEvent.pointerEnter == gObj)
+        {
+            SetActive(false);
+        }
     }
 }
