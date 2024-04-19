@@ -1,6 +1,6 @@
-using BigInteger = System.Numerics.BigInteger;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class GearInfoUI : MonoBehaviour
@@ -96,12 +96,12 @@ public class GearInfoUI : MonoBehaviour
 
     public void SetTxtOwnedEffect(int value)
     {
-        txtOwnedEffect.text = GetTypeDescribeEffect() + FillData.Instance.FormatNumber(value) + "%";
+        txtOwnedEffect.text = GetTypeDescribeEffect() + NumberConverter.Instance.FormatNumber(value) + "%";
     }
 
     public void SetTextEquippedEffect(int value)
     {
-        txtEquippedEffect.text = GetTypeDescribeEffect() + FillData.Instance.FormatNumber(value) + "%";
+        txtEquippedEffect.text = GetTypeDescribeEffect() + NumberConverter.Instance.FormatNumber(value) + "%";
     }
 
     public string GetTypeDescribeEffect()
@@ -139,14 +139,16 @@ public class GearInfoUI : MonoBehaviour
 
     public void OnClickEquipBtn()
     {
+        SoundManager.Instance.PlayButtonSound();
         gearStats.equipped = true;
         SetEquipBtn(true, gearStats.unblocked);
         gearsStatsManager.SetGearItemEquip(gearItemSelected, true, gearStats.type, gearStats);
-        gearsStatsManager.OnClickSpace();
+        SetActive(false);
     }
 
     public void OnClickEnhanceBtn()
     {
+        SoundManager.Instance.PlayButtonSound();
         gearItemSelected.SetEnhance();
         //// Show UI
         SetTextLevel(gearStats.level.ToString());
@@ -164,5 +166,12 @@ public class GearInfoUI : MonoBehaviour
         }
     }
 
-
+    public void OnClickCover(BaseEventData baseEventData)
+    {
+        PointerEventData pointerEvent = baseEventData as PointerEventData;
+        if (pointerEvent.pointerEnter == gObj)
+        {
+            SetActive(false);
+        }
+    }
 }
