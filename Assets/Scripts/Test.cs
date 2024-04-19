@@ -1,37 +1,69 @@
-using Stopwatch = System.Diagnostics.Stopwatch;
 using UnityEngine;
-using UnityEngine.U2D;
-using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class Test : MonoBehaviour
 {
-    [SerializeField] private Image[] imageList;
-    [SerializeField] private Sprite[] spriteList;
-    [SerializeField] private SpriteAtlas spriteAtlas;
-    [SerializeField] private UITransformController transformController;
+    [SerializeField] private CharacterAnimator animator;
+    [SerializeField] private Camera camera;
 
-    public RectTransform tfm;
-    public float number;
+    [SerializeField] private Transform tfmd;
 
-    private void Start()
+    public string number_1;
+    public string number_1_1;
+    public string number_2;
+
+    public UnityAction dieAction;
+
+   public void OnClickScreen()
     {
-        Vector2 end;
-        end = tfm.sizeDelta;
-        end.y = 800;
-        StartCoroutine(transformController.IEScalingRect(tfm, Vector2.zero, Vector2.one, number, LerpType.EaseInBack));
+        Debug.Log("On Click Screen");
     }
 
-    //private void Update()
-    //{
-    //    Stopwatch stopwatch = new Stopwatch();
-    //    stopwatch.Start();
-    //    for (int i = 0; i < number; i++)
-    //    {
-    //        Transform d = tfm;
-    //    }
-    //    stopwatch.Stop();
-    //    Debug.Log((float)stopwatch.ElapsedMilliseconds / 1000f);
-    //}
+    public void OnClickIdle()
+    {
+        //animator.PlayIdleAnimation();
+    }
+
+    public void OnClickMove()
+    {
+        animator.PlayMoveAnimation();
+    }
+
+    public float attackSpeed;
+    public void OnClickAttack()
+    {
+        animator.PlayAttackAnimation(attackSpeed);
+    }
+
+    public void OnClickAttackSpeed()
+    {
+        //animator.SetAttackSpeedAnimaton();
+    }
+
+    public void OnClickDie()
+    {
+        animator.PlayDieAnimation();
+    }
+
+    public void OnClickVictory()
+    {
+        animator.PlayVictoryAnimation();
+    }
+    public GameObject tfm;
+
+    private void Update()
+    {
+        //Stopwatch stopwatch = new Stopwatch();
+        //stopwatch.Start();
+        //for (int i = 0; i < number; i++)
+        //{
+        //    //Vector3 pos = camera.WorldToScreenPoint(tfmd.position);
+        //}
+        //stopwatch.Stop();
+        //Debug.Log(stopwatch.ElapsedMilliseconds / 1000f);
+    }
+
+    public int number;
 }
 
 

@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class ObjectPooling : Singleton<ObjectPooling>
 {
-    [SerializeField] private static int a;
-
     private Dictionary<PoolType, List<ObjPool>> objPValue = new Dictionary<PoolType, List<ObjPool>>();
 
     public GameObject SpawnG0InPool(GameObject prefab, Vector3 position, PoolType type)
@@ -55,12 +53,12 @@ public class ObjectPooling : Singleton<ObjectPooling>
         return localGO;
     }
 
-    public void RemoveGOInPool(GameObject go, PoolType type, string name)
+    public void RemoveGOInPool(GameObject go, PoolType type)
     {
         if (objPValue.ContainsKey(type))
         {
             go.SetActive(false);
-            ObjPool objPool = objPValue[type].Find(obj => name == obj.nameObj);
+            ObjPool objPool = objPValue[type].Find(obj => go.name == obj.nameObj);
             if (objPool == null)
             {
                 Debug.LogError("Gameobject isn't in Pool. Fix bug now!!!");

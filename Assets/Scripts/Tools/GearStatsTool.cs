@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 [System.Serializable]
@@ -68,10 +67,11 @@ public class GearStatsTool : MonoBehaviour
         GearModeTool gearModeTool;
         for (int i = 0; i < configs.Length; i++)
         {
+#if UNITY_EDITOR
             // rename file
             string assetPath = $"Assets/ScriptableObjects/GearsStatsConfig/{type}s/{configs[i].name}.asset";
             AssetDatabase.RenameAsset(assetPath, sprites[i].name);
-
+#endif
             configs[i].gearName = InsertSpace(sprites[i].name);
             configs[i].levelMax = levelMax;
 
@@ -249,4 +249,3 @@ public class GearStatsTool : MonoBehaviour
         PlayerPrefs.SetString(type + DATAKEY, JsonUtility.ToJson(gearStatsList));
     }
 }
-#endif

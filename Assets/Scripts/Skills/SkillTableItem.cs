@@ -151,7 +151,7 @@ public class SkillTableItem : MonoBehaviour
         }
         else
         {
-            BottomTab.Instance.OnClickTabBtn(2);
+            BottomTab.Instance.OpenTab(2);
         }
     }
 }

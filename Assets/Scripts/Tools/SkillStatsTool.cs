@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using UnityEngine;
 
 public class SkillStatsTool : MonoBehaviour
@@ -151,4 +150,3 @@ public class SkillStatsTool : MonoBehaviour
     }
 
 }
-#endif

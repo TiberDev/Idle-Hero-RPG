@@ -3,13 +3,11 @@ public class Boss : MeleeAttackCharacter
 {
     public override void Init()
     {
-        cachedTfm = transform;
         gameManager = GameManager.Instance;
-        objectPooling = ObjectPooling.Instance;
         // Find hero
-        SetTarget(FindHero());
-        //// Show info to UI
-        //characterHpBar.SetHpUI(characterInfo.curHp, characterInfo.maxHp, false);
+        Character hero = FindHero();
+        SetTarget(hero);
+        SetDirection(hero.GetTransform().position);
         gameManager.NotifyGameOverAction += EndGameState;
     }
 
@@ -17,6 +15,6 @@ public class Boss : MeleeAttackCharacter
     {
         characterHpBar = hpBar;
         // Show info to UI
-        characterHpBar.SetFillAmountUI(characterInfo.curHp, characterInfo.maxHp, false);
+        characterHpBar.SetFillAmountUI(curHp, userInfo.hp, false);
     }
 }

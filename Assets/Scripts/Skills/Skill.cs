@@ -42,6 +42,6 @@ public class Skill : MonoBehaviour
 
     public virtual void EndExistence()
     {
-        objectPooling.RemoveGOInPool(gameObject, PoolType.Skill, name);
+        objectPooling.RemoveGOInPool(gameObject, PoolType.Skill);
     }
 }

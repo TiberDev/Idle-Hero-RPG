@@ -36,15 +36,16 @@ public class CircleHighDamageSkill : Skill, ICharacterCollisionHandler
             curTime += Time.deltaTime;
             yield return null;
         }
-        ExecuteDamage();
+        CauseDamage();
     }
 
-    private void ExecuteDamage()
+    private void CauseDamage()
     {
         BigInteger damage = hero.GetDamage() * value / 100;
         for (int i = 0; i < charactersInRange.Count; i++)
         {
-            charactersInRange[i].TakeDamage(damage, DamageTakenType.Skill);
+            if (charactersInRange[i].isActiveAndEnabled)
+                charactersInRange[i].TakeDamage(damage, DamageTakenType.Skill);
         }
     }
 

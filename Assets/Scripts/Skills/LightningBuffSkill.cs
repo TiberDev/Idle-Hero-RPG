@@ -11,7 +11,6 @@ public class LightningBuffSkill : Skill
         UserInfo userInfo = gameManager.UserInfo;
         additionalATKTemp = userInfo.atk * value / 100;
         userInfo.atk += additionalATKTemp;
-        hero.SetAttack();
         SetParent(hero.transform, false);
         cachedTfm.localPosition = Vector3.zero;
         SetExistingCooldown();
@@ -22,7 +21,6 @@ public class LightningBuffSkill : Skill
         if (hero != null)
         {
             gameManager.UserInfo.atk -= additionalATKTemp;
-            hero.SetAttack();
             hero = null;
             additionalATKTemp = 0;
         }
