@@ -9,4 +9,5 @@ public class MapData
     public string bossATK, bossHP;
     public string creepATK, creepHP;
     public string goldKillCreep, goldKillBoss;
+    public bool loopWave;
 }
