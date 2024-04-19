@@ -11,6 +11,7 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private TMP_Text txtGold, txtPinkGem, txtBlueGem;
 
     private BigInteger goldUI, blueGemUI, pinkGemUI;
+
     public CharacterHpBar GetTurnBar()
     {
         return turnBar;
@@ -19,20 +20,20 @@ public class UIManager : Singleton<UIManager>
     public void SetTextGold(BigInteger gold, bool addtional)
     {
         goldUI += addtional ? gold : -gold;
-        txtGold.text = FillData.Instance.FormatNumber(goldUI);
+        txtGold.text = NumberConverter.Instance.FormatNumber(goldUI);
         EventDispatcher.Push(EventId.CheckGoldToEnhance, goldUI);
     }
 
     public void SetTextBlueGem(BigInteger gem, bool addtional)
     {
         blueGemUI += addtional ? gem : -gem;
-        txtBlueGem.text = FillData.Instance.FormatNumber(blueGemUI);
+        txtBlueGem.text = NumberConverter.Instance.FormatNumber(blueGemUI);
     }
 
     public void SetTextPinkGem(BigInteger gem, bool additional)
     {
         pinkGemUI += additional ? gem : -gem;
-        txtPinkGem.text = FillData.Instance.FormatNumber(pinkGemUI);
+        txtPinkGem.text = NumberConverter.Instance.FormatNumber(pinkGemUI);
     }
 
 }

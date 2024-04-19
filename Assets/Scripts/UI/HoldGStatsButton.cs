@@ -58,6 +58,7 @@ public class HoldGStatsButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
                 {
                     // increase gold faster
                     generalItem.EnhanceItem();
+                    SoundManager.Instance.PlayEnhanceClickSound();
                     increaseTime = 0;
                     if (corouBtn != null)
                     {
@@ -109,6 +110,7 @@ public class HoldGStatsButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         if (holdTime < holdDuration) // increase gold by 1 time if user doesn't hold button for long
         {
             generalItem.EnhanceItem();
+            SoundManager.Instance.PlayEnhanceClickSound();
         }
     }
 

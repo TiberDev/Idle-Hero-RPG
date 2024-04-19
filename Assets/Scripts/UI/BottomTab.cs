@@ -52,7 +52,6 @@ public class BottomTab : Singleton<BottomTab>
 
     public void OnClickTabBtn(int bottomTabTypeInt)
     {
-        // handle bottom tab buttons
         if (curTypeInt == bottomTabTypeInt)
         {
             // close tab button
@@ -62,14 +61,20 @@ public class BottomTab : Singleton<BottomTab>
         }
         else
         {
-            if (curTypeInt > -1)
-            {
-                CloseButtonTab(rectItemTabBtnList[curTypeInt], imgItemTabBtnList[curTypeInt], itemTabTxtList[curTypeInt], 230);
-                bottomTabHandlers[curTypeInt].SetPanelActive(false);
-            }
-            curTypeInt = bottomTabTypeInt;
-            OpenButtonTab(rectItemTabBtnList[bottomTabTypeInt], imgItemTabBtnList[bottomTabTypeInt], itemTabTxtList[bottomTabTypeInt]);
-            bottomTabHandlers[bottomTabTypeInt].SetPanelActive(true);
+            SoundManager.Instance.PlayClickSound();
+            OpenTab(bottomTabTypeInt);
         }
+    }
+
+    public void OpenTab(int bottomTabTypeInt)
+    {
+        if (curTypeInt > -1)
+        {
+            CloseButtonTab(rectItemTabBtnList[curTypeInt], imgItemTabBtnList[curTypeInt], itemTabTxtList[curTypeInt], 230);
+            bottomTabHandlers[curTypeInt].SetPanelActive(false);
+        }
+        curTypeInt = bottomTabTypeInt;
+        OpenButtonTab(rectItemTabBtnList[bottomTabTypeInt], imgItemTabBtnList[bottomTabTypeInt], itemTabTxtList[bottomTabTypeInt]);
+        bottomTabHandlers[bottomTabTypeInt].SetPanelActive(true);
     }
 }

@@ -11,10 +11,11 @@ public class LongAttackCharacter : Character
     private Character aimingTarget;
 
     public int indexType, indexRepeat;
-    private bool firing;
+    private bool prepareShoot;
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
         aimingTarget = null;
         if (coroutineAttack != null)
         {
@@ -36,6 +37,7 @@ public class LongAttackCharacter : Character
         if (numberOfAttackType.Length <= 0) // doesn't have any attack
             yield break;
 
+        prepareShoot = true;
         attackDone = false;
         if (indexRepeat >= numberOfAttackType[indexType])
         {
@@ -46,7 +48,6 @@ public class LongAttackCharacter : Character
         }
         characterAnimator.PlayAttackAnimation(indexType + 1, attackType);
         yield return new WaitUntil(() => attackDone); // wait for the end of animation state to start next attack
-        firing = false;
         indexRepeat++;
         // stop current coroutine to start new coroutine
         coroutineAttack = null;
@@ -55,13 +56,13 @@ public class LongAttackCharacter : Character
     public override void CheckTargetDie()
     {
         base.CheckTargetDie();
-        if (firing)
+        if (prepareShoot)
         {
-            aimingTarget = null;
+            aimingTarget = preTarget;
         }
         else
         {
-            aimingTarget = preTarget;
+            aimingTarget = null;
         }
     }
 
@@ -70,8 +71,8 @@ public class LongAttackCharacter : Character
     /// </summary>
     public void ActiveButtlet()
     {
-        firing = true;
-        Bullet bullet = objectPooling.SpawnG0InPool(bulletPrefab.gameObject, tfmSwnBullet.position, PoolType.Bullet).GetComponent<Bullet>();
+        prepareShoot = false;
+        Bullet bullet = ObjectPooling.Instance.SpawnG0InPool(bulletPrefab.gameObject, tfmSwnBullet.position, PoolType.Bullet).GetComponent<Bullet>();
         bullet.GetTransform().SetParent(gameManager.GetBulletPoolTfm());
         if (aimingTarget != null)
         {
@@ -80,9 +81,13 @@ public class LongAttackCharacter : Character
         }
         else
         {
-            bullet.Init(target, this);
+            if (target == null)
+            {
+                bullet.Init(preTarget.GetHeadTransform().position, this);
+            }
+            else
+                bullet.Init(target, this);
         }
-        //bullet.Init(aimingTarget == null ? target : aimingTarget, this);
     }
 }
 

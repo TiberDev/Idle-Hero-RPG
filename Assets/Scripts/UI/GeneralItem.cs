@@ -52,12 +52,12 @@ public class GeneralItem : MonoBehaviour
 
     private void SetTextGold(BigInteger gold)
     {
-        txtGold.text = FillData.Instance.FormatNumber(gold);
+        txtGold.text = NumberConverter.Instance.FormatNumber(gold);
     }
 
     private void SetTxtStat(BigInteger stat)
     {
-        txtStat.text = FillData.Instance.FormatNumber(stat) + unit;
+        txtStat.text = NumberConverter.Instance.FormatNumber(stat) + unit;
     }
 
     private void SetTxtStat(float stat)
@@ -88,6 +88,7 @@ public class GeneralItem : MonoBehaviour
         if (generalStatsConfig.isValueSmall)
         {
             smallValue += float.Parse(generalStat.stat);
+            smallValue = (float)Math.Round(smallValue, 2);
             SetTxtStat(smallValue);
         }
         else
@@ -110,8 +111,8 @@ public class GeneralItem : MonoBehaviour
         if (generalStatsConfig.isValueSmall)
         {
             smallValue += generalStatsConfig.statPerLv;
-            generalStat.stat = smallValue.ToString();
             smallValue = (float)Math.Round(smallValue, 2);
+            generalStat.stat = smallValue.ToString();
             SetTxtStat(smallValue);
         }
         else

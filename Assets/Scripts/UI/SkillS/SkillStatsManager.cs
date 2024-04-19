@@ -258,7 +258,7 @@ public class SkillStatsManager : MonoBehaviour, IBottomTabHandler
 
     public void SetOEUI()
     {
-        txtTotalOwnedEffectValue.text = "Owned Effects: ATK + " + FillData.Instance.FormatNumber(totalOEValue) + "%";
+        txtTotalOwnedEffectValue.text = "Owned Effects: ATK + " + NumberConverter.Instance.FormatNumber(totalOEValue) + "%";
     }
 
     private void SetCoverGO(bool isActive, Sprite spt = null)
@@ -380,14 +380,6 @@ public class SkillStatsManager : MonoBehaviour, IBottomTabHandler
         UserInfoManager.Instance.SetATK();
     }
 
-    /// <summary>
-    /// Close skill info gameobject
-    /// </summary>
-    public void OnClickSpace()
-    {
-        skillInfoUI.SetActive(false);
-    }
-
     public void OnClickItemListCoverBtn()
     {
         inHandleEquipSkillItemState = false;
@@ -397,13 +389,15 @@ public class SkillStatsManager : MonoBehaviour, IBottomTabHandler
 
     public void OnClickEnhanceAll()
     {
+        SoundManager.Instance.PlayButtonSound();
         SetAllSkillItemsEnhance();
     }
 
     public void OnClickBuy()
     {
+        SoundManager.Instance.PlayButtonSound();
         // Go to shop
-        BottomTab.Instance.OnClickTabBtn(3);
+        BottomTab.Instance.OpenTab(3);
     }
 
     public void SetPanelActive(bool active)
@@ -411,13 +405,13 @@ public class SkillStatsManager : MonoBehaviour, IBottomTabHandler
         // effect
         if (active)
         {
-            gameObject.SetActive(true);
+            gObj.SetActive(true);
             TransformUIPanel();
         }
         else
         {
             StopAllCoroutines();
-            gameObject.SetActive(false);
+            gObj.SetActive(false);
         }
     }
 

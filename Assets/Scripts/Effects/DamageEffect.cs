@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -40,9 +41,12 @@ public class DamageEffect : MonoBehaviour
 
     public void Init(Vector3 position, Vector3 rotation, Transform parent, string damage, DamageTakenType damageTakenType)
     {
+        cachedTfm.eulerAngles = rotation;
+
+        position += cachedTfm.forward * -20; // place gameObject near camera
         cachedTfm.position = position;
         destination = position + Vector3.up * 5;
-        cachedTfm.eulerAngles = rotation;
+
         cachedTfm.SetParent(parent);
         txtDamage.text = damage;
         txtDamage.color = GetColor(damageTakenType);
@@ -65,6 +69,11 @@ public class DamageEffect : MonoBehaviour
             txtDamage.color = transparent;
             yield return null;
         }
-        ObjectPooling.Instance.RemoveGOInPool(gameObject, PoolType.Effect, name);
+        ObjectPooling.Instance.RemoveGOInPool(gameObject, PoolType.Effect);
+    }
+
+    internal void Init(Vector3 position, object value, Transform rectTfmParent, string damage, DamageTakenType damageTakenType)
+    {
+        throw new NotImplementedException();
     }
 }

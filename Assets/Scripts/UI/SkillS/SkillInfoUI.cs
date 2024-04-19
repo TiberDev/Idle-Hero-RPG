@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class SkillInfoUI : MonoBehaviour
@@ -110,7 +111,7 @@ public class SkillInfoUI : MonoBehaviour
 
     public void SetTextOwnedEffect(int value)
     {
-        txtOwnedEffect.text = "ATK + " + FillData.Instance.FormatNumber(value) + "%";
+        txtOwnedEffect.text = "ATK + " + NumberConverter.Instance.FormatNumber(value) + "%";
     }
 
     public void SetTextDescribe(string describe_1, string describe_2, int damage)
@@ -120,6 +121,7 @@ public class SkillInfoUI : MonoBehaviour
 
     public void OnClickEnhanceBtn()
     {
+        SoundManager.Instance.PlayButtonSound();
         skillStatsManager.SetSkillItemEnhance(skillStats, skillStatsConfig);
         // Show UI
         SetTextLevel(skillStats.level.ToString());
@@ -139,7 +141,17 @@ public class SkillInfoUI : MonoBehaviour
 
     public void OnClickEquipBtn()
     {
+        SoundManager.Instance.PlayButtonSound();
         skillItem.OnClickEquipped_Remove();
-        skillStatsManager.OnClickSpace();
+        SetActive(false);
+    }
+
+    public void OnClickCover(BaseEventData baseEventData)
+    {
+        PointerEventData pointerEvent = baseEventData as PointerEventData;
+        if (pointerEvent.pointerEnter == gObj)
+        {
+            SetActive(false);
+        }
     }
 }

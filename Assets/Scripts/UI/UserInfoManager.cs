@@ -13,6 +13,7 @@ public class UserInfoManager : Singleton<UserInfoManager>
 
     public UserInfo GetUserInfo() => userInfo;
 
+
     public void SetATK()
     {
         // base atk + max atk percentage
@@ -24,10 +25,6 @@ public class UserInfoManager : Singleton<UserInfoManager>
             $"gear:  {gearsStatsManager.GetAllEffectDamage(GearType.Weapon)}%      owed effect skill: {skillStatsManager.GetAllOEDamage()}%");
 
         userInfo.atk = baseATK + baseATK * maxATKPercent / 100;
-
-        List<Character> heroes = GameManager.Instance.GetCharacters(CharacterType.Hero);
-        if (heroes != null & heroes.Count > 0)
-            heroes[0].SetAttack();
     }
 
     public void SetHp()
@@ -39,11 +36,12 @@ public class UserInfoManager : Singleton<UserInfoManager>
         Debug.Log($"base HP: {baseHP}    addition effect: {heroStatsManager.GetEffectDamagePercent(AddtionalEffectType.IncreaseHp)}%   " +
            $"gear:  {gearsStatsManager.GetAllEffectDamage(GearType.Armor)}%");
 
+        BigInteger preHp = userInfo.hp;
         userInfo.hp = baseHP + baseHP * maxHPPercent / 100;
 
         List<Character> heroes = GameManager.Instance.GetCharacters(CharacterType.Hero);
         if (heroes != null & heroes.Count > 0)
-            heroes[0].SetMaxHp(userInfo.hp);
+            heroes[0].SetMaxHp(preHp);
     }
 
     public void SetATKSpeed()

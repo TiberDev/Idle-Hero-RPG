@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -11,7 +13,6 @@ public class CameraController : MonoBehaviour
 
     private Vector3 downPos;
     private bool movingDown;
-    private float yAxis;
 
     private void Awake()
     {
@@ -28,26 +29,50 @@ public class CameraController : MonoBehaviour
 
         if (tfmBoss != null) // follow boss
         {
-            cachedTfm.position = Vector3.MoveTowards(cachedTfm.position, tfmBoss.position + offset, movingToBossSpeed * Time.deltaTime);
+            //cachedTfm.position = Vector3.MoveTowards(cachedTfm.position, tfmBoss.position + offset, movingToBossSpeed * Time.deltaTime);
             return;
         }
 
         if (tfmHero != null) // follow hero
         {
             Vector3 pos = tfmHero.position + offset;
-            cachedTfm.position = new Vector3(pos.x, yAxis, pos.z);
+            cachedTfm.position = pos;
+        }
+    }
+
+    private IEnumerator IEMoveToBossView()
+    {
+        float curTime = 0;
+        Vector3 fromPos = cachedTfm.position;
+        while (tfmBoss != null)
+        {
+            if (curTime < movingToBossSpeed)
+            {
+                curTime += Time.deltaTime;
+                cachedTfm.position = Vector3.Lerp(fromPos, tfmBoss.position + offset, curTime / movingToBossSpeed);
+            }
+            else
+                cachedTfm.position = tfmBoss.position + offset;
+            yield return null;
         }
     }
 
     public void SetTfmHero(Transform tfm)
     {
         tfmHero = tfm;
-        yAxis = tfmHero.position.y + offset.y;
     }
 
     public void SetTfmBoss(Transform tfm)
     {
         tfmBoss = tfm;
+        if (tfmBoss == null)
+        {
+            StopAllCoroutines();
+        }
+        else
+        {
+            StartCoroutine(IEMoveToBossView());
+        }
     }
 
     public void MoveDown(bool moving)

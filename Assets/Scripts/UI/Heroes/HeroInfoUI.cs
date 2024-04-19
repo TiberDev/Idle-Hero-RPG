@@ -168,6 +168,7 @@ public class HeroInfoUI : MonoBehaviour
 
     public void OnClickInUseBtn()
     {
+        SoundManager.Instance.PlayButtonSound();
         heroStats.inUse = true;
         heroStatsManager.SetHeroItemInUse(heroStats, true);
         SetInUseUI(true, heroStats.unblocked);
@@ -178,6 +179,7 @@ public class HeroInfoUI : MonoBehaviour
     /// </summary>
     public void OnClickEnhanceBtn()
     {
+        SoundManager.Instance.PlayButtonSound();
         heroStats.numberOfPoints += heroStats.totalPoint / heroStatConfig.increasedPoint;
         if (heroStats.numberOfPoints >= heroStats.totalPoint)
         {

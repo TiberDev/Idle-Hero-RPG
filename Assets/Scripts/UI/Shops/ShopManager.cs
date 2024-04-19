@@ -12,13 +12,13 @@ public class ShopManager : MonoBehaviour, IBottomTabHandler
         // effect
         if (active)
         {
-            gameObject.SetActive(true);
+            gObj.SetActive(true);
             TransformUIPanel();
         }
         else
         {
             StopAllCoroutines();
-            gameObject.SetActive(false);
+            gObj.SetActive(false);
         }
     }
 

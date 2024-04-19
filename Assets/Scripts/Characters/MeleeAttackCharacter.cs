@@ -15,13 +15,19 @@ public class MeleeAttackCharacter : Character
         gObjATKBox.SetActive(false);
     }
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
         if (coroutineAttack != null)
         {
             StopCoroutine(coroutineAttack);
             coroutineAttack = null;
         }
+    }
+
+    protected override void DoDie()
+    {
+        gObjATKBox.SetActive(false);
     }
 
     protected override void DoAttack()
