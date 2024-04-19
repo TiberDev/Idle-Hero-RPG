@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class CloneHeroSkill : Skill
@@ -6,11 +7,16 @@ public class CloneHeroSkill : Skill
 
     public override void Execute()
     {
+        StartCoroutine(IESpawnCloneHero());
+    }
+
+    private IEnumerator IESpawnCloneHero()
+    {
         // Get postion to spawn clone hero
         GameObject prefab = gameManager.GetHeroPrefab();
         Character hero = gameManager.GetCharacters(CharacterType.Hero)[0];
-        cachedTfm.SetParent(hero.GetTransform(), false);
-        cachedTfm.localPosition = Vector3.forward * -2;
+        cachedTfm.SetParent(gameManager.GetSkillPoolTfm());
+        cachedTfm.position = hero.GetTransform().position + hero.GetTransform().forward * -2; // spawned 2 unit behind main hero 
 
         UserInfo heroInfo = gameManager.UserInfo;
         UserInfo cloneHeroInfo = new UserInfo()
@@ -25,6 +31,11 @@ public class CloneHeroSkill : Skill
             hpRecovery = 0,
             skillDamage = 0,
         };
+        // clone hero spawning effect
+        float spawningTimeDelay = 0.3f;
+        CloneHeroEffectController.Instance.CreateSpawningEffect(cachedTfm.position, spawningTimeDelay);
+        yield return new WaitForSeconds(spawningTimeDelay);
+
         // Spawn clone hero
         Character cloneHero = gameManager.SpawnHero(prefab, cloneHeroInfo, cachedTfm.position, colorCloneHero);
         cloneHero.SetTarget(cloneHero.FindEnemy());
@@ -33,4 +44,9 @@ public class CloneHeroSkill : Skill
         skillTableItem.SetAmountCoolDown();
     }
 
+    public override void EndExistence()
+    {
+        base.EndExistence();
+        StopAllCoroutines();
+    }
 }
