@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour, ICharacterCollisionHandler
@@ -6,19 +5,13 @@ public class Bullet : MonoBehaviour, ICharacterCollisionHandler
     [SerializeField] private float moveSpeed;
 
     private Character target, owner;
-    private Transform cachedTfm, tfmTarget;
-    private ObjectPooling objectPooling;
+    private Transform cachedTfm;
 
+    private Vector3 destination;
     private bool enableMove;
 
     private void Awake()
     {
-        cachedTfm = transform;
-    }
-
-    private void Start()
-    {
-        objectPooling = ObjectPooling.Instance;
         cachedTfm = transform;
     }
 
@@ -27,26 +20,25 @@ public class Bullet : MonoBehaviour, ICharacterCollisionHandler
         if (!enableMove)
             return;
 
-        //if (target != null)
-        //{
-
-        //}
-        cachedTfm.position = Vector3.MoveTowards(cachedTfm.position, tfmTarget.position, moveSpeed * Time.deltaTime);
-        SetDirection(tfmTarget.position);
-        if (cachedTfm.position == tfmTarget.position && target == null)
+        if (target != null)
+        {
+            destination = target.GetHeadTransform().position;
+        }
+        cachedTfm.position = Vector3.MoveTowards(cachedTfm.position, destination, moveSpeed * Time.deltaTime);
+        SetDirection(destination);
+        if (cachedTfm.position == destination && (target == null || !target.isActiveAndEnabled))
         {
             enableMove = false;
-            objectPooling.RemoveGOInPool(gameObject, PoolType.Bullet, name);
+            ObjectPooling.Instance.RemoveGOInPool(gameObject, PoolType.Bullet);
         }
     }
 
     public void SetDirection(Vector3 targetPos)
     {
-        Vector3 dir = targetPos - cachedTfm.position;
-        float angleY = Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg;
-        float angleX = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        float angleZ = Mathf.Atan2(dir.y, dir.z) * Mathf.Rad2Deg;
-        cachedTfm.eulerAngles = new Vector3(angleX, angleY, angleZ);
+        cachedTfm.LookAt(targetPos);
+        Vector3 rotation = cachedTfm.eulerAngles;
+        rotation.x -= 90;
+        cachedTfm.eulerAngles = rotation;
     }
 
     /// <summary>
@@ -60,8 +52,8 @@ public class Bullet : MonoBehaviour, ICharacterCollisionHandler
 
     private void RemoveTarget()
     {
+        destination = target.GetHeadTransform().position;
         target = null;
-        tfmTarget = null;
     }
 
     public void Init(Character _target, Character _owner)
@@ -69,7 +61,14 @@ public class Bullet : MonoBehaviour, ICharacterCollisionHandler
         owner = _owner;
         target = _target;
         target.DieAction += TargetDie;
-        tfmTarget = _target.GetHeadTransform();
+        enableMove = true;
+    }
+
+    public void Init(Vector3 toPos, Character _owner)
+    {
+        target = null;
+        owner = _owner;
+        destination = toPos;
         enableMove = true;
     }
 
@@ -77,14 +76,14 @@ public class Bullet : MonoBehaviour, ICharacterCollisionHandler
 
     public void HandleCollision(Character character)
     {
-        if (target == null) // when target die, it notify action event so target will null
+        if (target == null || character != target) // when target die but not disable yet or collide with a character different from target,
             return;
 
         enableMove = false;
         target.DieAction -= TargetDie;
         RemoveTarget();
-        character.TakeDamage(owner.GetTotalDamage(character.IsBoss), DamageTakenType.Normal);
-        objectPooling.RemoveGOInPool(gameObject, PoolType.Bullet, name);
+        character.TakeDamage(owner.GetTotalDamage(character.IsBoss), owner.Critical ? DamageTakenType.Critical : DamageTakenType.Normal);
+        ObjectPooling.Instance.RemoveGOInPool(gameObject, PoolType.Bullet);
     }
 
     public void HandleEndCollision(Character character) { }
