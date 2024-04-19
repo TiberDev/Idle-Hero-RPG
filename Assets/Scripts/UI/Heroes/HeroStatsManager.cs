@@ -233,20 +233,20 @@ public class HeroStatsManager : MonoBehaviour, IBottomTabHandler
         // effect
         if (active)
         {
-            gameObject.SetActive(true);
+            gObj.SetActive(true);
             TransformUIPanel();
         }
         else
         {
             StopAllCoroutines();
-            gameObject.SetActive(false);
+            gObj.SetActive(false);
         }
     }
 
     public void TransformUIPanel()
     {
         Vector2 startPos = rectTfm.anchoredPosition;
-        startPos.y = -840;
+        startPos.y = -745;
         Vector2 endPos = startPos;
         endPos.y = startPos.y * -1;
         StartCoroutine(UITransformController.Instance.IEMovingRect(rectTfm, startPos, endPos, movingTime, LerpType.EaseOutBack));
