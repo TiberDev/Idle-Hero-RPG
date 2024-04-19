@@ -13,11 +13,10 @@ MonoBehaviour:
   m_Name: Critical Hit Chance
   m_EditorClassIdentifier: 
   statName: Critical Hit Chance
-  statLv1: 0.5
-  goldLv1: 1
-  levelEnhance: 1
-  goldPerLv: 1
-  statPerLv: 0.2
-  levelMax: 100
+  statLv1: 0.1
+  goldLv1: 10
+  goldPerLv: 30
+  statPerLv: 0.1
+  levelMax: 300
   isValueSmall: 1
   type: 4

@@ -12,12 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78034c186ac83bb4683f15fffa10276c, type: 3}
   m_Name: HpRecovery
   m_EditorClassIdentifier: 
-  statName: Hp Recovery
+  statName: HP Recovery
   statLv1: 0.5
-  goldLv1: 1
-  levelEnhance: 1
-  goldPerLv: 1
-  statPerLv: 0.2
-  levelMax: 100
+  goldLv1: 50
+  goldPerLv: 50
+  statPerLv: 0.01
+  levelMax: 950
   isValueSmall: 1
   type: 3

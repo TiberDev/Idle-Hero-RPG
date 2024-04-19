@@ -15,8 +15,7 @@ MonoBehaviour:
   statName: Critical Hit Damage
   statLv1: 10
   goldLv1: 1
-  levelEnhance: 1
-  goldPerLv: 10
+  goldPerLv: 1
   statPerLv: 1
   levelMax: 0
   isValueSmall: 0

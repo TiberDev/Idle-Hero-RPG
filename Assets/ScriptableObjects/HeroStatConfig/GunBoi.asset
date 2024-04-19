@@ -12,29 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e988b283a730ba4e86393812044870e, type: 3}
   m_Name: GunBoi
   m_EditorClassIdentifier: 
-  heroName: GunBoi
+  heroName: Gun Boi
   levelMax: 100
   gemToEnhance: 1
   increasedPoint: 3
-  pointPerLv: 5
+  pointPerLv: 10
   addtionalEffects:
-  - type: 1
+  - type: 3
     percent: 10
-    unblock: 0
+  - type: 3
+    percent: 30
+  - type: 1
+    percent: 25
+  - type: 0
+    percent: 20
   - type: 0
     percent: 30
-    unblock: 0
-  - type: 1
-    percent: 40
-    unblock: 0
   - type: 2
-    percent: 50
-    unblock: 0
-  - type: 4
-    percent: 50
-    unblock: 0
-  - type: 4
-    percent: 70
-    unblock: 0
-  heroSpt: {fileID: 21300000, guid: 9efa83f62ecb0ea47ac0bd135695afef, type: 3}
+    percent: 35
+  heroSpt: {fileID: 21300000, guid: ec45f4f37a372464799cdb5b64ff75a6, type: 3}
   prefabHero: {fileID: 4827698500177203110, guid: 7f0e5e25d77bb4c47a2be42deb53cec9, type: 3}

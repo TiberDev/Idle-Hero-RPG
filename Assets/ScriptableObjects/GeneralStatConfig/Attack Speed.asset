@@ -13,11 +13,10 @@ MonoBehaviour:
   m_Name: Attack Speed
   m_EditorClassIdentifier: 
   statName: Attack Speed
-  statLv1: 0.5
-  goldLv1: 1
-  levelEnhance: 1
-  goldPerLv: 1
-  statPerLv: 0.2
-  levelMax: 100
+  statLv1: 1.5
+  goldLv1: 100
+  goldPerLv: 150
+  statPerLv: 0.05
+  levelMax: 169
   isValueSmall: 1
-  type: 1
+  type: 2

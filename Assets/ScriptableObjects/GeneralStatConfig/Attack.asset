@@ -12,12 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78034c186ac83bb4683f15fffa10276c, type: 3}
   m_Name: Attack
   m_EditorClassIdentifier: 
-  statName: Attack
-  statLv1: 10
-  goldLv1: 1
-  levelEnhance: 1
-  goldPerLv: 1
-  statPerLv: 10
+  statName: ATK
+  statLv1: 100
+  goldLv1: 150
+  goldPerLv: 200
+  statPerLv: 100
   levelMax: 0
   isValueSmall: 0
   type: 0

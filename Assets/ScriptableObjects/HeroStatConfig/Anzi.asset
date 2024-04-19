@@ -16,25 +16,19 @@ MonoBehaviour:
   levelMax: 100
   gemToEnhance: 1
   increasedPoint: 3
-  pointPerLv: 5
+  pointPerLv: 10
   addtionalEffects:
   - type: 1
     percent: 10
-    unblock: 0
   - type: 0
-    percent: 30
-    unblock: 0
+    percent: 20
   - type: 1
-    percent: 40
-    unblock: 0
+    percent: 20
   - type: 2
-    percent: 50
-    unblock: 0
+    percent: 18
   - type: 4
-    percent: 50
-    unblock: 0
+    percent: 25
   - type: 4
-    percent: 70
-    unblock: 0
-  heroSpt: {fileID: 21300000, guid: 71886df97c4ffe2448f5fc62f36c1a2c, type: 3}
+    percent: 38
+  heroSpt: {fileID: 21300000, guid: 67820ca351d7e6142b3c5c2be3b63a30, type: 3}
   prefabHero: {fileID: 4033973956000787217, guid: 2ff856a3c88c72243b04ea47a7c5827a, type: 3}

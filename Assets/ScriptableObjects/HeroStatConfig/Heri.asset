@@ -13,28 +13,22 @@ MonoBehaviour:
   m_Name: Heri
   m_EditorClassIdentifier: 
   heroName: Heri
-  levelMax: 7
+  levelMax: 100
   gemToEnhance: 1
   increasedPoint: 3
-  pointPerLv: 5
+  pointPerLv: 10
   addtionalEffects:
   - type: 0
     percent: 10
-    unblock: 0
   - type: 0
-    percent: 30
-    unblock: 0
+    percent: 20
   - type: 1
-    percent: 40
-    unblock: 0
+    percent: 10
   - type: 2
-    percent: 50
-    unblock: 0
+    percent: 20
   - type: 4
-    percent: 50
-    unblock: 0
+    percent: 20
   - type: 0
-    percent: 70
-    unblock: 0
-  heroSpt: {fileID: 21300000, guid: c02b2fba0aa7ccb49bb2903a7ff21a11, type: 3}
+    percent: 35
+  heroSpt: {fileID: 21300000, guid: 06639ab1d9a806944b3b42b3e2d6f2b1, type: 3}
   prefabHero: {fileID: 8387847313743448432, guid: c47d92a0b003c4b48be8f3a1ae3a99a2, type: 3}

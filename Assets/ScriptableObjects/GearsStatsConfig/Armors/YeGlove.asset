@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2da8019073433d7488a6138510490601, type: 3}
+  m_Name: YeGlove
+  m_EditorClassIdentifier: 
+  gearName: Ye Glove
+  levelMax: 100
+  maxPercentLevel: 10
+  pointPerLv: 3
+  firstOwnedEffect: 48
+  firstEquippedEffect: 51
+  gearSpt: {fileID: 21300000, guid: 1fc17835ae1807b47ab82fd81ecf71d8, type: 3}
+  type: 1
+  mode: 3

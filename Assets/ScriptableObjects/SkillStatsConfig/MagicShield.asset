@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60b0231380feb06419d6d0244bfdf912, type: 3}
+  m_Name: MagicShield
+  m_EditorClassIdentifier: 
+  skillName: Magic Shield
+  describe_1: Creates a solid magical shield around the hero that reduces damage
+    taken from enemies by
+  describe_2: .
+  cooldown: 3
+  levelMax: 100
+  maxPercentLevel: 20
+  pointPerLv: 15
+  damage: 10
+  ownedEffect: 10
+  skillSpt: {fileID: 21300000, guid: f6b8b85cbdc82ce439a41ae3d56d57ee, type: 3}
+  prefab: {fileID: 2219637884353978126, guid: 29f649c92840784459cc59ebed0b4c8d, type: 3}

@@ -12,29 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e988b283a730ba4e86393812044870e, type: 3}
   m_Name: WizardYellow
   m_EditorClassIdentifier: 
-  heroName: WizardYellow
+  heroName: Wizard Ye
   levelMax: 100
   gemToEnhance: 1
   increasedPoint: 3
-  pointPerLv: 5
+  pointPerLv: 10
   addtionalEffects:
   - type: 1
-    percent: 10
-    unblock: 0
+    percent: 20
   - type: 0
     percent: 30
-    unblock: 0
   - type: 1
     percent: 40
-    unblock: 0
   - type: 2
-    percent: 50
-    unblock: 0
+    percent: 30
   - type: 4
-    percent: 50
-    unblock: 0
+    percent: 20
   - type: 4
-    percent: 70
-    unblock: 0
-  heroSpt: {fileID: 21300000, guid: 881f55052aa4b164a9bc3c9f9c02ce17, type: 3}
+    percent: 30
+  heroSpt: {fileID: 21300000, guid: afe50719e6b46b644b2d2e1831242237, type: 3}
   prefabHero: {fileID: 2323075041905003070, guid: 9a5143cf631d37b4db594e6f7e4c49a4, type: 3}
