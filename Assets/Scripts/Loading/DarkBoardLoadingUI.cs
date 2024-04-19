@@ -43,6 +43,7 @@ public class DarkBoardLoadingUI : MonoBehaviour
 
     private IEnumerator IEEndFade()
     {
+        Fading = false;
         Color dark = Color.black;
         float curTime = 0;
         while (curTime < fadingTime)
@@ -52,7 +53,6 @@ public class DarkBoardLoadingUI : MonoBehaviour
             imgBoard.color = dark;
             yield return null;
         }
-        Fading = false;
     }
 
 }
