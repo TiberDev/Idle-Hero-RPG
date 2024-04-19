@@ -43,7 +43,15 @@ public class CharacterAnimator : MonoBehaviour
                 animator.SetInteger(longAttackType, type);
                 break;
         }
-        Debug.Log("Attack");
+        animator.SetBool(isIdle, false);
+        animator.SetBool(isMoving, false);
+        animator.SetTrigger(triggerAttack);
+    }
+
+    public void PlayAttackAnimation(float speed)
+    {
+        SetAttackSpeedAnimaton(speed);
+        animator.SetInteger(longAttackType, 1);
         animator.SetBool(isIdle, false);
         animator.SetBool(isMoving, false);
         animator.SetTrigger(triggerAttack);
