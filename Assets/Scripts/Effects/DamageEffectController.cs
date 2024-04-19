@@ -1,20 +1,19 @@
-using TMPro;
 using UnityEngine;
 
 public class DamageEffectController : Singleton<DamageEffectController>
 {
+    [SerializeField] private CameraController mainCamera;
     [SerializeField] private GameObject dmgEffectPrefab;
-    [SerializeField] private ObjectPooling objectPooling;
     [SerializeField] private UITransformController uiTransformController;
     [SerializeField] private Transform rectTfmParent;
 
-    [SerializeField] private Vector2 destinationAnchorPos;
-    [SerializeField] private float movingTime;
+    [SerializeField] private Vector3 rotationOffset;
+    [SerializeField] private float offset;
 
-    public void CreateDmgEffect(Vector3 position, string damage, DamageTakenType damageTakenType)
+    public void CreateDmgEffect(Vector3 spwningPos, string damage, DamageTakenType damageTakenType)
     {
-        DamageEffect dmgEffect = objectPooling.SpawnG0InPool(dmgEffectPrefab, position, PoolType.Effect).GetComponent<DamageEffect>();
-        position += (Vector3.left + Vector3.up + Vector3.forward) * 3; ;
-        dmgEffect.Init(position, Vector3.right * 40 + Vector3.up * 135, rectTfmParent, damage, damageTakenType);
+        Vector3 position = spwningPos;
+        DamageEffect dmgEffect = ObjectPooling.Instance.SpawnG0InPool(dmgEffectPrefab, position, PoolType.Effect).GetComponent<DamageEffect>();
+        dmgEffect.Init(position, rotationOffset, rectTfmParent, damage, damageTakenType);
     }
 }
