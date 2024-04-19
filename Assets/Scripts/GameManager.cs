@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -33,19 +31,22 @@ public class GameManager : Singleton<GameManager>
     private UserInfoManager userInfoManager;
     private ObjectPooling objectPooling;
     private List<Character> enemyList = new List<Character>(), heroList = new List<Character>();
-    private CharacterPosition[] characterPositions;
 
     public bool BossDie { get; private set; }
-
-    public bool IsOver { get; private set; }
 
     public UnityAction NotifyGameOverAction { get => notifyGameOverAction; set => notifyGameOverAction = value; }
 
     public UserInfo UserInfo { get => userInfo; }
+
     public UIManager UiManager { get => uiManager; }
 
     private void Start()
     {
+#if UNITY_EDITOR
+        Debug.unityLogger.logEnabled = true;
+#else
+        Debug.unityLogger.logEnabled = false; 
+#endif
         userInfoManager = UserInfoManager.Instance;
         objectPooling = ObjectPooling.Instance;
         mapManager.LoadMapData();
@@ -64,7 +65,7 @@ public class GameManager : Singleton<GameManager>
         blueGem = BigInteger.Parse(PlayerPrefs.GetString("BLUEGEMDATA", earlyBlueGem));
         pinkGem = BigInteger.Parse(PlayerPrefs.GetString("PINKGEMDATA", earlyPinkGem));
         // show on ui
-        uiManager.SetTextGold(gold,true);
+        uiManager.SetTextGold(gold, true);
         uiManager.SetTextPinkGem(pinkGem, true);
         uiManager.SetTextBlueGem(blueGem, true);
         // stats
@@ -96,13 +97,14 @@ public class GameManager : Singleton<GameManager>
     {
         DontDestroyOnLoad(this);
         DontDestroyOnLoad(uiManager);
-        DontDestroyOnLoad(FillData.Instance);
+        DontDestroyOnLoad(NumberConverter.Instance);
         DontDestroyOnLoad(cameraController);
         DontDestroyOnLoad(tfmHeroPool);
         DontDestroyOnLoad(tfmEnemyPool);
         DontDestroyOnLoad(tfmSkillPool);
         DontDestroyOnLoad(tfmBulletPool);
         DontDestroyOnLoad(tfmEffectPool);
+        DontDestroyOnLoad(SoundManager.Instance);
     }
 
     public void RenewGameState(bool resetWave)
@@ -112,12 +114,12 @@ public class GameManager : Singleton<GameManager>
         // Remove all heroes and enemies are in battle field
         while (enemyList.Count > 0)
         {
-            objectPooling.RemoveGOInPool(enemyList[0].gameObject, PoolType.Enemy, enemyList[0].name);
+            objectPooling.RemoveGOInPool(enemyList[0].gameObject, PoolType.Enemy);
             enemyList.RemoveAt(0);
         }
         while (heroList.Count > 0)
         {
-            objectPooling.RemoveGOInPool(heroList[0].gameObject, PoolType.Hero, heroList[0].name);
+            objectPooling.RemoveGOInPool(heroList[0].gameObject, PoolType.Hero);
             heroList.RemoveAt(0);
         }
         // Load new hero 
@@ -132,6 +134,31 @@ public class GameManager : Singleton<GameManager>
         skillTable.ResetAllSkillTableItem();
     }
 
+    public void RenewInRevengeBossStage()
+    {
+        boxScreenCollision.ClearEnemyInBox();
+        // clear all creeps
+        for (int i = 0; i < enemyList.Count;)
+        {
+            if (!enemyList[i].IsBoss)
+            {
+                objectPooling.RemoveGOInPool(enemyList[i].gameObject, PoolType.Enemy);
+                enemyList.RemoveAt(i);
+            }
+            else
+            {
+                i++;
+            }
+        }
+        // Let heroes find boss
+        for (int i = 0; i < heroList.Count; i++)
+        {
+            Character target = heroList[i].FindEnemy();
+            heroList[i].SetTarget(target);
+            heroList[i].SetDirection(target.GetTransform().position);
+        }
+    }
+
     private void SetFirstTarget()
     {
         // Find enemy
@@ -144,10 +171,6 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    public void SetHeroSwnPosition(CharacterPosition[] positions)
-    {
-        characterPositions = positions;
-    }
 
     public BigInteger GetGold()
     {
@@ -181,13 +204,35 @@ public class GameManager : Singleton<GameManager>
 
     private void SpawnHeroInGame()
     {
-        int index = /*Random.Range(0, characterPositions.Length)*/0;
-        Vector3 posSwnHero = characterPositions[index].tfmSwnHero.position;
-        bool waveIndexIncreasing = Random.Range(0, 1) == 0 ? false : true;
-        int indexWave = !waveIndexIncreasing ? characterPositions[index].frontWaveIndex : characterPositions[index].behindWaveIndex;
+        // get index wave to spawn hero
+        int indexSpawningWave = Random.Range(0, mapManager.WaveList.Length);
+        bool waveIndexIncreasing = Random.Range(0, 2) == 0 ? false : true;
+        int frontWaveIndex; // ++
+        int backWaveIndex; // --
+        if (indexSpawningWave == mapManager.WaveList.Length - 1)
+        {
+            frontWaveIndex = 0;
+            backWaveIndex = indexSpawningWave - 1;
+        }
+        else if (indexSpawningWave == 0)
+        {
+            frontWaveIndex = 1;
+            backWaveIndex = mapManager.WaveList.Length - 1;
+        }
+        else
+        {
+            frontWaveIndex = indexSpawningWave + 1;
+            backWaveIndex = indexSpawningWave - 1;
+        }
+        int indexWave = waveIndexIncreasing ? frontWaveIndex : backWaveIndex;
+
         // Get wave index to spawn enemies
         mapManager.SetFirstWaveIndex(indexWave, waveIndexIncreasing);
-
+        // Get wave to spawn hero
+        Wave wave = mapManager.WaveList[indexSpawningWave];
+        float x = Random.Range(wave.leftRange, wave.rightRange);
+        float z = Random.Range(wave.topRange, wave.bottomRange);
+        Vector3 posSwnHero = new Vector3(x, wave.swnYPosition, z);
         GameObject prefabHero = GetHeroPrefab();
         Character character = SpawnHero(prefabHero, userInfo, posSwnHero, colorHero);
         character.GetTransform().SetParent(tfmHeroPool);
@@ -197,7 +242,6 @@ public class GameManager : Singleton<GameManager>
     public Character SpawnHero(GameObject prefab, UserInfo heroInfo, Vector3 position, Color colorHpBar)
     {
         Character hero = objectPooling.SpawnG0InPool(prefab, position, PoolType.Hero).GetComponent<Character>();
-        hero.name = prefab.name;
         hero.SetAttackSpeed(heroInfo.atkSpeed);
         hero.SetCharacterInfo(heroInfo);
         hero.GetHpBar().SetHpBarColor(colorHpBar);
@@ -210,9 +254,6 @@ public class GameManager : Singleton<GameManager>
     public void SpawnEnemyInGame(Character prefab, Vector3 position, BigInteger atk, BigInteger hp)
     {
         Character character = objectPooling.SpawnG0InPool(prefab.gameObject, position, PoolType.Enemy).GetComponent<Character>();
-        character.transform.rotation = Quaternion.identity;
-        character.name = prefab.name;
-
         if (character.IsBoss)
             bossStage.StartBossStage(character);
         character.transform.SetParent(tfmEnemyPool);
@@ -236,13 +277,19 @@ public class GameManager : Singleton<GameManager>
                 if (enemyList.Count <= 0)
                 {
                     //// check next move point
-                    //// game win
-                    //IsOver = true;
                     boxScreenCollision.ClearEnemyInBox();
                     if (character.IsBoss)
                     {
+                        // clear clone hero 
+                        while (heroList.Count > 1)
+                        {
+                            Character cloneHero = heroList[1];
+                            CloneHeroEffectController.Instance.CreateRemovingEffect(heroList[1].GetTransform().position);
+                            heroList.RemoveAt(1);
+                        }
                         notifyGameOverAction();
                         BossDie = true;
+                        mapManager.LoopWave(false);
                         mapManager.LoadNextTurn();
                     }
                     else
@@ -263,16 +310,21 @@ public class GameManager : Singleton<GameManager>
                     {
                         Character cloneHero = heroList[1];
                         heroList.RemoveAt(1);
-                        cloneHero.TakeDamage(cloneHero.GetMaxHp(), DamageTakenType.Normal);
+                        objectPooling.RemoveGOInPool(cloneHero.gameObject, PoolType.Hero);
+                        CloneHeroEffectController.Instance.CreateRemovingEffect(cloneHero.GetTransform().position);
                     }
-                    // game lose
-                    IsOver = true;
                     notifyGameOverAction();
+                    if (enemyList[0].IsBoss) // if enemy kill hero is boss
+                        mapManager.LoopWave(true);
                     // load dark efect
                     darkBoardLoading.StartFadeBoard(true, () => RenewGameState(true));
                 }
                 else
+                {
                     heroList.Remove(character);
+                    objectPooling.RemoveGOInPool(character.gameObject, PoolType.Hero);
+                    CloneHeroEffectController.Instance.CreateRemovingEffect(character.GetTransform().position);
+                }
             }
         }
     }
