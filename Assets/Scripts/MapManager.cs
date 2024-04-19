@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Numerics;
+using BigInteger = System.Numerics.BigInteger;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,6 +9,7 @@ public class MapManager : Singleton<MapManager>
     [SerializeField] private UIManager uiManager;
     [SerializeField] private SceneLoadingUI sceneLoading;
     [SerializeField] private CloudTrasitionLoading cloudTrasitionLoading;
+    [SerializeField] private BossKillWaitingEffect bossKillWaitingEffect;
 
     private SObjMapConfig curMap;
     public MapData data;
@@ -17,6 +18,7 @@ public class MapManager : Singleton<MapManager>
     private Wave curWave;
     private Wave[] waveList;
     private GameManager gameManager;
+    private CharacterHpBar turnBar;
 
     private BigInteger bossATK, bossHP;
     private BigInteger creepATK, creepHP;
@@ -25,16 +27,24 @@ public class MapManager : Singleton<MapManager>
     private int indexWave;
     private int curNumberOfWaves;
     private bool waveIndexIncreasing;
+    private bool loopWave;
+
+    private readonly string DATAKEY = "MAPDATA";
+
+    public Wave[] WaveList { get => waveList; }
 
     private void SaveData()
     {
-        PlayerPrefs.SetString("MAPDATA", JsonUtility.ToJson(data));
+        PlayerPrefs.SetString(DATAKEY, JsonUtility.ToJson(data));
     }
 
     public void LoadMapData()
     {
+        // Reference
         gameManager = GameManager.Instance;
-        string json = PlayerPrefs.GetString("MAPDATA", null);
+        turnBar = uiManager.GetTurnBar();
+
+        string json = PlayerPrefs.GetString(DATAKEY, null);
         if (json == null || json == "") // new user
         {
             data = new MapData()
@@ -47,7 +57,8 @@ public class MapManager : Singleton<MapManager>
                 creepATK = mapConfigList[0].baseATKCreep.ToString(),
                 creepHP = mapConfigList[0].baseHPCreep.ToString(),
                 goldKillBoss = mapConfigList[0].goldKillBoss.ToString(),
-                goldKillCreep = mapConfigList[0].goldKillCreep.ToString()
+                goldKillCreep = mapConfigList[0].goldKillCreep.ToString(),
+                loopWave = false
             };
         }
         else
@@ -59,6 +70,9 @@ public class MapManager : Singleton<MapManager>
         curMap = mapConfigList[data.map - 1];
         curRound = curMap.roundList[data.round - 1];
         curTurn = curRound.turnList[data.turn - 1];
+        loopWave = data.loopWave;
+        if (loopWave)
+            bossKillWaitingEffect.Init();
 
         bossATK = BigInteger.Parse(data.bossATK);
         bossHP = BigInteger.Parse(data.bossHP);
@@ -94,11 +108,17 @@ public class MapManager : Singleton<MapManager>
         {
             // Get final value in last round and last turn 
             bossATK = CaculateValue(bossATK, curRound.increaseBaseATKPercentage + curTurn.increaseATKPercentage);
+            bossATK = bossATK * curMap.increasedBaseATK / 100;
             bossHP = CaculateValue(bossHP, curRound.increaseBaseHPPercentage + curTurn.increaseHPPercentage);
+            bossHP = bossHP * curMap.increasedBaseHP / 100;
             creepATK = CaculateValue(creepATK, curRound.increaseBaseHPPercentage + curTurn.increaseHPPercentage);
+            creepATK = creepATK * curMap.increasedBaseATK / 100;
             creepHP = CaculateValue(creepHP, curRound.increaseBaseHPPercentage + curTurn.increaseHPPercentage);
+            creepHP = creepHP * curMap.increasedBaseHP / 100;
             goldKillBoss = CaculateValue(goldKillBoss, curRound.increaseGoldPercentage + curTurn.increaseGoldPercentage);
+            goldKillBoss = goldKillBoss * curMap.increasedGold / 100;
             goldKillCreep = CaculateValue(goldKillCreep, curRound.increaseGoldPercentage + curTurn.increaseGoldPercentage);
+            goldKillCreep = goldKillCreep * curMap.increasedGold / 100;
         }
         data.round = 1;
         data.turn = 1;
@@ -159,8 +179,11 @@ public class MapManager : Singleton<MapManager>
     {
         BigInteger atk = CaculateValue(bossATK, curRound.increaseBaseATKPercentage + curTurn.increaseATKPercentage);
         BigInteger hp = CaculateValue(bossHP, curRound.increaseBaseHPPercentage + curTurn.increaseHPPercentage);
-        gameManager.SpawnEnemyInGame(curTurn.boss, curWave.enemyTypesInWave[0].tfmSwnPositionList[0].position, atk, hp);
-
+        float x = (curWave.leftRange + curWave.rightRange) / 2;
+        float z = (curWave.topRange + curWave.bottomRange) / 2;
+        gameManager.SpawnEnemyInGame(curTurn.boss, new Vector3(x, curWave.swnYPosition, z), atk, hp);
+        if (loopWave)
+            gameManager.RenewInRevengeBossStage();
     }
 
     private void SpawnEnemyInWave()
@@ -170,9 +193,11 @@ public class MapManager : Singleton<MapManager>
         for (int indexList = 0; indexList < curWave.enemyTypesInWave.Length; indexList++)
         {
             EnemyTypeInWave enemyTypeInWave = curWave.enemyTypesInWave[indexList];
-            for (int i = 0; i < enemyTypeInWave.tfmSwnPositionList.Length; i++)
+            for (int i = 0; i < enemyTypeInWave.amount; i++)
             {
-                gameManager.SpawnEnemyInGame(enemyTypeInWave.prefab, enemyTypeInWave.tfmSwnPositionList[i].position, atk, hp);
+                float x = Random.Range(curWave.leftRange, curWave.rightRange);
+                float z = Random.Range(curWave.topRange, curWave.bottomRange);
+                gameManager.SpawnEnemyInGame(enemyTypeInWave.prefab, new Vector3(x, curWave.swnYPosition, z), atk, hp);
             }
         }
     }
@@ -185,25 +210,29 @@ public class MapManager : Singleton<MapManager>
     /// <summary>
     /// Spawn enemies or a boss in wave
     /// </summary>
-    public void LoadNextWave()
+    public void LoadNextWave(bool inBossStage = false)
     {
-        CharacterHpBar bar = uiManager.GetTurnBar();
-        if (curTurn.numberOfWaves <= curNumberOfWaves)
+        if (curTurn.numberOfWaves <= curNumberOfWaves || inBossStage)
         {
             curNumberOfWaves = 0;
-            bar.SetFillAmountUI(curTurn.numberOfWaves, curTurn.numberOfWaves, true);
+            turnBar.SetFillAmountUI(curTurn.numberOfWaves, curTurn.numberOfWaves, true);
             ChangeWaveIndex();
             // spawn boss when all wave is gone
             SpawnBossInTurn();
         }
         else
         {
-            curNumberOfWaves++;
-            bar.SetSize(false);
-            bar.SetTurnBarColor(false);
-            bar.SetTextTurnBar(false);
-            bar.SetTextInfo(data.round, data.turn);
-            bar.SetFillAmountUI(curNumberOfWaves - 1, curTurn.numberOfWaves, curNumberOfWaves > 1 ? true : false);
+            turnBar.SetTextInfo(data.round, data.turn);
+            turnBar.SetSize(false);
+            turnBar.SetTurnBarColor(false);
+            turnBar.SetTextTurnBar(false);
+            if (!loopWave)
+            {
+                curNumberOfWaves++;
+                turnBar.SetFillAmountUI(curNumberOfWaves - 1, curTurn.numberOfWaves, curNumberOfWaves > 1 ? true : false);
+            }
+            else
+                turnBar.SetFillAmountUI(curTurn.numberOfWaves, curTurn.numberOfWaves, false);
             ChangeWaveIndex();
             SpawnEnemyInWave();
         }
@@ -251,8 +280,21 @@ public class MapManager : Singleton<MapManager>
 
     public void ResetWave()
     {
+        if (loopWave)
+            bossKillWaitingEffect.Init();
+
         curNumberOfWaves = 0;
         LoadNextWave();
+    }
+
+    /// <summary>
+    /// Loop wave until user wants to attack boss again
+    /// </summary>
+    public void LoopWave(bool loop)
+    {
+        data.loopWave = loop;
+        loopWave = loop;
+        SaveData();
     }
 
     public MapData GetMapData() => data;
