@@ -12,17 +12,11 @@ public class CloneHeroSkill : Skill
 
     private IEnumerator IESpawnCloneHero()
     {
-        // Get postion to spawn clone hero
-        GameObject prefab = gameManager.GetHeroPrefab();
-        Character hero = gameManager.GetCharacters(CharacterType.Hero)[0];
-        cachedTfm.SetParent(gameManager.GetSkillPoolTfm());
-        cachedTfm.position = hero.GetTransform().position + hero.GetTransform().forward * -2; // spawned 2 unit behind main hero 
-
         UserInfo heroInfo = gameManager.UserInfo;
         UserInfo cloneHeroInfo = new UserInfo()
         {
             atk = heroInfo.atk * value / 100,
-            atkSpeed = 1,
+            atkSpeed = 1.5f,
             bossDamage = 100,
             criticalHitChance = 0,
             criticalHitDamage = 0,
@@ -31,9 +25,14 @@ public class CloneHeroSkill : Skill
             hpRecovery = 0,
             skillDamage = 0,
         };
+        // Get postion to spawn clone hero
+        GameObject prefab = gameManager.GetHeroPrefab();
+        Character hero = gameManager.GetCharacters(CharacterType.Hero)[0];
+        cachedTfm.SetParent(gameManager.GetSkillPoolTfm());
+        cachedTfm.position = hero.GetTransform().position + hero.GetTransform().forward * -1 + Vector3.up * 0.5f; // spawned 1 unit behind main hero 
         // clone hero spawning effect
         float spawningTimeDelay = 0.3f;
-        CloneHeroEffectController.Instance.CreateSpawningEffect(cachedTfm.position, spawningTimeDelay);
+        CloneHeroEffectController.Instance.CreateSpawningEffect(cachedTfm.position - Vector3.up * 0.5f, spawningTimeDelay);
         yield return new WaitForSeconds(spawningTimeDelay);
 
         // Spawn clone hero
