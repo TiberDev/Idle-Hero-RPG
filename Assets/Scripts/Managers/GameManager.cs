@@ -77,13 +77,13 @@ public class GameManager : Singleton<GameManager>
         generalManager.LoadGeneralData();
         EventDispatcher.Push(EventId.CheckGoldToEnhance, gold);
 
-        heroStatsTool.UnlockAllHeroes();
-        gearStatsTool.UnlockAllGears(GearType.Weapon);
-        gearStatsTool.UnlockAllGears(GearType.Armor);
-        gearStatsTool.SetPoint(GearType.Weapon);
-        gearStatsTool.SetPoint(GearType.Armor);
-        skillStatsTool.UnlockAllSkills();
-        skillStatsTool.SetPoint();
+        //heroStatsTool.UnlockAllHeroes();
+        //gearStatsTool.UnlockAllGears(GearType.Weapon);
+        //gearStatsTool.UnlockAllGears(GearType.Armor);
+        //gearStatsTool.SetPoint(GearType.Weapon);
+        //gearStatsTool.SetPoint(GearType.Armor);
+        //skillStatsTool.UnlockAllSkills();
+        //skillStatsTool.SetPoint();
 
         heroStatsManager.LoadHeroesData();
         gearsStatsManager.LoadGearsData(GearType.Weapon);

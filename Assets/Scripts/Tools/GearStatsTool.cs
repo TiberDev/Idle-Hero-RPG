@@ -89,7 +89,7 @@ public class GearStatsTool : MonoBehaviour
 
     [ContextMenuItem("Set Point", "SetPoint")]
     public int numberOfPoints;
-    public void SetPoint()
+    public void SetPoint(GearType type)
     {
         var json = PlayerPrefs.GetString(type + DATAKEY, null);
         GearStatsList gearStatsList = JsonUtility.FromJson<GearStatsList>(json);
@@ -204,7 +204,7 @@ public class GearStatsTool : MonoBehaviour
     }
 
     [ContextMenu("Unlock All Gears")]
-    public void UnlockAllGears()
+    public void UnlockAllGears(GearType type)
     {
         int typeInt = (int)type;
         SObjGearsStatsConfig[] configs = gearConfigs[typeInt].gearsStatsConfigs;

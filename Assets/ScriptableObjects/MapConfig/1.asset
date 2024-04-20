@@ -16,12 +16,120 @@ MonoBehaviour:
   goldKillBoss: 75
   baseATKCreep: 20
   baseHPCreep: 100
-  baseATKBoss: 80
-  baseHPBoss: 300
+  baseATKBoss: 100
+  baseHPBoss: 500
   roundList:
   - increaseGoldPercentage: 10
     increaseBaseATKPercentage: 20
     increaseBaseHPPercentage: 20
+    turnList:
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 20
+      increaseHPPercentage: 20
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 30
+      increaseHPPercentage: 30
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 40
+      increaseHPPercentage: 40
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 50
+      increaseHPPercentage: 50
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 60
+      increaseHPPercentage: 60
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 70
+      increaseHPPercentage: 70
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 80
+      increaseHPPercentage: 80
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 90
+      increaseHPPercentage: 90
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 100
+      increaseHPPercentage: 100
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 110
+      increaseHPPercentage: 110
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+  - increaseGoldPercentage: 20
+    increaseBaseATKPercentage: 35
+    increaseBaseHPPercentage: 35
+    turnList:
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 20
+      increaseHPPercentage: 20
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 30
+      increaseHPPercentage: 30
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 40
+      increaseHPPercentage: 40
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 50
+      increaseHPPercentage: 50
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 60
+      increaseHPPercentage: 60
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 70
+      increaseHPPercentage: 70
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 80
+      increaseHPPercentage: 80
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 90
+      increaseHPPercentage: 90
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 100
+      increaseHPPercentage: 100
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+    - increaseGoldPercentage: 1
+      increaseATKPercentage: 110
+      increaseHPPercentage: 110
+      numberOfWaves: 2
+      boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
+  - increaseGoldPercentage: 30
+    increaseBaseATKPercentage: 50
+    increaseBaseHPPercentage: 50
     turnList:
     - increaseGoldPercentage: 1
       increaseATKPercentage: 20
