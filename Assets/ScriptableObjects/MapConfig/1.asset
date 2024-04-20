@@ -48,7 +48,7 @@ MonoBehaviour:
       increaseHPPercentage: 60
       numberOfWaves: 2
       boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
-    - increaseGoldPercentage: 0
+    - increaseGoldPercentage: 1
       increaseATKPercentage: 70
       increaseHPPercentage: 70
       numberOfWaves: 2
@@ -73,6 +73,6 @@ MonoBehaviour:
       increaseHPPercentage: 110
       numberOfWaves: 2
       boss: {fileID: 1596039729325863518, guid: 4a1b8f55613b8984b9da81df67a7b714, type: 3}
-  increasedBaseATK: 50
-  increasedBaseHP: 50
+  increasedBaseATK: 75
+  increasedBaseHP: 75
   increasedGold: 10

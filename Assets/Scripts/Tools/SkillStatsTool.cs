@@ -51,9 +51,9 @@ public class SkillStatsTool : MonoBehaviour
     }
 
 
-    [ContextMenuItem("Unlock Gears", "UnlockGears")]
+    [ContextMenuItem("Unlock Skills", "UnlockSkills")]
     public int numberOfSpawn;
-    public void UnlockGears()
+    public void UnlockSkills()
     {
         if (numberOfSpawn < 1 || numberOfSpawn > skillStatsConfigs.Length)
             return;
