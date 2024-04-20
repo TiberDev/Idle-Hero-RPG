@@ -6,6 +6,11 @@ using BigInteger = System.Numerics.BigInteger;
 
 public class GameManager : Singleton<GameManager>
 {
+    [SerializeField] private GearStatsTool gearStatsTool;
+    [SerializeField] private SkillStatsTool skillStatsTool;
+    [SerializeField] private HeroStatsTool heroStatsTool;
+
+
     [SerializeField] private GeneralManager generalManager;
     [SerializeField] private HeroStatsManager heroStatsManager;
     [SerializeField] private GearsStatsManager gearsStatsManager;
@@ -71,6 +76,14 @@ public class GameManager : Singleton<GameManager>
         // stats
         generalManager.LoadGeneralData();
         EventDispatcher.Push(EventId.CheckGoldToEnhance, gold);
+
+        heroStatsTool.UnlockAllHeroes();
+        gearStatsTool.UnlockAllGears(GearType.Weapon);
+        gearStatsTool.UnlockAllGears(GearType.Armor);
+        gearStatsTool.SetPoint(GearType.Weapon);
+        gearStatsTool.SetPoint(GearType.Armor);
+        skillStatsTool.UnlockAllSkills();
+        skillStatsTool.SetPoint();
 
         heroStatsManager.LoadHeroesData();
         gearsStatsManager.LoadGearsData(GearType.Weapon);
@@ -284,8 +297,9 @@ public class GameManager : Singleton<GameManager>
                         while (heroList.Count > 1)
                         {
                             Character cloneHero = heroList[1];
-                            CloneHeroEffectController.Instance.CreateRemovingEffect(heroList[1].GetTransform().position);
                             heroList.RemoveAt(1);
+                            objectPooling.RemoveGOInPool(cloneHero.gameObject, PoolType.Hero);
+                            CloneHeroEffectController.Instance.CreateRemovingEffect(cloneHero.GetHeadTransform().position);
                         }
                         notifyGameOverAction();
                         BossDie = true;
@@ -311,7 +325,7 @@ public class GameManager : Singleton<GameManager>
                         Character cloneHero = heroList[1];
                         heroList.RemoveAt(1);
                         objectPooling.RemoveGOInPool(cloneHero.gameObject, PoolType.Hero);
-                        CloneHeroEffectController.Instance.CreateRemovingEffect(cloneHero.GetTransform().position);
+                        CloneHeroEffectController.Instance.CreateRemovingEffect(cloneHero.GetHeadTransform().position);
                     }
                     notifyGameOverAction();
                     if (enemyList[0].IsBoss) // if enemy kill hero is boss
@@ -323,7 +337,7 @@ public class GameManager : Singleton<GameManager>
                 {
                     heroList.Remove(character);
                     objectPooling.RemoveGOInPool(character.gameObject, PoolType.Hero);
-                    CloneHeroEffectController.Instance.CreateRemovingEffect(character.GetTransform().position);
+                    CloneHeroEffectController.Instance.CreateRemovingEffect(character.GetHeadTransform().position);
                 }
             }
         }
