@@ -10788,9 +10788,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c4f0e1c874bd534187ac6f67af20bcd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gearStatsTool: {fileID: 1170927819}
-  skillStatsTool: {fileID: 1170927820}
-  heroStatsTool: {fileID: 1170927818}
   generalManager: {fileID: 888871682}
   heroStatsManager: {fileID: 308056068}
   gearsStatsManager: {fileID: 1767834061}
@@ -10810,9 +10807,9 @@ MonoBehaviour:
   colorHero: {r: 0, g: 1, b: 0.13725491, a: 1}
   numberOfEnemyMax: 20
   numberOfEnemyInRow: 5
-  earlyGold: 100100100100100
-  earlyBlueGem: 939238023237878678
-  earlyPinkGem: 1383813232
+  earlyGold: 999
+  earlyBlueGem: 99
+  earlyPinkGem: 99
 --- !u!4 &1023297671
 Transform:
   m_ObjectHideFlags: 0

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   statName: Critical Hit Damage
   statLv1: 10
-  goldLv1: 1
-  goldPerLv: 1
+  goldLv1: 50
+  goldPerLv: 50
   statPerLv: 1
   levelMax: 0
   isValueSmall: 0
