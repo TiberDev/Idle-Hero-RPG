@@ -330,6 +330,8 @@ public class Character : MonoBehaviour
 
     public BigInteger GetMaxHp() => userInfo.hp;
 
+    public bool IsDead() => curHp <= 0;
+
     public Vector3 GetTargetPosition()
     {
         if (target != null)

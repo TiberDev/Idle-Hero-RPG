@@ -62,6 +62,9 @@ public class BoxScreenCollision : Singleton<BoxScreenCollision>, ICharacterColli
 
     void ICharacterCollisionHandler.HandleCollision(Character character)
     {
+        if (character.IsDead())
+            return;
+
         enemyInBoxList.Add(character);
         skillTable.HandleAutomatic();
     }

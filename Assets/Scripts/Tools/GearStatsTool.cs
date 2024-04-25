@@ -137,6 +137,7 @@ public class GearStatsTool : MonoBehaviour
 
     [ContextMenuItem("Unlock Gears", "UnlockGears")]
     public int numberOfSpawn;
+
     public void UnlockGears()
     {
         int typeInt = (int)type;
