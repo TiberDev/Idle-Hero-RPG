@@ -8,6 +8,7 @@ public class BoxScreenCollision : Singleton<BoxScreenCollision>, ICharacterColli
     [SerializeField] private Camera mainCamera;
     [SerializeField] private SkillTable skillTable;
     [SerializeField] private Transform tfmBottom;
+    [SerializeField] private float scaleY;
 
     private List<Character> enemyInBoxList = new List<Character>();
     private Transform cachedTfm;
@@ -57,7 +58,7 @@ public class BoxScreenCollision : Singleton<BoxScreenCollision>, ICharacterColli
         boxCollider.size = Vector3.forward * z;
 
         float x = Vector3.Distance(bottom, right) * 2;
-        boxCollider.size = new Vector3(x, 1, z);
+        boxCollider.size = new Vector3(x, scaleY, z);
     }
 
     void ICharacterCollisionHandler.HandleCollision(Character character)

@@ -10318,6 +10318,7 @@ MonoBehaviour:
   mainCamera: {fileID: 1095864977}
   skillTable: {fileID: 1422990092}
   tfmBottom: {fileID: 1422990088}
+  scaleY: 6
 --- !u!65 &983371621
 BoxCollider:
   m_ObjectHideFlags: 0
