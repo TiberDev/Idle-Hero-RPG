@@ -1,21 +1,12 @@
-using BigInteger = System.Numerics.BigInteger;
+using System.Numerics;
 using TMPro;
 using UnityEngine;
 
-public class UIManager : Singleton<UIManager>
+public class GemsUI : MonoBehaviour
 {
-    [SerializeField] private HeroStatsManager heroStatsManager;
-    [SerializeField] private GearsStatsManager gearsStatsManager;
-    [SerializeField] private SkillStatsManager skillStatsManager;
-    [SerializeField] private CharacterHpBar turnBar;
     [SerializeField] private TMP_Text txtGold, txtPinkGem, txtBlueGem;
 
     private BigInteger goldUI, blueGemUI, pinkGemUI;
-
-    public CharacterHpBar GetTurnBar()
-    {
-        return turnBar;
-    }
 
     public void SetTextGold(BigInteger gold, bool addtional)
     {
@@ -35,5 +26,4 @@ public class UIManager : Singleton<UIManager>
         pinkGemUI += additional ? gem : -gem;
         txtPinkGem.text = NumberConverter.Instance.FormatNumber(pinkGemUI);
     }
-
 }

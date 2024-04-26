@@ -6,10 +6,10 @@ using UnityEngine.SceneManagement;
 public class MapManager : Singleton<MapManager>
 {
     [SerializeField] private SObjMapConfig[] mapConfigList;
-    [SerializeField] private UIManager uiManager;
     [SerializeField] private SceneLoadingUI sceneLoading;
     [SerializeField] private CloudTrasitionLoading cloudTrasitionLoading;
     [SerializeField] private BossKillWaitingEffect bossKillWaitingEffect;
+    [SerializeField] private CharacterHpBar turnBar;
 
     private SObjMapConfig curMap;
     public MapData data;
@@ -18,7 +18,6 @@ public class MapManager : Singleton<MapManager>
     private Wave curWave;
     private Wave[] waveList;
     private GameManager gameManager;
-    private CharacterHpBar turnBar;
 
     private BigInteger bossATK, bossHP;
     private BigInteger creepATK, creepHP;
@@ -42,8 +41,6 @@ public class MapManager : Singleton<MapManager>
     {
         // Reference
         gameManager = GameManager.Instance;
-        turnBar = uiManager.GetTurnBar();
-
         string json = PlayerPrefs.GetString(DATAKEY, null);
         if (json == null || json == "") // new user
         {

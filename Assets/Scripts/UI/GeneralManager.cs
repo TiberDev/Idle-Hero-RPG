@@ -61,7 +61,7 @@ public class GeneralManager : MonoBehaviour
         SaveData();
         GameManager gameManager = GameManager.Instance;
         gameManager.SetGold(enhanceGold, false);
-        gameManager.UiManager.SetTextGold(enhanceGold, false);
+        gameManager.GemsUI.SetTextGold(enhanceGold, false);
         EventDispatcher.Push(EventId.CheckGoldToEnhance, gameManager.GetGold());
         SetUserInfo(generalStat.type);
     }
@@ -103,8 +103,6 @@ public class GeneralManager : MonoBehaviour
     /// <summary>
     /// Get values: atk, hp, critical hit damage
     /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
     public BigInteger GetBigValue(GeneralStatsType type)
     {
         GeneralStat generalStat = generalStatList.list[(int)type]/*.Find(stat => stat.type == type)*/;
@@ -114,8 +112,6 @@ public class GeneralManager : MonoBehaviour
     /// <summary>
     /// Get values: atk speed, hp recovery, critical hit chance
     /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
     public float GetSmallValue(GeneralStatsType type)
     {
         GeneralStat generalStat = generalStatList.list[(int)type];

@@ -14,9 +14,9 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private MapManager mapManager;
     [SerializeField] private BoxScreenCollision boxScreenCollision;
     [SerializeField] private BossStage bossStage;
-    [SerializeField] private UIManager uiManager;
+    [SerializeField] private GemsUI gemsUI;
     [SerializeField] private DarkBoardLoadingUI darkBoardLoading;
-    [SerializeField] private Transform tfmHeroPool, tfmEnemyPool, tfmSkillPool, tfmBulletPool, tfmEffectPool;
+    [SerializeField] private Transform tfmUI, tfmHeroPool, tfmEnemyPool, tfmSkillPool, tfmBulletPool, tfmEffectPool;
     [SerializeField] private SkillTable skillTable;
 
     [SerializeField] private Color colorHero;
@@ -38,7 +38,7 @@ public class GameManager : Singleton<GameManager>
 
     public UserInfo UserInfo { get => userInfo; }
 
-    public UIManager UiManager { get => uiManager; }
+    public GemsUI GemsUI { get => gemsUI; }
 
     private void Start()
     {
@@ -49,6 +49,7 @@ public class GameManager : Singleton<GameManager>
 #endif
         userInfoManager = UserInfoManager.Instance;
         objectPooling = ObjectPooling.Instance;
+        //boxScreenCollision.Init();
         mapManager.LoadMapData();
         skillTable.GetAutomaticData();
         LoadAllDatas();
@@ -65,9 +66,9 @@ public class GameManager : Singleton<GameManager>
         blueGem = BigInteger.Parse(PlayerPrefs.GetString("BLUEGEMDATA", earlyBlueGem));
         pinkGem = BigInteger.Parse(PlayerPrefs.GetString("PINKGEMDATA", earlyPinkGem));
         // show on ui
-        uiManager.SetTextGold(gold, true);
-        uiManager.SetTextPinkGem(pinkGem, true);
-        uiManager.SetTextBlueGem(blueGem, true);
+        gemsUI.SetTextGold(gold, true);
+        gemsUI.SetTextPinkGem(pinkGem, true);
+        gemsUI.SetTextBlueGem(blueGem, true);
         // stats
         generalManager.LoadGeneralData();
         EventDispatcher.Push(EventId.CheckGoldToEnhance, gold);
@@ -96,7 +97,7 @@ public class GameManager : Singleton<GameManager>
     private void SetDontDestroyOnLoad()
     {
         DontDestroyOnLoad(this);
-        DontDestroyOnLoad(uiManager);
+        DontDestroyOnLoad(tfmUI);
         DontDestroyOnLoad(NumberConverter.Instance);
         DontDestroyOnLoad(cameraController);
         DontDestroyOnLoad(tfmHeroPool);

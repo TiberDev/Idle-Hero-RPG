@@ -83,6 +83,7 @@
     <Compile Include="Assets\Scripts\BoxScreenCollision.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillTable.cs" />
     <Compile Include="Assets\Scripts\Skills\CircleDamageReduction.cs" />
+    <Compile Include="Assets\Scripts\Managers\UserInfoManager.cs" />
     <Compile Include="Assets\Scripts\UI\SafeArea.cs" />
     <Compile Include="Assets\Scripts\UI\GeneralItem.cs" />
     <Compile Include="Assets\Scripts\Patterns\Singleton.cs" />
@@ -93,7 +94,6 @@
     <Compile Include="Assets\Scripts\Events\EventDispatcher.cs" />
     <Compile Include="Assets\Scripts\UI\Heroes\HeroStatsManager.cs" />
     <Compile Include="Assets\Scripts\Characters\ICharacterCollisionHandler.cs" />
-    <Compile Include="Assets\Scripts\UI\UserInfoManager.cs" />
     <Compile Include="Assets\Scripts\Utilities\GeneralStats.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillTableItem.cs" />
     <Compile Include="Assets\Scripts\Loading\CloudTrasitionLoading.cs" />
@@ -122,12 +122,12 @@
     <Compile Include="Assets\Scripts\Skills\BuffSkill.cs" />
     <Compile Include="Assets\Scripts\Utilities\SkillStats.cs" />
     <Compile Include="Assets\Scripts\Tools\SkillStatsTool.cs" />
-    <Compile Include="Assets\Scripts\UI\UIManager.cs" />
     <Compile Include="Assets\Scripts\Utilities\MapData.cs" />
     <Compile Include="Assets\Scripts\Tools\HeroStatsTool.cs" />
     <Compile Include="Assets\Scripts\EasyType.cs" />
     <Compile Include="Assets\Scripts\Tools\GearStatsTool.cs" />
     <Compile Include="Assets\Scripts\Characters\LongAttackCharacter.cs" />
+    <Compile Include="Assets\Scripts\UI\GemsUI.cs" />
     <Compile Include="Assets\Scripts\UI\Heroes\AddtionalEffectItem.cs" />
     <Compile Include="Assets\Scripts\Effects\GoldEffectController.cs" />
     <Compile Include="Assets\Scripts\UI\UITransformController.cs" />
@@ -136,8 +136,8 @@
     <Compile Include="Assets\Scripts\UI\Shops\ShopManager.cs" />
     <Compile Include="Assets\Scripts\Test.cs" />
     <Compile Include="Assets\Scripts\UI\Heroes\HeroInfoUI.cs" />
+    <Compile Include="Assets\Scripts\UI\ShrinkButton.cs" />
     <Compile Include="Assets\Scripts\Effects\CloneHeroEffectController.cs" />
-    <Compile Include="Assets\Scripts\UI\UserInfoItem.cs" />
     <Compile Include="Assets\Scripts\UI\Gears\GearInfoUI.cs" />
     <Compile Include="Assets\Scripts\Effects\DamageEffect.cs" />
     <Compile Include="Assets\Scripts\Characters\CharacterAttackDetect.cs" />

@@ -7,9 +7,9 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         get; private set;
     }
 
-    private void Awake()
+    protected virtual void Awake()
     {
-        if(Instance == null)
+        if (Instance == null)
         {
             Instance = this as T;
         }

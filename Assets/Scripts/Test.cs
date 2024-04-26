@@ -4,7 +4,6 @@ using UnityEngine.Events;
 public class Test : MonoBehaviour
 {
     [SerializeField] private CharacterAnimator animator;
-    [SerializeField] private Camera camera;
 
     [SerializeField] private Transform tfmd;
 
