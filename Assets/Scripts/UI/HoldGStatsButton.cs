@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class HoldGStatsButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class HoldGStatsButton : MonoBehaviour
 {
     [SerializeField] private GeneralItem generalItem;
     [SerializeField] private Image imgBtn;
@@ -74,7 +74,7 @@ public class HoldGStatsButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     /// User press the button
     /// </summary>
     /// <param name="eventData"></param>
-    public void OnPointerDown(PointerEventData eventData)
+    public void OnPointerDown(BaseEventData eventData)
     {
         if (!interactive)
             return;
@@ -95,7 +95,7 @@ public class HoldGStatsButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     /// User release the button
     /// </summary>
     /// <param name="eventData"></param>
-    public void OnPointerUp(PointerEventData eventData)
+    public void OnPointerUp(BaseEventData eventData)
     {
         if (!interactive)
             return;
@@ -107,7 +107,7 @@ public class HoldGStatsButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
             corouBtn = StartCoroutine(uiTransformController.IEScalingRect(rectTfm, rectTfm.localScale, Vector2.one, scalingTime, LerpType.Liner));
         }
         isHolding = false;
-        if (holdTime < holdDuration) // increase gold by 1 time if user doesn't hold button for long
+        if (holdTime < holdDuration && (eventData as PointerEventData).pointerEnter == gameObject) // increase gold by 1 time if user doesn't hold button for long
         {
             generalItem.EnhanceItem();
             SoundManager.Instance.PlayEnhanceClickSound();
