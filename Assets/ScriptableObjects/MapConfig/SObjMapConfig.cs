@@ -8,12 +8,6 @@ public class SObjMapConfig : ScriptableObject
     public int baseATKCreep, baseHPCreep;
     public int baseATKBoss, baseHPBoss;
     public Round[] roundList;
-
-    [Space(5)]
-    [Header("Loop map")]
-    public int increasedBaseATK;
-    public int increasedBaseHP;
-    public int increasedGold;
 }
 
 [Serializable]

@@ -12,7 +12,7 @@ public class MapManager : Singleton<MapManager>
     [SerializeField] private CharacterHpBar turnBar;
 
     private SObjMapConfig curMap;
-    public MapData data;
+    private MapData data;
     private Round curRound;
     private Turn curTurn;
     private Wave curWave;
@@ -41,6 +41,7 @@ public class MapManager : Singleton<MapManager>
     {
         // Reference
         gameManager = GameManager.Instance;
+        PlayerPrefs.DeleteKey(DATAKEY);
         string json = PlayerPrefs.GetString(DATAKEY, null);
         if (json == null || json == "") // new user
         {
@@ -96,8 +97,10 @@ public class MapManager : Singleton<MapManager>
 
             bossATK = curMap.baseATKBoss;
             bossHP = curMap.baseHPBoss;
+
             creepATK = curMap.baseATKCreep;
             creepHP = curMap.baseHPCreep;
+
             goldKillBoss = curMap.goldKillBoss;
             goldKillCreep = curMap.goldKillCreep;
         }
@@ -105,17 +108,13 @@ public class MapManager : Singleton<MapManager>
         {
             // Get final value in last round and last turn 
             bossATK = CaculateValue(bossATK, curRound.increaseBaseATKPercentage + curTurn.increaseATKPercentage);
-            bossATK = bossATK * curMap.increasedBaseATK / 100;
             bossHP = CaculateValue(bossHP, curRound.increaseBaseHPPercentage + curTurn.increaseHPPercentage);
-            bossHP = bossHP * curMap.increasedBaseHP / 100;
+
             creepATK = CaculateValue(creepATK, curRound.increaseBaseHPPercentage + curTurn.increaseHPPercentage);
-            creepATK = creepATK * curMap.increasedBaseATK / 100;
             creepHP = CaculateValue(creepHP, curRound.increaseBaseHPPercentage + curTurn.increaseHPPercentage);
-            creepHP = creepHP * curMap.increasedBaseHP / 100;
+
             goldKillBoss = CaculateValue(goldKillBoss, curRound.increaseGoldPercentage + curTurn.increaseGoldPercentage);
-            goldKillBoss = goldKillBoss * curMap.increasedGold / 100;
             goldKillCreep = CaculateValue(goldKillCreep, curRound.increaseGoldPercentage + curTurn.increaseGoldPercentage);
-            goldKillCreep = goldKillCreep * curMap.increasedGold / 100;
         }
         data.round = 1;
         data.turn = 1;
