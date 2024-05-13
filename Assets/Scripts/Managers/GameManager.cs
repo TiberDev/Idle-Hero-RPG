@@ -16,7 +16,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private BossStage bossStage;
     [SerializeField] private GemsUI gemsUI;
     [SerializeField] private DarkBoardLoadingUI darkBoardLoading;
-    [SerializeField] private Transform tfmUI, tfmHeroPool, tfmEnemyPool, tfmSkillPool, tfmBulletPool, tfmEffectPool;
+    [SerializeField] private Transform tfmUI, tfmHeroPool, tfmEnemyPool, tfmSkillPool, tfmBulletPool, tfmEffectPool, tfmTool;
     [SerializeField] private SkillTable skillTable;
 
     [SerializeField] private Color colorHero;
@@ -25,7 +25,6 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private int numberOfEnemyInRow;
     [SerializeField] private string earlyGold, earlyBlueGem, earlyPinkGem;
 
-    private BigInteger gold, blueGem, pinkGem;
     private UnityAction notifyGameOverAction;
     private UserInfo userInfo;
     private UserInfoManager userInfoManager;
@@ -38,7 +37,8 @@ public class GameManager : Singleton<GameManager>
 
     public UserInfo UserInfo { get => userInfo; }
 
-    public GemsUI GemsUI { get => gemsUI; }
+    private BigInteger gold, goldData, blueGem, pinkGem;
+    private readonly string GOLDKEY = "GOLDDATA", BLUEGEMKEY = "BLUEGEMDATA", PINKGEMKEY = "PINKGEMDATA";
 
     private void Start()
     {
@@ -61,17 +61,12 @@ public class GameManager : Singleton<GameManager>
 
     private void LoadAllDatas()
     {
-        // gold, gems
-        gold = BigInteger.Parse(PlayerPrefs.GetString("GOLDDATA", earlyGold));
-        blueGem = BigInteger.Parse(PlayerPrefs.GetString("BLUEGEMDATA", earlyBlueGem));
-        pinkGem = BigInteger.Parse(PlayerPrefs.GetString("PINKGEMDATA", earlyPinkGem));
-        // show on ui
-        gemsUI.SetTextGold(gold, true);
-        gemsUI.SetTextPinkGem(pinkGem, true);
-        gemsUI.SetTextBlueGem(blueGem, true);
-        // stats
         generalManager.LoadGeneralData();
-        EventDispatcher.Push(EventId.CheckGoldToEnhance, gold);
+
+        // gold, gems
+        SetGold(BigInteger.Parse(PlayerPrefs.GetString(GOLDKEY, earlyGold)), true, false);
+        SetBlueGem(BigInteger.Parse(PlayerPrefs.GetString(BLUEGEMKEY, earlyBlueGem)), true);
+        SetPinkGem(BigInteger.Parse(PlayerPrefs.GetString(PINKGEMKEY, earlyPinkGem)), true);
 
         heroStatsManager.LoadHeroesData();
         gearsStatsManager.LoadGearsData(GearType.Weapon);
@@ -105,6 +100,7 @@ public class GameManager : Singleton<GameManager>
         DontDestroyOnLoad(tfmSkillPool);
         DontDestroyOnLoad(tfmBulletPool);
         DontDestroyOnLoad(tfmEffectPool);
+        DontDestroyOnLoad(tfmTool);
         DontDestroyOnLoad(SoundManager.Instance);
     }
 
@@ -178,9 +174,25 @@ public class GameManager : Singleton<GameManager>
         return gold;
     }
 
-    public void SetGold(BigInteger _gold, bool addtional)
+    public void SetGold(BigInteger _gold, bool addtional, bool effect)
     {
         gold += addtional ? _gold : -_gold;
+        if (effect == false)
+        {
+            goldData += addtional ? _gold : -_gold;
+            PlayerPrefs.SetString(GOLDKEY, goldData.ToString());
+        }
+        gemsUI.SetTextGold(gold);
+        EventDispatcher.Push(EventId.CheckGoldToEnhance, gold);
+    }
+
+    /// <summary>
+    /// Save gold in data when run any effects
+    /// </summary>
+    public void SetGoldData(BigInteger gold, bool addtional)
+    {
+        goldData += addtional ? gold : -gold;
+        PlayerPrefs.SetString(GOLDKEY, goldData.ToString());
     }
 
     public BigInteger GetPinkGem()
@@ -191,6 +203,7 @@ public class GameManager : Singleton<GameManager>
     public void SetPinkGem(BigInteger _gem, bool addtional)
     {
         pinkGem += addtional ? _gem : -_gem;
+        gemsUI.SetTextPinkGem(pinkGem);
     }
 
     public BigInteger GetBlueGem()
@@ -201,6 +214,7 @@ public class GameManager : Singleton<GameManager>
     public void SetBlueGem(BigInteger _gem, bool addtional)
     {
         blueGem += addtional ? _gem : -_gem;
+        gemsUI.SetTextBlueGem(blueGem);
     }
 
     private void SpawnHeroInGame()

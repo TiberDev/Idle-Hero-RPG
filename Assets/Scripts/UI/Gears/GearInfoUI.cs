@@ -174,4 +174,9 @@ public class GearInfoUI : MonoBehaviour
             SetActive(false);
         }
     }
+
+    public void OnClickGetPoints(int point)
+    {
+        GearStatsTool.Instance.SetPoints(gearItemSelected, gearStats, gearsStatsConfig, point);
+    }
 }

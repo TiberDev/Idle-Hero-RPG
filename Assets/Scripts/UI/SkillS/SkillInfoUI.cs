@@ -154,4 +154,9 @@ public class SkillInfoUI : MonoBehaviour
             SetActive(false);
         }
     }
+
+    public void OnClickGetPoints(int point)
+    {
+        SkillStatsTool.Instance.SetPoints(skillItem, skillStats, skillStatsConfig, point);
+    }
 }

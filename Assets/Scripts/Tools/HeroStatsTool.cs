@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
 public class HeroStatsTool : MonoBehaviour
 {
-    [SerializeField] private SObjHeroStatConfig[] heroStatConfigs;
+    [SerializeField] private HeroStatsManager heroStatsManager;
 
     private readonly string DATAKEY = "HEROSTATSLISTDATA";
 
@@ -12,95 +13,99 @@ public class HeroStatsTool : MonoBehaviour
         PlayerPrefs.DeleteKey(DATAKEY);
     }
 
+    //[ContextMenuItem("Set Level For Hero", "SetLevel")]
+    //public int level;
+    //public SObjHeroStatConfig heroConfig;
+    //public void SetLevel()
+    //{
+    //    var json = PlayerPrefs.GetString(DATAKEY, null);
+    //    HeroStatsList heroStatsList = JsonUtility.FromJson<HeroStatsList>(json);
+    //    if (heroStatsList == null || level < 0 || level > 100)
+    //        return;
 
-    [ContextMenuItem("Set Level For Hero", "SetLevel")]
-    public int level;
-    public SObjHeroStatConfig heroConfig;
-    public void SetLevel()
+    //    for (int i = 0; i < heroStatsList.list.Count; i++)
+    //    {
+    //        HeroStats heroStats = heroStatsList.list[i];
+    //        if (heroConfig.heroName == heroStats.name)
+    //        {
+    //            heroStats.level = level;
+    //            heroStats.numberOfPoints = 0;
+    //            heroStats.totalPoint = (heroStatConfigs[numberOfSpawn].pointPerLv + level) / 2;
+    //        }
+    //    }
+    //    PlayerPrefs.SetString(DATAKEY, JsonUtility.ToJson(heroStatsList));
+    //}
+
+    //[ContextMenuItem("Unlock Heroes", "UnlockHeroes")]
+    //public int numberOfSpawn;
+    //public void UnlockHeroes()
+    //{
+    //    if (numberOfSpawn < 1 || numberOfSpawn > heroStatConfigs.Length)
+    //        return;
+
+    //    var json = PlayerPrefs.GetString(DATAKEY, null);
+    //    HeroStatsList heroStatsList = JsonUtility.FromJson<HeroStatsList>(json);
+    //    if (heroStatsList == null)
+    //    {
+    //        heroStatsList = new HeroStatsList();
+    //        HeroStats heroStats = new HeroStats()
+    //        {
+    //            name = heroStatConfigs[0].heroName,
+    //            level = 1,
+    //            numberOfPoints = 0,
+    //            totalPoint = heroStatConfigs[0].pointPerLv,
+    //            inUse = true,
+    //            unblocked = true,
+    //            position = 1
+    //        };
+    //        heroStatsList.list.Add(heroStats);
+    //    }
+
+    //    if (numberOfSpawn > heroStatsList.list.Count)
+    //    {
+    //        while (heroStatsList.list.Count < numberOfSpawn)
+    //        {
+    //            int index = heroStatsList.list.Count;
+    //            HeroStats heroStats = new HeroStats()
+    //            {
+    //                name = heroStatConfigs[index].heroName,
+    //                level = 1,
+    //                numberOfPoints = 0,
+    //                totalPoint = heroStatConfigs[index].pointPerLv,
+    //                inUse = numberOfSpawn == 1,
+    //                unblocked = true,
+    //                position = index + 1
+    //            };
+    //            heroStatsList.list.Add(heroStats);
+    //        }
+    //    }
+    //    else if (numberOfSpawn < heroStatsList.list.Count)
+    //    {
+    //        int index = heroStatsList.list.Count - 1;
+    //        while (heroStatsList.list.Count > numberOfSpawn)
+    //        {
+    //            if (heroStatsList.list[index].inUse)
+    //            {
+    //                heroStatsList.list[0].inUse = true;
+    //            }
+    //            heroStatsList.list.RemoveAt(index);
+    //        }
+    //    }
+    //    PlayerPrefs.SetString(DATAKEY, JsonUtility.ToJson(heroStatsList));
+    //}
+
+    public void OnClickUnlockAllHeroes()
     {
-        var json = PlayerPrefs.GetString(DATAKEY, null);
-        HeroStatsList heroStatsList = JsonUtility.FromJson<HeroStatsList>(json);
-        if (heroStatsList == null || level < 0 || level > 100)
+        //var json = PlayerPrefs.GetString(DATAKEY, null);
+        //HeroStatsList heroStatsList = JsonUtility.FromJson<HeroStatsList>(json);
+        //if (heroStatsList == null)
+        //    heroStatsList = new HeroStatsList();
+
+        HeroStatsList heroStatsList = heroStatsManager.GetHeroStatsList();
+        SObjHeroStatConfig[] heroStatConfigs = heroStatsManager.GetHeroStatsConfigs();
+        if (heroStatsList.list.Count == heroStatConfigs.Length) // hero list is full
             return;
 
-        for (int i = 0; i < heroStatsList.list.Count; i++)
-        {
-            HeroStats heroStats = heroStatsList.list[i];
-            if (heroConfig.heroName == heroStats.name)
-            {
-                heroStats.level = level;
-                heroStats.numberOfPoints = 0;
-                heroStats.totalPoint = (heroStatConfigs[numberOfSpawn].pointPerLv + level) / 2;
-            }
-        }
-        PlayerPrefs.SetString(DATAKEY, JsonUtility.ToJson(heroStatsList));
-    }
-
-    [ContextMenuItem("Unlock Heroes", "UnlockHeroes")]
-    public int numberOfSpawn;
-    public void UnlockHeroes()
-    {
-        if (numberOfSpawn < 1 || numberOfSpawn > heroStatConfigs.Length)
-            return;
-
-        var json = PlayerPrefs.GetString(DATAKEY, null);
-        HeroStatsList heroStatsList = JsonUtility.FromJson<HeroStatsList>(json);
-        if (heroStatsList == null)
-        {
-            heroStatsList = new HeroStatsList();
-            HeroStats heroStats = new HeroStats()
-            {
-                name = heroStatConfigs[0].heroName,
-                level = 1,
-                numberOfPoints = 0,
-                totalPoint = heroStatConfigs[0].pointPerLv,
-                inUse = true,
-                unblocked = true,
-                position = 1
-            };
-            heroStatsList.list.Add(heroStats);
-        }
-
-        if (numberOfSpawn > heroStatsList.list.Count)
-        {
-            while (heroStatsList.list.Count < numberOfSpawn)
-            {
-                int index = heroStatsList.list.Count;
-                HeroStats heroStats = new HeroStats()
-                {
-                    name = heroStatConfigs[index].heroName,
-                    level = 1,
-                    numberOfPoints = 0,
-                    totalPoint = heroStatConfigs[index].pointPerLv,
-                    inUse = numberOfSpawn == 1,
-                    unblocked = true,
-                    position = index + 1
-                };
-                heroStatsList.list.Add(heroStats);
-            }
-        }
-        else if (numberOfSpawn < heroStatsList.list.Count)
-        {
-            int index = heroStatsList.list.Count - 1;
-            while (heroStatsList.list.Count > numberOfSpawn)
-            {
-                if (heroStatsList.list[index].inUse)
-                {
-                    heroStatsList.list[0].inUse = true;
-                }
-                heroStatsList.list.RemoveAt(index);
-            }
-        }
-        PlayerPrefs.SetString(DATAKEY, JsonUtility.ToJson(heroStatsList));
-    }
-
-    [ContextMenu("Unlock All Heroes")]
-    public void UnlockAllHeroes()
-    {
-        var json = PlayerPrefs.GetString(DATAKEY, null);
-        HeroStatsList heroStatsList = JsonUtility.FromJson<HeroStatsList>(json);
-        if (heroStatsList == null)
-            heroStatsList = new HeroStatsList();
         bool inUseExisting = false;
         for (int index = 0; index < heroStatConfigs.Length; index++)
         {
@@ -132,5 +137,33 @@ public class HeroStatsTool : MonoBehaviour
             }
         }
         PlayerPrefs.SetString(DATAKEY, JsonUtility.ToJson(heroStatsList));
+        heroStatsManager.SetHeroItems();
+    }
+
+    public void OnClickUnlockHeroSelected()
+    {
+        HeroStatsList heroStatsList = heroStatsManager.GetHeroStatsList();
+        SObjHeroStatConfig[] heroStatConfigs = heroStatsManager.GetHeroStatsConfigs();
+        SObjHeroStatConfig heroStatConfigSelected = heroStatsManager.GetHeroStatsConfigSelected();
+
+        HeroStats heroStats = heroStatsList.list.Find(stats => stats.name == heroStatConfigSelected.heroName);
+        if (heroStats == null)
+        {
+            int index = Array.FindIndex(heroStatConfigs, config => config.heroName == heroStatConfigSelected.heroName);
+            heroStats = new HeroStats()
+            {
+                name = heroStatConfigs[index].heroName,
+                level = 1,
+                numberOfPoints = 0,
+                totalPoint = heroStatConfigs[index].pointPerLv,
+                inUse = false,
+                unblocked = true,
+                position = index + 1
+            };
+            heroStatsList.list.Add(heroStats);
+            PlayerPrefs.SetString(DATAKEY, JsonUtility.ToJson(heroStatsList));
+            heroStatsManager.SetHeroItems();
+            heroStatsManager.SetHeroInfoUI(heroStats, heroStatConfigSelected.heroSpt);
+        }
     }
 }

@@ -38,7 +38,7 @@ public class SkillStatsManager : MonoBehaviour, IBottomTabHandler
 
     private void OnEnable()
     {
-        SetSkillItem();
+        SetSkillItems();
     }
 
     public void SaveData()
@@ -79,13 +79,12 @@ public class SkillStatsManager : MonoBehaviour, IBottomTabHandler
                 SkillStats skillStats = skillStatsList.list[i];
                 if (skillStats.equipped)
                     skillTable.SetSkillTableItem(skillStats.equippedPosition - 1, skillStats, skillStatsConfigs[skillStats.position - 1], false);
-
             }
         }
         SetTotalOwnedEffectValue();
     }
 
-    private void SetSkillItem()
+    public void SetSkillItems()
     {
         // check state
         if (inHandleEquipSkillItemState)
@@ -233,7 +232,7 @@ public class SkillStatsManager : MonoBehaviour, IBottomTabHandler
             skillItemsEnhance.Remove(skillItem);
     }
 
-    private void SetTotalOwnedEffectValue()
+    public void SetTotalOwnedEffectValue()
     {
         for (int i = 0; i < skillStatsList.list.Count; i++)
         {
@@ -424,4 +423,7 @@ public class SkillStatsManager : MonoBehaviour, IBottomTabHandler
         StartCoroutine(UITransformController.Instance.IEMovingRect(rectTfm, startPos, endPos, movingTime, LerpType.EaseOutBack));
     }
 
+    public SkillStatsList GetSkillStatsList() => skillStatsList;
+
+    public SObjSkillStatsConfig[] GetSkillStatsConfigs() => skillStatsConfigs;
 }

@@ -6,24 +6,18 @@ public class GemsUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text txtGold, txtPinkGem, txtBlueGem;
 
-    private BigInteger goldUI, blueGemUI, pinkGemUI;
-
-    public void SetTextGold(BigInteger gold, bool addtional)
+    public void SetTextGold(BigInteger gold)
     {
-        goldUI += addtional ? gold : -gold;
-        txtGold.text = NumberConverter.Instance.FormatNumber(goldUI);
-        EventDispatcher.Push(EventId.CheckGoldToEnhance, goldUI);
+        txtGold.text = NumberConverter.Instance.FormatNumber(gold);
     }
 
-    public void SetTextBlueGem(BigInteger gem, bool addtional)
+    public void SetTextBlueGem(BigInteger gem)
     {
-        blueGemUI += addtional ? gem : -gem;
-        txtBlueGem.text = NumberConverter.Instance.FormatNumber(blueGemUI);
+        txtBlueGem.text = NumberConverter.Instance.FormatNumber(gem);
     }
 
-    public void SetTextPinkGem(BigInteger gem, bool additional)
+    public void SetTextPinkGem(BigInteger gem)
     {
-        pinkGemUI += additional ? gem : -gem;
-        txtPinkGem.text = NumberConverter.Instance.FormatNumber(pinkGemUI);
+        txtPinkGem.text = NumberConverter.Instance.FormatNumber(gem);
     }
 }

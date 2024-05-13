@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
-public class Test : MonoBehaviour
+public class Test : MonoBehaviour, IPointerUpHandler, IPointerDownHandler
 {
     [SerializeField] private CharacterAnimator animator;
 
@@ -13,10 +14,6 @@ public class Test : MonoBehaviour
 
     public UnityAction dieAction;
 
-   public void OnClickScreen()
-    {
-        Debug.Log("On Click Screen");
-    }
 
     public void OnClickIdle()
     {
@@ -60,6 +57,16 @@ public class Test : MonoBehaviour
         //}
         //stopwatch.Stop();
         //Debug.Log(stopwatch.ElapsedMilliseconds / 1000f);
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        Debug.Log(eventData.pointerEnter);
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        throw new System.NotImplementedException();
     }
 
     public int number;

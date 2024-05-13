@@ -4,7 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
 {
     private class IndividualGearStats
@@ -37,7 +36,7 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
 
     private void OnEnable()
     {
-        SetGearItem(GearType.Weapon);
+        SetGearItems(GearType.Weapon);
     }
 
     public void SaveData(GearType gearType)
@@ -82,7 +81,7 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
         SetTotalOwnedEffectValue(gearType);
     }
 
-    private void SetGearItem(GearType gearType)
+    public void SetGearItems(GearType gearType)
     {
         // set color
         imgWeapon.color = gearType == GearType.Weapon ? colorSelectedGearType : colorUnselectedGearType;
@@ -128,7 +127,7 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
                     type = gearStatsConfig.type,
                     mode = gearStatsConfig.mode,
                     ownedEffect = gearStatsConfig.firstOwnedEffect,
-                    equippedEffect = gearStatsConfig.firstEquippedEffect,   
+                    equippedEffect = gearStatsConfig.firstEquippedEffect,
                     equipped = false,
                     unblocked = false,
                     position = index + 1
@@ -277,7 +276,7 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
     public void OnClickGearItemDisplayBtn(int type)
     {
         SoundManager.Instance.PlayClickSound();
-        SetGearItem((GearType)type);
+        SetGearItems((GearType)type);
     }
 
     public void OnClickBuy()
@@ -311,4 +310,12 @@ public class GearsStatsManager : MonoBehaviour, IBottomTabHandler
         StartCoroutine(UITransformController.Instance.IEMovingRect(rectTfm, startPos, endPos, movingTime, LerpType.EaseOutBack));
     }
 
+    public GearType GetCurrentGearType()
+    {
+        return btnWeapon.interactable ? GearType.Armor : GearType.Weapon;
+    }
+
+    public Dictionary<GearType, GearStatsList> GetGearStatsDic() => gearStatsDic;
+
+    public GearConfig[] GetGearConfigs() => gearConfigs;
 }

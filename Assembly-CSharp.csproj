@@ -105,6 +105,7 @@
     <Compile Include="Assets\Scripts\UI\Skills\SkillItem.cs" />
     <Compile Include="Assets\Scripts\NumberConverter.cs" />
     <Compile Include="Assets\Scripts\UI\Gears\GearsStatsManager.cs" />
+    <Compile Include="Assets\Scripts\Tools\GemsTool.cs" />
     <Compile Include="Assets\Scripts\Characters\Character.cs" />
     <Compile Include="Assets\Scripts\Characters\MeleeAttackCharacter.cs" />
     <Compile Include="Assets\Scripts\Events\EventId.cs" />

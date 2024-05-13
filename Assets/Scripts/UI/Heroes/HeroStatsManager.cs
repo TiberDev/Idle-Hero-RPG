@@ -26,7 +26,7 @@ public class HeroStatsManager : MonoBehaviour, IBottomTabHandler
 
     private void OnEnable()
     {
-        SetHeroItem();
+        SetHeroItems();
         SetHeroInfoUI(heroInUse, Array.Find(heroStatConfigs, heroConfig => heroConfig.heroName == heroInUse.name).heroSpt);
     }
 
@@ -71,7 +71,7 @@ public class HeroStatsManager : MonoBehaviour, IBottomTabHandler
         }
     }
 
-    private void SetHeroItem()
+    public void SetHeroItems()
     {
         int statsListIndex = 0;
         for (int index = 0; index < heroStatConfigs.Length; index++)
@@ -106,7 +106,6 @@ public class HeroStatsManager : MonoBehaviour, IBottomTabHandler
             heroItems[index].Init(this, heroStats, heroStatConfigs[index]);
             heroItems[index].SetHeroImage(heroStatConfigs[index].heroSpt);
             heroItems[index].SetUnblockedHero();
-            //Debug.Log($"heroInUse:  {heroInUse}     ")
             if (heroInUse == heroStats)
             {
                 SetHeroItemSelected(heroItems[index], heroStatConfigs[index]);
@@ -251,4 +250,10 @@ public class HeroStatsManager : MonoBehaviour, IBottomTabHandler
         endPos.y = startPos.y * -1;
         StartCoroutine(UITransformController.Instance.IEMovingRect(rectTfm, startPos, endPos, movingTime, LerpType.EaseOutBack));
     }
+
+    public HeroStatsList GetHeroStatsList() => heroStatsList;
+
+    public SObjHeroStatConfig[] GetHeroStatsConfigs() => heroStatConfigs;
+
+    public SObjHeroStatConfig GetHeroStatsConfigSelected() => heroStatConfigSelected;
 }

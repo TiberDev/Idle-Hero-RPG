@@ -1,5 +1,3 @@
-using System;
-using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -103,8 +101,7 @@ public class GearItem : MonoBehaviour
 
     public void OnClickItem()
     {
-        gearsStatsManager.SetGearInfoUI(gearStats, gearIcon, this, gearsStatsConfig);
+        if (gearStats.unblocked)
+            gearsStatsManager.SetGearInfoUI(gearStats, gearIcon, this, gearsStatsConfig);
     }
-
-
 }

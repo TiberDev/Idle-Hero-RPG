@@ -60,8 +60,7 @@ public class GeneralManager : MonoBehaviour
     {
         SaveData();
         GameManager gameManager = GameManager.Instance;
-        gameManager.SetGold(enhanceGold, false);
-        gameManager.GemsUI.SetTextGold(enhanceGold, false);
+        gameManager.SetGold(enhanceGold, false, false);
         EventDispatcher.Push(EventId.CheckGoldToEnhance, gameManager.GetGold());
         SetUserInfo(generalStat.type);
     }

@@ -293,8 +293,8 @@ public class Character : MonoBehaviour
             {
                 BigInteger goldKillEnemy = MapManager.Instance.GetGoldKillEnemy(isBoss);
                 goldKillEnemy += goldKillEnemy * (gameManager.UserInfo.goldObtain - 100) / 100;
-                gameManager.SetGold(goldKillEnemy, true);
-                GoldEffectController.Instance.CreateGoldIconEffect(cachedTfm.position, () => gameManager.GemsUI.SetTextGold(goldKillEnemy, true));
+                gameManager.SetGoldData(goldKillEnemy, true);
+                GoldEffectController.Instance.CreateGoldIconEffect(cachedTfm.position, () => gameManager.SetGold(goldKillEnemy, true, true));
             }
         }
     }

@@ -193,7 +193,6 @@ public class HeroInfoUI : MonoBehaviour
         }
         GameManager gameManager = GameManager.Instance;
         gameManager.SetPinkGem(heroStatConfig.gemToEnhance, false);
-        gameManager.GemsUI.SetTextPinkGem(heroStatConfig.gemToEnhance, false);
         // Save data
         heroStatsManager.SaveData();
         // Show UI
