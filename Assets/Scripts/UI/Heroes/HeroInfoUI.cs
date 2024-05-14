@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class HeroInfoUI : MonoBehaviour
 {
+    [SerializeField] private HoldGStatsButton enhanceBtn;
     [SerializeField] private GameObject gObjGemEnhance;
     [SerializeField] private Image imgHeroAvatar, imgPoint;
     [SerializeField] private Image imgInUse, imgEnhance;
@@ -22,6 +23,11 @@ public class HeroInfoUI : MonoBehaviour
     private RectTransform rectTfmEffectItem;
 
     private int effectLvIndex = 0;
+
+    private void Start()
+    {
+        enhanceBtn.EnhanceAction = EnhanceHeroLevel;
+    }
 
     public void Init(HeroStats stat, HeroStatsManager statsManager, SObjHeroStatConfig config)
     {
@@ -92,22 +98,25 @@ public class HeroInfoUI : MonoBehaviour
     public void SetEnhanceUI()
     {
         int gemEnhance = heroStatConfig.gemToEnhance;
-        rectTfmTxtEnhance.anchoredPosition = new Vector2(0, 28);
-        btnEnhance.interactable = gemEnhance <= GameManager.Instance.GetPinkGem() && heroStats.unblocked;
-        imgEnhance.color = gemEnhance <= GameManager.Instance.GetPinkGem() && heroStats.unblocked ? colorEnhanceBtn : colorDisableBtn;
-        txtEnhance.text = "Enhance";
+        //rectTfmTxtEnhance.anchoredPosition = new Vector2(0, 28);
+        //btnEnhance.interactable = gemEnhance <= GameManager.Instance.GetPinkGem() && heroStats.unblocked;
+        enhanceBtn.SetInteractive(gemEnhance <= GameManager.Instance.GetPinkGem() && heroStats.unblocked);
+        //imgEnhance.color = gemEnhance <= GameManager.Instance.GetPinkGem() && heroStats.unblocked ? colorEnhanceBtn : colorDisableBtn;
+        //txtEnhance.text = "Enhance";
         txtGemEnhance.text = gemEnhance.ToString();
-        gObjGemEnhance.SetActive(true);
+        //gObjGemEnhance.SetActive(true);
+        enhanceBtn.SetMaxLv(false);
     }
 
     public void SetEnhanceMaxUI()
     {
-        rectTfmTxtEnhance.anchoredPosition = Vector2.zero;
-        imgEnhance.color = colorMax;
-        btnEnhance.interactable = false;
-        txtEnhance.text = "MAX";
-        txtEnhance.color = Color.white;
-        gObjGemEnhance.SetActive(false);
+        //rectTfmTxtEnhance.anchoredPosition = Vector2.zero;
+        //imgEnhance.color = colorMax;
+        //btnEnhance.interactable = false;
+        //txtEnhance.text = "MAX";
+        //txtEnhance.color = Color.white;
+        //gObjGemEnhance.SetActive(false);
+        enhanceBtn.SetMaxLv(true);
     }
 
     public void SetAddtionalEffects()
@@ -177,9 +186,9 @@ public class HeroInfoUI : MonoBehaviour
     /// <summary>
     /// Event only execute when user has enough gem to enhance
     /// </summary>
-    public void OnClickEnhanceBtn()
+    public void EnhanceHeroLevel()
     {
-        SoundManager.Instance.PlayButtonSound();
+        //SoundManager.Instance.PlayButtonSound();
         heroStats.numberOfPoints += heroStats.totalPoint / heroStatConfig.increasedPoint;
         if (heroStats.numberOfPoints >= heroStats.totalPoint)
         {
@@ -191,8 +200,7 @@ public class HeroInfoUI : MonoBehaviour
             // Check effect to unlock
             CheckEffectUnBlock();
         }
-        GameManager gameManager = GameManager.Instance;
-        gameManager.SetPinkGem(heroStatConfig.gemToEnhance, false);
+        GameManager.Instance.SetPinkGem(heroStatConfig.gemToEnhance, false);
         // Save data
         heroStatsManager.SaveData();
         // Show UI

@@ -203,6 +203,7 @@ public class GameManager : Singleton<GameManager>
     public void SetPinkGem(BigInteger _gem, bool addtional)
     {
         pinkGem += addtional ? _gem : -_gem;
+        PlayerPrefs.SetString(PINKGEMKEY, pinkGem.ToString());
         gemsUI.SetTextPinkGem(pinkGem);
     }
 
@@ -214,6 +215,7 @@ public class GameManager : Singleton<GameManager>
     public void SetBlueGem(BigInteger _gem, bool addtional)
     {
         blueGem += addtional ? _gem : -_gem;
+        PlayerPrefs.SetString(BLUEGEMKEY, blueGem.ToString());
         gemsUI.SetTextBlueGem(blueGem);
     }
 

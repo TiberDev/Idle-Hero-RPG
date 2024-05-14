@@ -1,27 +1,28 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class HoldGStatsButton : MonoBehaviour
 {
-    [SerializeField] private GeneralItem generalItem;
+    //[SerializeField] private GeneralItem generalItem;
     [SerializeField] private Image imgBtn;
     [SerializeField] private RectTransform rectTfm;
     [SerializeField] private GameObject maxLvGO;
 
-
     [SerializeField] private float increaseDuration, holdDuration;
     [SerializeField] private float scalingTime;
 
-    private UITransformController uiTransformController;
     private Coroutine corouBtn;
+    private UnityAction enhanceAction;
 
     private float holdTime, increaseTime;
     private bool isHolding, interactive;
 
+    public UnityAction EnhanceAction { set => enhanceAction = value; }
+
     private void Start()
     {
-        uiTransformController = UITransformController.Instance;
         increaseTime = increaseDuration;
     }
 
@@ -57,7 +58,7 @@ public class HoldGStatsButton : MonoBehaviour
                 if (increaseTime >= increaseDuration)
                 {
                     // increase gold faster
-                    generalItem.EnhanceItem();
+                    enhanceAction?.Invoke();
                     SoundManager.Instance.PlayEnhanceClickSound();
                     increaseTime = 0;
                     if (corouBtn != null)
@@ -85,7 +86,7 @@ public class HoldGStatsButton : MonoBehaviour
             corouBtn = null;
         }
 
-        corouBtn = StartCoroutine(uiTransformController.IEScalingRect(rectTfm, rectTfm.localScale, Vector2.one * 0.9f, scalingTime, LerpType.Liner));
+        corouBtn = StartCoroutine(UITransformController.Instance.IEScalingRect(rectTfm, rectTfm.localScale, Vector2.one * 0.9f, scalingTime, LerpType.Liner));
         isHolding = true;
         holdTime = 0;
         increaseTime = increaseDuration;
@@ -104,12 +105,12 @@ public class HoldGStatsButton : MonoBehaviour
         {
             StopCoroutine(corouBtn);
             corouBtn = null;
-            corouBtn = StartCoroutine(uiTransformController.IEScalingRect(rectTfm, rectTfm.localScale, Vector2.one, scalingTime, LerpType.Liner));
+            corouBtn = StartCoroutine(UITransformController.Instance.IEScalingRect(rectTfm, rectTfm.localScale, Vector2.one, scalingTime, LerpType.Liner));
         }
         isHolding = false;
         if (holdTime < holdDuration && (eventData as PointerEventData).pointerEnter == gameObject) // increase gold by 1 time if user doesn't hold button for long
         {
-            generalItem.EnhanceItem();
+            enhanceAction?.Invoke();
             SoundManager.Instance.PlayEnhanceClickSound();
         }
     }
@@ -126,9 +127,14 @@ public class HoldGStatsButton : MonoBehaviour
         }
     }
 
-    public void SetMaxLv()
+    public void SetMaxLv(bool max)
     {
-        maxLvGO.SetActive(true);
-        isHolding = false;
+        if (max)
+        {
+            maxLvGO.SetActive(true);
+            isHolding = false;
+        }
+        else
+            maxLvGO.SetActive(false);
     }
 }

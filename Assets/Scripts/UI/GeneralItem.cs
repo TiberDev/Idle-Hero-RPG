@@ -33,12 +33,17 @@ public class GeneralItem : MonoBehaviour
         EventDispatcher.RemoveCallback(EventId.CheckGoldToEnhance, CheckGoldEnough);
     }
 
+    private void Start()
+    {
+        holdGStatsButton.EnhanceAction = EnhanceItem;
+    }
+
     private void CheckMaxLevel(bool enhance)
     {
         if (generalStatsConfig.isValueSmall && generalStatsConfig.levelMax <= level)
         {
             // block button
-            holdGStatsButton.SetMaxLv();
+            holdGStatsButton.SetMaxLv(true);
             if (enhance)
                 generalManager.ChangeGeneralItemPostion(this, generalStat);
         }
