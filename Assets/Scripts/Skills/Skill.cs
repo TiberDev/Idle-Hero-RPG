@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Skill : MonoBehaviour
+public abstract class Skill : MonoBehaviour
 {
     [SerializeField] protected float timeExistingCoolDown;
 
@@ -19,9 +19,7 @@ public class Skill : MonoBehaviour
         cachedTfm = transform;
     }
 
-    public virtual void Execute()
-    {
-    }
+    public abstract void Execute();
 
     public virtual void SetParent(Transform tfm, bool worldStay)
     {
