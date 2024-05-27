@@ -20,7 +20,6 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private SkillTable skillTable;
 
     [SerializeField] private Color colorHero;
-
     [SerializeField] private int numberOfEnemyMax;
     [SerializeField] private int numberOfEnemyInRow;
     [SerializeField] private string earlyGold, earlyBlueGem, earlyPinkGem;

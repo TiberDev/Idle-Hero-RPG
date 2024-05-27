@@ -1,8 +1,41 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class Test : MonoBehaviour, IPointerUpHandler, IPointerDownHandler
+public interface A
+{
+    void RunI();
+}
+
+public abstract class Person
+{
+    public abstract string Run();
+}
+
+public class Student : Person
+{
+    public override string Run()
+    {
+        return "I run by foots";
+
+    }
+}
+
+public class Teacher : Person, A
+{
+    public override string Run()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void RunI()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class Test : MonoBehaviour, IPointerUpHandler
 {
     [SerializeField] private CharacterAnimator animator;
 
@@ -13,7 +46,6 @@ public class Test : MonoBehaviour, IPointerUpHandler, IPointerDownHandler
     public string number_2;
 
     public UnityAction dieAction;
-
 
     public void OnClickIdle()
     {
@@ -64,13 +96,7 @@ public class Test : MonoBehaviour, IPointerUpHandler, IPointerDownHandler
         Debug.Log(eventData.pointerEnter);
     }
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        throw new System.NotImplementedException();
-    }
-
     public int number;
 }
-
 
 

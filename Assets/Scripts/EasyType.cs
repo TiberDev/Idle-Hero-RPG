@@ -1,4 +1,5 @@
 ﻿using System;
+
 public enum LerpType
 {
     Liner,
@@ -22,11 +23,8 @@ public enum LerpType
     EaseInOutBack,
 }
 
-
-
-public class EasyType
+public class EasyType 
 {
-
     public static float Liner(float t)
     {
         return t;
